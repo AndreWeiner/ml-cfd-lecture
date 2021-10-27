@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="regression_classification_web.svg"
+   id="svg127"
+   viewBox="0 0 110.99 51.554"
+   version="1.1"
+   height="51.554mm"
+   width="110.99mm">
+  <sodipodi:namedview
+     inkscape:current-layer="svg127"
+     inkscape:window-maximized="1"
+     inkscape:window-y="27"
+     inkscape:window-x="0"
+     inkscape:cy="134.48178"
+     inkscape:cx="196.48088"
+     inkscape:zoom="2.2081824"
+     showgrid="false"
+     id="namedview129"
+     inkscape:window-height="1025"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <defs
+     id="defs11">
+    <marker
+       orient="auto"
+       overflow="visible"
+       id="marker1379">
+      <path
+         id="path2"
+         stroke-width=".625"
+         stroke-linejoin="round"
+         stroke="#000"
+         fill-rule="evenodd"
+         d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z"
+         transform="scale(-.6)" />
+    </marker>
+    <marker
+       orient="auto"
+       overflow="visible"
+       id="marker1209">
+      <path
+         id="path5"
+         stroke-width=".625"
+         stroke-linejoin="round"
+         stroke="#000"
+         fill-rule="evenodd"
+         d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z"
+         transform="scale(-.6)" />
+    </marker>
+    <marker
+       orient="auto"
+       overflow="visible"
+       id="Arrow2Mend">
+      <path
+         id="path8"
+         stroke-width=".625"
+         stroke-linejoin="round"
+         stroke="#000"
+         fill-rule="evenodd"
+         d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z"
+         transform="scale(-.6)" />
+    </marker>
+  </defs>
+  <metadata
+     id="metadata13">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path
+     d="M 5.724,46.1929 V 6.5049"
+     fill="none"
+     marker-end="url(#Arrow2Mend)"
+     stroke="#000000"
+     stroke-width="0.5"
+     id="path15" />
+  <path
+     d="M 5.724,46.1929 H 49.38"
+     fill="none"
+     marker-end="url(#marker1209)"
+     stroke="#000000"
+     stroke-width="0.5"
+     id="path17" />
+  <g
+     transform="translate(-26.026,-3.4221)"
+     fill="#000000"
+     font-family="Sans"
+     font-size="4.9389px"
+     letter-spacing="0px"
+     stroke-width="0.26458px"
+     word-spacing="0px"
+     id="g31">
+    <text
+       x="49.522751"
+       y="54.90625"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text21"><tspan
+         x="49.522751"
+         y="54.90625"
+         stroke-width="0.26458px"
+         id="tspan19">Re</tspan></text>
+    <text
+       transform="rotate(-90)"
+       x="-35.951691"
+       y="29.77846"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text25"><tspan
+         x="-35.951691"
+         y="29.77846"
+         stroke-width="0.26458px"
+         id="tspan23">drag</tspan></text>
+    <text
+       x="41.95929"
+       y="7.1744776"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text29"><tspan
+         x="41.95929"
+         y="7.1744776"
+         stroke-width="0.26458px"
+         id="tspan27">Regression</tspan></text>
+  </g>
+  <g
+     transform="translate(-26.026,-3.4221)"
+     id="g51">
+    <circle
+       cx="38.324001"
+       cy="44.216999"
+       r="1.3229001"
+       id="circle33" />
+    <circle
+       cx="42.599998"
+       cy="38.337002"
+       r="1.3229001"
+       id="circle35" />
+    <circle
+       cx="48.747002"
+       cy="36.599998"
+       r="1.3229001"
+       id="circle37" />
+    <circle
+       cx="51.820999"
+       cy="31.521999"
+       r="1.3229001"
+       id="circle39" />
+    <circle
+       cx="58.501999"
+       cy="30.319"
+       r="1.3229001"
+       id="circle41" />
+    <circle
+       cx="60.507"
+       cy="25.107"
+       r="1.3229001"
+       id="circle43" />
+    <circle
+       cx="64.650002"
+       cy="22.568001"
+       r="1.3229001"
+       id="circle45" />
+    <circle
+       cx="68.658997"
+       cy="17.49"
+       r="1.3229001"
+       id="circle47" />
+    <circle
+       cx="71.732002"
+       cy="18.559"
+       r="1.3229001"
+       id="circle49" />
+  </g>
+  <g
+     transform="translate(-26.026,-3.4221)"
+     fill="none"
+     stroke-width="0.5"
+     id="g59">
+    <path
+       d="M 34.396,46.969 75.406,12.573"
+       stroke="#ff0000"
+       stroke-dasharray="1.5, 0.5"
+       id="path53" />
+    <path
+       d="M 92.604,49.615 V 9.927"
+       marker-end="url(#marker1379)"
+       stroke="#000000"
+       id="path55" />
+    <path
+       d="M 92.604,49.615 H 136.26"
+       marker-end="url(#marker1209)"
+       stroke="#000000"
+       id="path57" />
+  </g>
+  <g
+     transform="translate(-26.026,-3.4221)"
+     fill="#000000"
+     font-family="Sans"
+     font-size="4.9389px"
+     letter-spacing="0px"
+     stroke-width="0.26458px"
+     word-spacing="0px"
+     id="g73">
+    <text
+       x="110.37691"
+       y="54.90625"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text63"><tspan
+         x="110.37691"
+         y="54.90625"
+         stroke-width="0.26458px"
+         id="tspan61">Re</tspan></text>
+    <text
+       transform="rotate(-90)"
+       x="-35.629589"
+       y="90.527885"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text67"><tspan
+         x="-35.629589"
+         y="90.527885"
+         stroke-width="0.26458px"
+         id="tspan65">angle</tspan></text>
+    <text
+       x="98.53714"
+       y="7.1744776"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text71"><tspan
+         x="98.53714"
+         y="7.1744776"
+         stroke-width="0.26458px"
+         id="tspan69">Classification</tspan></text>
+  </g>
+  <g
+     transform="translate(-26.026,-3.4221)"
+     fill="#0000ff"
+     id="g91">
+    <circle
+       cx="98.028999"
+       cy="38.59"
+       r="1.3229001"
+       id="circle75" />
+    <circle
+       cx="97.762001"
+       cy="30.973"
+       r="1.3229001"
+       id="circle77" />
+    <circle
+       cx="103.11"
+       cy="36.853001"
+       r="1.3229001"
+       id="circle79" />
+    <circle
+       cx="110.59"
+       cy="40.595001"
+       r="1.3229001"
+       id="circle81" />
+    <circle
+       cx="109.25"
+       cy="34.313999"
+       r="1.3229001"
+       id="circle83" />
+    <circle
+       cx="98.831001"
+       cy="19.614"
+       r="1.3229001"
+       id="circle85" />
+    <circle
+       cx="104.58"
+       cy="28.033001"
+       r="1.3229001"
+       id="circle87" />
+    <circle
+       cx="120.35"
+       cy="44.604"
+       r="1.3229001"
+       id="circle89" />
+  </g>
+  <g
+     transform="translate(-26.026,-3.4221)"
+     fill="#008c00"
+     id="g109">
+    <circle
+       cx="121.82"
+       cy="21.351"
+       r="1.3229001"
+       id="circle93" />
+    <circle
+       cx="129.57001"
+       cy="27.766001"
+       r="1.3229001"
+       id="circle95" />
+    <circle
+       cx="123.29"
+       cy="36.452"
+       r="1.3229001"
+       id="circle97" />
+    <circle
+       cx="114.47"
+       cy="26.697001"
+       r="1.3229001"
+       id="circle99" />
+    <circle
+       cx="122.35"
+       cy="28.566999"
+       r="1.3229001"
+       id="circle101" />
+    <circle
+       cx="130.37"
+       cy="19.212999"
+       r="1.3229001"
+       id="circle103" />
+    <circle
+       cx="110.59"
+       cy="18.278"
+       r="1.3229001"
+       id="circle105" />
+    <circle
+       cx="131.57001"
+       cy="40.595001"
+       r="1.3229001"
+       id="circle107" />
+  </g>
+  <g
+     transform="translate(-26.026,-3.4221)"
+     id="g123">
+    <path
+       d="M 97.896,12.573 127,46.969"
+       fill="none"
+       stroke="#ff0000"
+       stroke-dasharray="1.5, 0.5"
+       stroke-width="0.5"
+       id="path111" />
+    <text
+       x="97.922699"
+       y="46.96875"
+       fill="#000000"
+       font-family="Sans"
+       font-size="4.9389px"
+       letter-spacing="0px"
+       stroke-width="0.26458px"
+       word-spacing="0px"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text115"><tspan
+         x="97.922699"
+         y="46.96875"
+         font-size="3.5278px"
+         stroke="#0000ff"
+         stroke-width="0.26458px"
+         id="tspan113">laminar</tspan></text>
+    <text
+       x="112.42105"
+       y="14.430372"
+       fill="#008c00"
+       font-family="Sans"
+       font-size="4.9389px"
+       letter-spacing="0px"
+       stroke="#008c00"
+       stroke-width="0.26458px"
+       word-spacing="0px"
+       style="line-height:125%"
+       xml:space="preserve"
+       id="text121"><tspan
+         x="112.42105"
+         y="14.430372"
+         font-size="3.5278px"
+         id="tspan117">turbulent</tspan><tspan
+         x="112.42105"
+         y="20.970541"
+         id="tspan119" /></text>
+  </g>
+</svg>

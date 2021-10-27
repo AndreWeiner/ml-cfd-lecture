@@ -40,6 +40,20 @@ The exercises are designed for native Linux operating systems like Ubuntu (recom
 | 10 | Open-loop control of the flow past a cylinder in OpenFOAM | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb) |
 | 11 | Closed-loop control of the flow past a cylinder with OpenFOAM and PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb) |
 
+## Getting and providing help and feedback
+
+If you
+- get stuck solving an exercise problem
+- have technical issues
+- have theoretical questions about math or programming
+- think that some instructions or explanations might need improvement
+- want to report typos or logical errors
+- want to provide feedback and suggestions about the course
+
+the easiest way to get in touch is to open a [new issue](https://github.com/AndreWeiner/ml-cfd-lecture/issues/new) in this repository. Before opening a new issue, please use the **search function** to see if a related issue was reported previously. It also helps greatly if you label your issue using one or more of the predefined labels (lecture, exercise, OpenFOAM, ...), and if you take some time to state your problem as clearly as possible. **Note that everyone is welcome to participate in discussion and solving issues.**
+
+If you are a student at TU Braunschweig enrolled in the course *Machine Learning in Computational Fluid Dynamics*, you may also get in touch via the [studIP](https://studip.tu-braunschweig.de/dispatch.php/course/overview?cid=f79375e64fd07fe6606d810ab17496e7) platform or via mail. However, the issue-workflow described above is the preferred method.
+
 ## References and other resources
 
 ### Book recommendations
@@ -58,6 +72,7 @@ The exercises are designed for native Linux operating systems like Ubuntu (recom
 - books for programming
   - *Python crash course* by E. Matthes
   - *C++ crash course: a fast-paced introduction* by J. Lospinoso
+  - [The Linux command line](https://linuxcommand.org/tlcl.php) by W. Shotts
 
 ### Video content
 

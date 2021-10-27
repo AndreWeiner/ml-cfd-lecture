@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="174.14mm" height="91.28mm" version="1.1" viewBox="0 0 174.14 91.28" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <defs>
+  <marker id="marker1217" overflow="visible" orient="auto">
+   <path transform="matrix(-1.1,0,0,-1.1,-1.1,0)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z" fill="#0000f1" fill-rule="evenodd" stroke="#0000f1" stroke-linejoin="round" stroke-width=".625"/>
+  </marker>
+  <marker id="Arrow2Lend" overflow="visible" orient="auto">
+   <path transform="matrix(-1.1,0,0,-1.1,-1.1,0)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z" fill="#00f" fill-rule="evenodd" stroke="#00f" stroke-linejoin="round" stroke-width=".625"/>
+  </marker>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-17.149 2.8012)">
+  <rect x="137.58" y="16.542" width="52.917" height="71.438" rx="5" ry="5" fill="#00f" opacity=".05" stroke="#00f" stroke-dasharray="3, 1"/>
+  <rect x="18.521" y="16.542" width="52.917" height="71.438" rx="5" ry="5" fill="#00f" opacity=".05"/>
+  <rect x="18.521" y="16.542" width="52.917" height="71.438" rx="5" ry="5" fill="none" stroke="#00f" stroke-dasharray="3, 1"/>
+  <rect x="137.58" y="16.542" width="52.917" height="71.438" rx="5" ry="5" fill="none" stroke="#00f" stroke-dasharray="3, 1"/>
+  <g fill="#000000" font-family="Sans" font-size="4.9389px" letter-spacing="0px" stroke-width=".26458px" word-spacing="0px">
+   <text x="36.663689" y="0.66666615" style="line-height:125%" xml:space="preserve"><tspan x="36.663689" y="0.66666615" font-family="Sans" font-weight="bold" stroke-width=".26458px">agent</tspan></text>
+   <text x="146.27681" y="6.3363094" style="line-height:125%" xml:space="preserve"><tspan x="146.27681" y="6.3363094" font-family="Sans" font-weight="bold" stroke-width=".26458px">environment</tspan></text>
+   <text x="157.2381" y="27.880955" style="line-height:125%" xml:space="preserve"><tspan x="157.2381" y="27.880955" font-family="Sans" font-weight="bold" stroke-width=".26458px">state</tspan></text>
+   <text x="36.474701" y="28.069939" style="line-height:125%" xml:space="preserve"><tspan x="36.474701" y="28.069939" font-family="Sans" font-weight="bold" stroke-width=".26458px">policy</tspan></text>
+   <text x="26.269346" y="65.678574" style="line-height:125%" xml:space="preserve"><tspan x="26.269346" y="65.678574" font-family="Sans" font-weight="bold" stroke-width=".26458px">imrove policy</tspan></text>
+   <text x="164.39691" y="65.678566" font-weight="bold" text-anchor="middle" style="line-height:125%" xml:space="preserve"><tspan x="164.39691" y="65.678566" text-align="center">state changes</tspan><tspan x="164.39691" y="71.852173" text-align="center">upon action</tspan></text>
+  </g>
+  <path d="m71.437 32.417c22.632-8.1683 44.516-5.8616 66.146 0" fill="none" marker-end="url(#Arrow2Lend)" stroke="#00f" stroke-width=".5"/>
+  <path d="m137.58 72.104c-22.997 6.6409-45.163 7.4603-66.146 0" fill="none" marker-end="url(#marker1217)" stroke="#0000f1" stroke-width=".5"/>
+  <g font-family="Sans" font-size="4.9389px" letter-spacing="0px" stroke-width=".26458px" word-spacing="0px">
+   <text x="74.083336" y="84.010414" fill="#000000" style="line-height:125%" xml:space="preserve"><tspan x="74.083336" y="84.010414" font-family="Sans" font-weight="bold" stroke-width=".26458px">reward + observation</tspan></text>
+   <text x="94.683037" y="24.290176" fill="#000000" style="line-height:125%" xml:space="preserve"><tspan x="94.683037" y="24.290176" font-family="Sans" font-weight="bold" stroke-width=".26458px">action</tspan></text>
+   <text x="45.296703" y="7.4702344" fill="#ff0000" stroke="#ff0000" text-align="center" text-anchor="middle" style="line-height:125%" xml:space="preserve"><tspan x="45.296703" y="7.4702344" text-align="center">program to manipulate</tspan><tspan x="45.296703" y="13.643845" text-align="center">flow solver</tspan></text>
+   <text x="105.52074" y="64.355652" fill="#ff0000" stroke="#ff0000" text-align="center" text-anchor="middle" style="line-height:125%" xml:space="preserve"><tspan x="105.52074" y="64.355652" text-align="center">drag increased to ...</tspan><tspan x="105.52074" y="70.529266" text-align="center">reward : -5</tspan></text>
+   <text x="136.26041" y="13.139877" fill="#000000" style="line-height:125%" xml:space="preserve"><tspan x="136.26041" y="13.139877" fill="#ff0000" stroke="#ff0000" stroke-width=".26458px">flow around a cylinder</tspan></text>
+   <text x="143.81993" y="34.117558" fill="#000000" style="line-height:125%" xml:space="preserve"><tspan x="143.81993" y="34.117558" fill="#ff0000" stroke="#ff0000" stroke-width=".26458px">current flow field</tspan></text>
+   <text x="141.93005" y="79.096725" fill="#000000" style="line-height:125%" xml:space="preserve"><tspan x="141.93005" y="79.096725" fill="#ff0000" stroke="#ff0000" stroke-width=".26458px">flow field changes</tspan></text>
+   <text x="45.233536" y="72.860115" fill="#ff0000" stroke="#ff0000" text-align="center" text-anchor="middle" style="line-height:125%" xml:space="preserve"><tspan x="45.233536" y="72.860115" text-align="center">change function</tspan><tspan x="45.233536" y="79.033722" text-align="center">to compute inflow</tspan></text>
+   <text x="45.12413" y="35.251484" fill="#ff0000" stroke="#ff0000" text-align="center" text-anchor="middle" style="line-height:125%" xml:space="preserve"><tspan x="45.12413" y="35.251484" text-align="center">function to compute</tspan><tspan x="45.12413" y="41.425095" text-align="center">inflow depending</tspan><tspan x="45.12413" y="47.598705" text-align="center">on state</tspan></text>
+   <text x="80.886894" y="36.952381" fill="#000000" style="line-height:125%" xml:space="preserve"><tspan x="80.886894" y="36.952381" fill="#ff0000" stroke="#ff0000" stroke-width=".26458px">change inflow to ...</tspan></text>
+  </g>
+ </g>
+</svg>

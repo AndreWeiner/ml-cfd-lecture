@@ -1,5 +1,10 @@
 __pycache__/
 .ipynb_checkpoints
 *.so
+*.sif
 profile_default/
 ipython_config.py
+exercises
+solutions
+run
+output
