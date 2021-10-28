@@ -6,17 +6,17 @@ This repository contains resources accompanying the lecture [machine learning in
 
 | # | topic | slides | notebook |
 |--:|:------|:------:|:---------|
-| 1 | Course overview and motivation | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_1.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_1.ipynb?clone&flush_cache=True) |
-| 2 | Finite-volume-based CFD in a nutshell | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_2.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_2.ipynb?clone&flush_cache=True) |
-| 3 | Introduction to machine learning | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_3.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_3.ipynb?clone&flush_cache=True) |
-| 4 | Predicting the stability regime of rising bubbles | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_4.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_4.ipynb?clone&flush_cache=True) |
-| 5 | Computing highly accurate mass transfer at rising bubbles I | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_5_6.html) |[view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_5_6.ipynb?clone&flush_cache=True) |
-| 6 | Computing highly accurate mass transfer at rising bubbles II | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_5_6.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_5_6.ipynb?clone&flush_cache=True) |
-| 7 | Analyzing coherent structures in flows displaying transonic buffets I | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_7_8.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_7_8.ipynb?clone&flush_cache=True) |
-| 8 | Analyzing coherent structures in flows displaying transonic buffets II | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_7_8.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_7_8.ipynb?clone&flush_cache=True) |
-| 9 | Reduced-order modeling of the flow past a cylinder | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_9.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_9.ipynb?clone&flush_cache=True) |
-| 10 | Controlling the flow past a cylinder I | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_10_11.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_10_11.ipynb?clone&flush_cache=True) |
-| 11 | Controlling the flow past a cylinder II | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_10_11.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_10_11.ipynb?clone&flush_cache=True) |
+| 1 | Course overview and motivation | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_1.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_1.ipynb?clone&flush_cache=False) |
+| 2 | Finite-volume-based CFD in a nutshell | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_2.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_2.ipynb?clone&flush_cache=False) |
+| 3 | Introduction to machine learning | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_3.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_3.ipynb?clone&flush_cache=False) |
+| 4 | Predicting the stability regime of rising bubbles | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_4.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_4.ipynb?clone&flush_cache=False) |
+| 5 | Computing highly accurate mass transfer at rising bubbles I | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_5_6.html) |[view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_5_6.ipynb?clone&flush_cache=False) |
+| 6 | Computing highly accurate mass transfer at rising bubbles II | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_5_6.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_5_6.ipynb?clone&flush_cache=False) |
+| 7 | Analyzing coherent structures in flows displaying transonic buffets I | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_7_8.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_7_8.ipynb?clone&flush_cache=False) |
+| 8 | Analyzing coherent structures in flows displaying transonic buffets II | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_7_8.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_7_8.ipynb?clone&flush_cache=False) |
+| 9 | Reduced-order modeling of the flow past a cylinder | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_9.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_9.ipynb?clone&flush_cache=False) |
+| 10 | Controlling the flow past a cylinder I | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_10_11.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_10_11.ipynb?clone&flush_cache=False) |
+| 11 | Controlling the flow past a cylinder II | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_10_11.html) | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_10_11.ipynb?clone&flush_cache=False) |
 
 ## Exercises
 
@@ -28,17 +28,17 @@ The exercises are designed for native Linux operating systems like Ubuntu (recom
 
 | # | topic | slides | notebook |
 |--:|:------|:------:|:---------|
-| 1 | Setting up your system | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_1.ipynb?clone&flush_cache=True) |
-| 2 | End-to-end simulations in OpenFOAM and Basilisk | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_2.ipynb?clone&flush_cache=True) |
-| 3 | End-to-end machine learning project in PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_3.ipynb?clone&flush_cache=True) |
-| 4 | Building a robust path regime classification model in PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_4.ipynb?clone&flush_cache=True)|
-| 5 | Generation and processing of training data for regression | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_5_6.ipynb?clone&flush_cache=True) |
+| 1 | Setting up your system | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_1.ipynb?clone&flush_cache=False) |
+| 2 | End-to-end simulations in OpenFOAM and Basilisk | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_2.ipynb?clone&flush_cache=False) |
+| 3 | End-to-end machine learning project in PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_3.ipynb?clone&flush_cache=False) |
+| 4 | Building a robust path regime classification model in PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_4.ipynb?clone&flush_cache=False)|
+| 5 | Generation and processing of training data for regression | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_5_6.ipynb?clone&flush_cache=False) |
 | 6 | Model creation in PyTorch and mass transfer simulations in OpenFOAM | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_5_6.ipynb) |
-| 7 | Buffet simulation and data extraction | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_7_8.ipynb?clone&flush_cache=True) |
-| 8 | Dynamic mode decomposition of buffeting flow | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_7_8.ipynb?clone&flush_cache=True) |
-| 9 | Creating a reduced-order model in flowTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_9.ipynb?clone&flush_cache=True) |
-| 10 | Open-loop control of the flow past a cylinder in OpenFOAM | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb?clone&flush_cache=True) |
-| 11 | Closed-loop control of the flow past a cylinder with OpenFOAM and PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb?clone&flush_cache=True) |
+| 7 | Buffet simulation and data extraction | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_7_8.ipynb?clone&flush_cache=False) |
+| 8 | Dynamic mode decomposition of buffeting flow | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_7_8.ipynb?clone&flush_cache=False) |
+| 9 | Creating a reduced-order model in flowTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_9.ipynb?clone&flush_cache=False) |
+| 10 | Open-loop control of the flow past a cylinder in OpenFOAM | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb?clone&flush_cache=False) |
+| 11 | Closed-loop control of the flow past a cylinder with OpenFOAM and PyTorch | - | [view online](https://nbviewer.org/github/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb?clone&flush_cache=False) |
 
 ## Getting and providing help and feedback
 
