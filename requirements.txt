@@ -4,4 +4,4 @@ numpy
 pandas
 jupyterlab
 scikit-learn
-git+git@github.com:FlowModelingControl/flowtorch.git
+git+git://github.com/FlowModelingControl/flowtorch.git#egg=flowtorch
