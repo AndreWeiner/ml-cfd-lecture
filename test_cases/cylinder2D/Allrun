@@ -1,0 +1,21 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+# dummy file for post-processing with paraview
+touch post.foam
+
+# mesh creation
+runApplication blockMesh
+
+# set inlet velocity
+cp -r 0.org 0
+runApplication setExprBoundaryFields
+
+# decompose and run case
+runApplication decomposePar
+runParallel renumberMesh -overwrite
+runParallel $(getApplication)
+
+#------------------------------------------------------------------------------

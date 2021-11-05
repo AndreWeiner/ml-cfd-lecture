@@ -1,0 +1,162 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1912                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+lengthX 2.2;
+lengthY 0.41;
+cylinderX 0.2;
+cylinderY 0.2;
+radius 0.05;
+thickness 0.01;
+xPartOfR #eval{ sqrt(2)/2 * $radius};
+blocks 50;
+blocks2 #eval{ round((($lengthX-$cylinderX * 2)) / ($cylinderX * 2) * $blocks)};
+
+scale   1;
+
+vertices #codeStream
+{
+    codeInclude
+    #{
+        #include "pointField.H"
+    #};
+
+    code
+    #{
+        pointField points({
+            /* 0*/ {0, 0, 0},
+            /* 1*/ {$cylinderX * 2, 0, 0},
+            /* 2*/ {$lengthX, 0, 0},
+            /* 3*/ {$lengthX, $lengthY, 0},
+            /* 4*/ {$cylinderX * 2, $lengthY, 0},
+            /* 5*/ {0, $lengthY, 0},
+            /* 6*/ {$cylinderX - $xPartOfR, $cylinderY - $xPartOfR, 0},
+            /* 7*/ {$cylinderX + $xPartOfR, $cylinderY - $xPartOfR, 0},
+            /* 8*/ {$cylinderX - $xPartOfR, $cylinderY + $xPartOfR, 0},
+            /* 9*/ {$cylinderX + $xPartOfR, $cylinderY + $xPartOfR, 0}
+        });
+
+        // Duplicate z points for thickness
+        const label sz = points.size();
+        points.resize(2*sz);
+        for (label i = 0; i < sz; ++i)
+        {
+            const point& pt = points[i];
+            points[i + sz] = point(pt.x(), pt.y(), $thickness);
+        }
+
+        os  << points;
+    #};
+};
+
+blocks
+(
+    hex (0 1 7 6 10 11 17 16) ($blocks $blocks 1) simpleGrading (1 0.5 1)
+    hex (1 4 9 7 11 14 19 17) ($blocks $blocks 1) simpleGrading (1 0.5 1)
+    hex (4 5 8 9 14 15 18 19) ($blocks $blocks 1) simpleGrading (1 0.5 1)
+    hex (5 0 6 8 15 10 16 18) ($blocks $blocks 1) simpleGrading (1 0.5 1)
+    hex (1 2 3 4 11 12 13 14) ($blocks2 $blocks 1) simpleGrading (4 1 1)
+);
+
+edges
+(
+    arc 6 7 ($cylinderX #eval{$cylinderY-$radius} 0)
+    arc 7 9 (#eval{$cylinderX+$radius} $cylinderY 0)
+    arc 9 8 ($cylinderX #eval{$cylinderY+$radius} 0)
+    arc 8 6 (#eval{$cylinderX-$radius} $cylinderY 0)
+    arc 16 17 ($cylinderX #eval{$cylinderY-$radius} $thickness)
+    arc 17 19 (#eval{$cylinderX+$radius} $cylinderY $thickness)
+    arc 19 18 ($cylinderX #eval{$cylinderY+$radius} $thickness)
+    arc 18 16 (#eval{$cylinderX-$radius} $cylinderY $thickness)
+);
+
+boundary
+(
+    top
+    {
+        type patch;
+        faces
+        (
+            (4 5 15 14)
+            (3 4 14 13)
+        );
+    }
+    bottom
+    {
+        type patch;
+        faces
+        (
+            (0 1 11 10)
+            (1 2 12 11)
+        );
+    }
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (5 0 10 15)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (2 3 13 12)
+        );
+    }
+    back
+    {
+        type empty;
+        faces
+        (
+            (0 1 7 6)
+            (1 4 9 7)
+            (4 5 8 9)
+            (5 0 6 8)
+            (1 2 3 4)
+        );
+    }
+    front
+    {
+        type empty;
+        faces
+        (
+            (10 11 17 16)
+            (11 14 19 17)
+            (14 15 18 19)
+            (15 10 16 18)
+            (11 12 13 14)
+        );
+    }
+    cylinder
+    {
+        type patch;
+        faces
+        (
+            (6 7 17 16)
+            (7 9 19 17)
+            (9 8 18 19)
+            (8 6 16 18)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
