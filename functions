@@ -33,7 +33,9 @@ getNumberOfProcessors()
     local dict="${1:-system/decomposeParDict}"
 
     # Re-use positional parameters for automatic whitespace elimination
-    set -- $(foamDictionary -entry numberOfSubdomains -value "$dict" 2>/dev/null)
+    command="foamDictionary -entry numberOfSubdomains -value $dict"
+    np=$(singularity exec $image bash -c "source $bashrc && $command")
+    set -- $np
 
     if [ "$#" -eq 1 ]
     then
