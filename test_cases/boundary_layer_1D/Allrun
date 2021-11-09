@@ -1,0 +1,15 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+# dummy file for post-processing with paraview
+touch post.foam
+
+# mesh creation
+runApplication blockMesh
+
+# solver execution
+runApplication pimpleFoam
+
+#------------------------------------------------------------------------------

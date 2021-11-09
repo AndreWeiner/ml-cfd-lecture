@@ -2,6 +2,23 @@
 
 This repository contains resources accompanying the lecture [machine learning in computational fluid dynamics](https://www.tu-braunschweig.de/en/ism/teaching/courses/fluid-mechanics/translate-to-english-maschinelles-lernen-in-der-numerischen-stroemungsmechanik) provided by the Institute of Fluid Mechanics at TU Braunschweig. **Note that slides, notebooks, and other resources will be regularly updated throughout the term.**
 
+## Glossary
+
+The following list of acronyms may help you when exploring notebooks and slides:
+
+- **CFD** - computational fluid dynamics
+- **DL** - deep learning
+- **GPU** - graphics processing unit
+- **IEEE** - Institute of Electrical and Electronics Engineers
+- **IEEE 754** - IEEE standard for floating-point arithmetics
+- **JIT** - just in time (compiler)
+- **LHS** - latin hypercube sampling
+- **ML** - machine learning
+- **MPI** - message passing interface
+- **MSE** - mean squared error
+- **PINN** - physics-informed neural network
+- **TPU** - tensor processing unit
+
 ## Lectures
 
 | # | topic | slides | notebook |
