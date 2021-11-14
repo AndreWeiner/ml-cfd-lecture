@@ -12,11 +12,14 @@ The following list of acronyms may help you when exploring notebooks and slides:
 - **IEEE** - Institute of Electrical and Electronics Engineers
 - **IEEE 754** - IEEE standard for floating-point arithmetics
 - **JIT** - just in time (compiler)
+- **LES** - large eddy simulation
 - **LHS** - latin hypercube sampling
+- **MAE** - mean absolute error
 - **ML** - machine learning
 - **MPI** - message passing interface
 - **MSE** - mean squared error
 - **PINN** - physics-informed neural network
+- **RANS** - Reynolds-averaged Navier Stokes
 - **TPU** - tensor processing unit
 
 ## Lectures
