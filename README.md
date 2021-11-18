@@ -24,6 +24,8 @@ The following list of acronyms may help you when exploring notebooks and slides:
 
 ## Lectures
 
+If equations in the lecture notebooks do not get rendered properly on Github, download the notebook and open it using `jupyter-lab` (refer to the first exercise session for an overview of dependencies and installation instructions).
+
 | # | topic | slides | notebook |
 |--:|:------|:------:|:---------|
 | 1 | Course overview and motivation | [link](https://andreweiner.github.io/ml-cfd-slides/lecture_1.html) | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_1.ipynb) |
