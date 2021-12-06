@@ -24,7 +24,7 @@ The following list of acronyms may help you when exploring notebooks and slides:
 
 ## Datasets
 
-Both exercises and lectures sometimes require datasets. Usually, there are instructions how to create or extract the data yourself. For convenience, a downloadable snapshot of the [latest data (21. Nov 2021)](https://cloudstorage.tu-braunschweig.de/getlink/fiPidm4FBMPqGswAF7Z32yG3/datasets_21_Nov_2021.zip) is provided, too.
+Both exercises and lectures sometimes require datasets. Usually, there are instructions how to create or extract the data yourself. For convenience, a downloadable snapshot of the [latest data (06. Dec 2021)](https://cloudstorage.tu-braunschweig.de/getlink/fiMefFiJPpC37DCJPkLashxv/datasets_06_Dec_2021.zip) is provided, too.
 
 ## Lectures
 
