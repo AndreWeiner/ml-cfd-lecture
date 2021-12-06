@@ -29,6 +29,7 @@ int LEVEL_INIT = 13;
 double MAXTIME = 10;
 double Bo = 1.0;
 double Ga = 100.0;
+int counter = 0;
 
 /**
 Boundary conditions
@@ -40,8 +41,9 @@ uf.n[bottom] = 0.;
 uf.n[top] = 0.;
 
 /**
-The main function takes three parameters:
- - the maximum level
+The main function takes four parameters:
+ - the maximum refinement level
+ - the end time
  - the Bond number
  - the Galilei number
 */
@@ -133,7 +135,7 @@ event dumpstatus (i += 1000)
   }
 }
 
-event snapshot (t = 0; t <= MAXTIME; t++)
+event snapshot (t = 0; t += MAXTIME/100.0; t <= MAXTIME)
 {
   scalar l_ref[];
   foreach()
@@ -141,36 +143,38 @@ event snapshot (t = 0; t <= MAXTIME; t++)
 
   char subname[80];
   FILE * fp ;
-  sprintf(subname, "vtu/bubble_%6.6d_n%3.3d.vtu", (int) t, pid());
+  sprintf(subname, "vtu/bubble_%6.6d_n%3.3d.vtu", counter, pid());
   fp = fopen(subname, "w");
   output_vtu_bin_foreach ((scalar *) {f, l_ref}, (vector *) {u}, t, fp, false);
   fclose (fp);
 
   char name[80];
-  sprintf(name, "vtu/bubble_%6.6d.pvtu", (int) t);
+  sprintf(name, "vtu/bubble_%6.6d.pvtu", counter);
   char base_name[80];
-  sprintf(base_name, "bubble_%6.6d", (int) t);
+  sprintf(base_name, "bubble_%6.6d", counter);
   fp = fopen(name, "w");
   output_pvtu_bin ((scalar *) {f, l_ref}, (vector *) {u}, t, fp, base_name);
   fclose (fp);
 
   char plic_subname[80];
-  sprintf(plic_subname, "vtu/plic_%6.6d_n%3.3d.vtu", (int) t, pid());
+  sprintf(plic_subname, "vtu/plic_%6.6d_n%3.3d.vtu", counter, pid());
   fp = fopen(plic_subname, "w");
   output_vtu_w_fielddata (f, fp, (scalar *) {f}, (vector *) {u});
   fclose (fp);
 
   char plic_pvtu_name[80];
-  sprintf(plic_pvtu_name, "vtu/plic_%6.6d.pvtu", (int) t);
+  sprintf(plic_pvtu_name, "vtu/plic_%6.6d.pvtu", counter);
   char plic_base_name[80];
-  sprintf(plic_base_name, "plic_%6.6d", (int) t);
+  sprintf(plic_base_name, "plic_%6.6d", counter);
   fp = fopen(plic_pvtu_name, "w");
   output_plic_pvtu_bin ((scalar *) {f}, (vector *) {u}, t, fp, plic_base_name);
   fclose (fp);
 
   char interface[80];
-  sprintf(interface, "plic/points_%6.6d_n%3.3d.txt", (int) t, pid());
+  sprintf(interface, "plic/points_%6.6d_n%3.3d.txt", counter, pid());
   fp = fopen(interface, "w");
-  output_facets(f, fp);
+  output_interface_data(f, u, fp);
+  //output_facets(f, fp);
   fclose (fp);
+  counter++;
 }

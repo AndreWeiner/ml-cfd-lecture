@@ -15,6 +15,42 @@ coord mycs (Point point, scalar c) {
 # include "myc.h"
 #endif
 
+struct IData {
+  scalar c;
+  vector u;
+  FILE * fp;
+  face vector s;
+};
+
+
+// only implemented for 2D simulations
+void output_interface_data(struct IData idata)
+{
+  scalar c = idata.c;
+  vector u = idata.u;
+  face vector s = idata.s;
+  if (!s.x.i) s.x.i = -1;
+  foreach()
+    if (c[] > 1e-6 && c[] < 1. - 1e-6) {
+      coord n = facet_normal (point, c, s);
+      double alpha = plane_alpha (c[], n);
+      coord segment[2];
+      if (facets (n, alpha, segment) == 2) {
+        double x1 =  x + segment[0].x*Delta;
+        double y1 = y + segment[0].y*Delta;
+        double x2 = x + segment[1].x*Delta;
+        double y2 = y + segment[1].y*Delta;
+        double ux1 = interpolate(u.x, x1, y1, 0.0);
+        double uy1 = interpolate(u.y, x1, y1, 0.0);
+        double ux2 = interpolate(u.x, x2, y2, 0.0);
+        double uy2 = interpolate(u.y, x2, y2, 0.0);
+	      fprintf (idata.fp, "%g %g %g %g %g %g\n%g %g %g %g %g %g\n\n", 
+		             x1, y1, n.x, n.y, ux1, uy1,
+		             x2, y2, n.x, n.y, ux2, uy2);
+        }
+    }
+    fflush (idata.fp);
+}
 
 
 void output_ply (struct OutputFacets p)
