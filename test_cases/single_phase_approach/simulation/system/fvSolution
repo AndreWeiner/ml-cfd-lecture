@@ -1,0 +1,96 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver           GAMG;
+        smoother         DICGaussSeidel;
+        tolerance        1e-6;
+        relTol           0.01;
+    }
+
+    pcorr
+    {
+        $p
+    }
+
+    pcorrFinal
+    {
+        $p
+        relTol          0;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-06;
+        relTol          0.1;
+    }
+
+    UFinal
+    {
+        $U;
+        relTol          0;
+    }
+
+    "(s1|s2|s3)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1.0e-12;
+        relTol          0.001;
+    }
+
+    "cellDisplacement.*"
+    {
+        solver          GAMG;
+        tolerance       1e-12;
+        relTol          0;
+        smoother        GaussSeidel;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor   yes;
+    transonic           no;
+    nOuterCorrectors    50;
+    nCorrectors         2;
+    nNonOrthogonalCorrectors 1;
+    consistent          yes;
+    pRefCell        0;
+    pRefValue       0;
+
+    residualControl
+    {
+        "(U|p)"
+        {
+            relTol          0;
+            tolerance       0.0001;
+        }
+    }
+}
+
+// ************************************************************************* //

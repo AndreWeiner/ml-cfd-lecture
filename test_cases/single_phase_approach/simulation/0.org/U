@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            ptInletVelocity;
+        direction       (0 -1 0);
+        model           "rv_model.pt";
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    side
+    {
+        type            slip;
+    }
+    bubble
+    {
+	    type            ptSurfaceVelocity;
+        origin          (0 0 0);
+        axis            (0 1 0);
+        normal          (0 0 1);
+        modelName       "iv_model.pt";
+    }
+    "wedge_.*"
+    {
+        type            wedge;
+    }
+
+}
+
+
+// ************************************************************************* //

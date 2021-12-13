@@ -1,0 +1,245 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// geometry
+xMax  5.0;
+yMin -5.0;
+yMax  5.0;
+radius 0.5;
+radiusNeg #eval{ -1.0 * $radius };
+radiusBl 1.0;
+radiusBlNeg #eval{ -1.0 * $radiusBl };
+halfAngle 1.5;
+xArc #eval{ $radius * cos(degToRad(45.0)) };
+xArcBl #eval{ $radiusBl * cos(degToRad(45.0)) };
+yArcUp #eval{ $radius * sin(degToRad(45.0)) };
+yArcLow #eval{ -1.0 * $radius * sin(degToRad(45.0)) };
+yArcBlUp #eval{ $radiusBl * sin(degToRad(45.0)) };
+yArcBlLow #eval{ -1.0 * $radiusBl * sin(degToRad(45.0)) };
+z1Up #eval{ $xArc * tan(degToRad($halfAngle)) };
+z1Low #eval{ -1.0 * $z1Up };
+z2Up #eval{ $radius * tan(degToRad($halfAngle)) };
+z2Low #eval{ -1.0 * $z2Up };
+z3Up #eval{ $xArcBl * tan(degToRad($halfAngle)) };
+z3Low #eval{ -1.0 * $z3Up };
+z4Up #eval{ $radiusBl * tan(degToRad($halfAngle)) };
+z4Low #eval{ -1.0 * $z4Up };
+z5Up #eval{ $xMax * tan(degToRad($halfAngle)) };
+z5Low #eval{ -1.0 * $z5Up };
+
+// arcs
+xArcEdgeOut #eval{ $radius * cos(degToRad(22.5)) };
+xArcBlEdgeOut #eval{ $radiusBl * cos(degToRad(22.5)) };
+xArcEdgeIn #eval{ $radius * cos(degToRad(67.5)) };
+xArcBlEdgeIn #eval{ $radiusBl * cos(degToRad(67.5)) };
+yArcEdgeLowOut #eval{ -1.0 * $radius * sin(degToRad(22.5)) };
+yArcBlEdgeLowOut #eval{ -1.0 * $radiusBl * sin(degToRad(22.5)) };
+yArcEdgeLowIn #eval{ -1.0 * $radius * sin(degToRad(67.5)) };
+yArcBlEdgeLowIn #eval{ -1.0 * $radiusBl * sin(degToRad(67.5)) };
+yArcEdgeUpOut #eval{ $radius * sin(degToRad(22.5)) };
+yArcBlEdgeUpOut #eval{ $radiusBl * sin(degToRad(22.5)) };
+yArcEdgeUpIn #eval{ $radius * sin(degToRad(67.5)) };
+yArcBlEdgeUpIn #eval{ $radiusBl * sin(degToRad(67.5)) };
+zArcUpOut #eval{ $xArcEdgeOut * tan(degToRad($halfAngle)) };
+zArcLowOut #eval{ -1.0 * $zArcUpOut };
+zArcBlUpOut #eval{ $xArcBlEdgeOut * tan(degToRad($halfAngle)) };
+zArcBlLowOut #eval{ -1.0 * $zArcBlUpOut };
+zArcUpIn #eval{ $xArcEdgeIn * tan(degToRad($halfAngle)) };
+zArcLowIn #eval{ -1.0 * $zArcUpIn };
+zArcBlUpIn #eval{ $xArcBlEdgeIn * tan(degToRad($halfAngle)) };
+zArcBlLowIn #eval{ -1.0 * $zArcBlUpIn };
+
+// mesh
+blocksBl 80;
+blocksInX 60;
+blocksOutX 20;
+blocksUpDownY 60;
+blocksMiddleY 40;
+gradingCenterUp 0.2;
+gradingCenterLow 5.0;
+gradingSurface 0.02;
+gradingMiddleUp 2.0;
+gradingMiddleLow 0.5;
+gradingXOut 0.1;
+gradingYUp 5.0;
+gradingYLow 0.2;
+
+scale   1;
+mergeType points;
+
+vertices
+(
+    (0.0 $yMin 0.0)                // 0
+    (0.0 $radiusBlNeg 0.0)         // 1
+    (0.0 $radiusNeg 0.0)           // 2
+    ($xArc $yArcLow $z1Low)        // 3
+    ($radius 0.0 $z2Low)           // 4
+    ($xArc $yArcUp $z1Low)         // 5
+    (0.0 $radius 0.0)              // 6
+    (0.0 $radiusBl 0.0)            // 7
+    (0.0 $yMax 0.0)                // 8
+    ($xArcBl $yMin $z3Low)         // 9
+    ($xArcBl $yArcBlLow $z3Low)    // 10
+    ($radiusBl 0.0 $z4Low)         // 11
+    ($xArcBl $yArcBlUp $z3Low)     // 12
+    ($xArcBl $yMax $z3Low)         // 13
+    ($xMax $yMin $z5Low)           // 14
+    ($xMax $yArcBlLow $z5Low)      // 15
+    ($xMax 0.0 $z5Low)             // 16
+    ($xMax $yArcBlUp $z5Low)       // 17
+    ($xMax $yMax $z5Low)           // 18
+    //
+    ($xArc $yArcLow $z1Up)         // 19
+    ($radius 0.0 $z2Up)            // 20
+    ($xArc $yArcUp $z1Up)          // 21
+    ($xArcBl $yMin $z3Up)          // 22
+    ($xArcBl $yArcBlLow $z3Up)     // 23
+    ($radiusBl 0.0 $z4Up)          // 24
+    ($xArcBl $yArcBlUp $z3Up)      // 25
+    ($xArcBl $yMax $z3Up)          // 26
+    ($xMax $yMin $z5Up)            // 27
+    ($xMax $yArcBlLow $z5Up)       // 28
+    ($xMax 0.0 $z5Up)              // 29
+    ($xMax $yArcBlUp $z5Up)        // 30
+    ($xMax $yMax $z5Up)            // 31
+
+);
+
+blocks
+(
+    hex (0 9 10 1 0 22 23 1) ($blocksInX $blocksUpDownY 1) simpleGrading ($gradingCenterLow $gradingYLow 1)          // 0
+    hex (1 10 3 2 1 23 19 2) ($blocksInX $blocksBl 1) simpleGrading ($gradingCenterLow $gradingSurface 1)            // 1
+    hex (10 11 4 3 23 24 20 19) ($blocksMiddleY $blocksBl 1) simpleGrading ($gradingMiddleLow $gradingSurface 1)     // 2
+    hex (11 12 5 4 24 25 21 20) ($blocksMiddleY $blocksBl 1) simpleGrading ($gradingMiddleUp $gradingSurface 1)      // 3
+    hex (12 7 6 5 25 7 6 21) ($blocksInX $blocksBl 1) simpleGrading ($gradingCenterUp $gradingSurface 1)             // 4
+    hex (13 8 7 12 26 8 7 25) ($blocksInX $blocksUpDownY 1) simpleGrading ($gradingCenterUp $gradingYLow 1)          // 5
+    hex (14 15 10 9 27 28 23 22) ( $blocksUpDownY $blocksOutX 1) simpleGrading ($gradingYLow $gradingXOut 1)         // 6
+    hex (15 16 11 10 28 29 24 23) ($blocksMiddleY $blocksOutX 1) simpleGrading ($gradingMiddleLow $gradingXOut 1)    // 7
+    hex (16 17 12 11 29 30 25 24) ($blocksMiddleY $blocksOutX 1) simpleGrading ($gradingMiddleUp $gradingXOut 1)     // 8
+    hex (17 18 13 12 30 31 26 25) ($blocksUpDownY $blocksOutX 1) simpleGrading ($gradingYUp $gradingXOut 1)          // 9
+);
+
+edges
+(
+    arc 2 3 ($xArcEdgeIn $yArcEdgeLowIn $zArcLowIn)
+    arc 2 19 ($xArcEdgeIn $yArcEdgeLowIn $zArcUpIn)
+    arc 3 4 ($xArcEdgeOut $yArcEdgeLowOut $zArcLowOut)
+    arc 19 20 ($xArcEdgeOut $yArcEdgeLowOut $zArcUpOut)
+    arc 4 5 ($xArcEdgeOut $yArcEdgeUpOut $zArcLowOut)
+    arc 20 21 ($xArcEdgeOut $yArcEdgeUpOut $zArcUpOut)
+    arc 5 6 ($xArcEdgeIn $yArcEdgeUpIn $zArcLowIn)
+    arc 21 6 ($xArcEdgeIn $yArcEdgeUpIn $zArcUpIn)
+    //
+    arc 1 10 ($xArcBlEdgeIn $yArcBlEdgeLowIn $zArcBlLowIn)
+    arc 1 23 ($xArcBlEdgeIn $yArcBlEdgeLowIn $zArcBlUpIn)
+    arc 10 11 ($xArcBlEdgeOut $yArcBlEdgeLowOut $zArcBlLowOut)
+    arc 23 24 ($xArcBlEdgeOut $yArcBlEdgeLowOut $zArcBlUpOut)
+    arc 11 12 ($xArcBlEdgeOut $yArcBlEdgeUpOut $zArcBlLowOut)
+    arc 24 25 ($xArcBlEdgeOut $yArcBlEdgeUpOut $zArcBlUpOut)
+    arc 12 7 ($xArcBlEdgeIn $yArcBlEdgeUpIn $zArcBlLowIn)
+    arc 25 7 ($xArcBlEdgeIn $yArcBlEdgeUpIn $zArcBlUpIn)
+);
+
+boundary
+(
+    wedge_back
+    {
+        type wedge;
+        faces
+        (
+            (0 9 10 1)
+            (1 10 3 2)
+            (10 11 4 3)
+            (11 12 5 4)
+            (5 12 7 6)
+            (12 13 8 7)
+            (9 14 15 10)
+            (10 15 16 11)
+            (11 16 17 12)
+            (12 17 18 13)
+        );
+    }
+    wedge_front
+    {
+        type wedge;
+        faces
+        (
+            (0 1 23 22)
+            (1 2 19 23)
+            (19 20 24 23)
+            (20 21 25 24)
+            (21 6 7 25)
+            (7 8 26 25)
+            (22 23 28 27)
+            (23 24 29 28)
+            (24 25 30 29)
+            (25 26 31 30)
+        );
+    }
+    bubble
+    {
+        type patch;
+        faces
+        (
+            (2 2 19 3)
+            (3 19 20 4)
+            (4 20 21 5)
+            (5 21 6 6)
+        );
+    }
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (8 13 26 8)
+            (13 18 31 26)
+        );
+    }
+    side
+    {
+        type patch;
+        faces
+        (
+            (14 27 28 15)
+            (15 28 29 16)
+            (16 29 30 17)
+            (17 30 31 18)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (0 0 9 22)
+            (9 22 27 14)
+        );
+    }
+    axis
+    {
+        type empty;
+        faces
+        (
+            (1 0 0 1)
+            (2 1 1 2)
+            (7 6 6 7)
+            (8 7 7 8)
+        );
+    }
+);
+
+// ************************************************************************* //

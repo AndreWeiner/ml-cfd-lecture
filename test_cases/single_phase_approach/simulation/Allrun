@@ -1,0 +1,21 @@
+#!/bin/sh
+cd ${0%/*} || exit 1                        # Run from this directory
+. $WM_PROJECT_DIR/bin/tools/RunFunctions    # run functions
+
+# run simulation
+
+ln -s ../../../notebooks/output/r_model.pt .
+ln -s ../../../notebooks/output/rv_model.pt .
+ln -s ../../../notebooks/output/iv_model.pt .
+runApplication blockMesh
+cp -r 0.org 0
+runApplication $(getApplication)
+
+# post processing
+postProcess -func singleGraph
+calcSh -patch bubble -field s1 &> /dev/null
+calcSh -patch bubble -field s2 &> /dev/null
+calcSh -patch bubble -field s3 &> /dev/null
+touch post.foam
+
+#------------------------------------------------------------------------------

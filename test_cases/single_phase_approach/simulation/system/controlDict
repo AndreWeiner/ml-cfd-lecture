@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs (
+    "../ptInletVelocity/libPtInletVelocity.so"
+    "../ptBoundaryDisplacement/libPtBoundaryDisplacement.so"
+    "../ptSurfaceVelocity/libPtSurfaceVelocity.so"
+);
+
+application     scalarPimpleFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         3;
+
+deltaT          1.0e-4;
+
+writeControl    adjustable;
+
+writeInterval   0.01;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  15;
+
+timeFormat      general;
+
+timePrecision   8;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+maxDeltaT       1.0e-3;
+
+functions
+{
+    #include "limitFields"
+}
+
+// ************************************************************************* //

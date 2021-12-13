@@ -1,0 +1,27 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+singleGraph
+{
+    start   (3.0e-2  0.0 0);
+    end     (3.0e-2 -5.0 0);
+    fields  (s1 s2 s3);
+
+    interpolationScheme cellPoint;
+    setFormat   raw;
+    setConfig
+    {
+        type    face;   // midPoint, midPointAndFace
+        axis    y;
+    }
+
+    // Must be last entry
+    #includeEtc "caseDicts/postProcessing/graphs/graph.cfg"
+}
+
+// ************************************************************************* //
