@@ -60,8 +60,8 @@ The exercises are designed for native Linux operating systems like Ubuntu (recom
 | 4 | Building a robust path regime classification model in PyTorch | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_4.ipynb)|
 | 5 | Generation and processing of training data for regression | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_5_6.ipynb) |
 | 6 | Model creation in PyTorch and mass transfer simulations in OpenFOAM | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_5_6.ipynb) |
-| 7 | Buffet simulation and data extraction | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_7_8.ipynb) |
-| 8 | Dynamic mode decomposition of buffeting flow | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/lecture_7_8.ipynb) |
+| 7 | Principal component analysis of surface pressure data | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_7_8.ipynb) |
+| 8 | Dynamic mode decomposition of a buffeting flow | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_7_8.ipynb) |
 | 9 | Creating a reduced-order model in flowTorch | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_9.ipynb) |
 | 10 | Open-loop control of the flow past a cylinder in OpenFOAM | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb) |
 | 11 | Closed-loop control of the flow past a cylinder with OpenFOAM and PyTorch | - | [view online](https://github.com/AndreWeiner/ml-cfd-lecture/blob/main/notebooks/exercise_10_11.ipynb) |
