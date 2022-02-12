@@ -1,0 +1,12 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(TORCH_LIBRARIES)/include \
+    -I$(TORCH_LIBRARIES)/include/torch/csrc/api/include
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -rdynamic \
+    -Wl,-rpath,$(TORCH_LIBRARIES)/lib $(TORCH_LIBRARIES)/lib/libtorch.so $(TORCH_LIBRARIES)/lib/libc10.so \
+    -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch_cpu.so \
+    -Wl,--as-needed $(TORCH_LIBRARIES)/lib/libc10.so \
+    -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch.so

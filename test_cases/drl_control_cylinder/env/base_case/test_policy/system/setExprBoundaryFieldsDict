@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      setExprBoundaryFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+U_inlet
+{
+    field   U;
+
+    expressions
+    (
+        {
+            patch   inlet;
+            target  value;
+            //Um 1.5; - maximum velocity at the center of the channel
+            //H 0.41; - channel height
+            vel { dir (1 0 0); }
+            expression #{ 4*1.5*pos().y()*(0.41-pos().y())/(0.41*0.41)*$[(vector)vel.dir] #};   
+        }
+    );
+}
+
+// ************************************************************************* //
+
