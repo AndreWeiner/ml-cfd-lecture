@@ -62,7 +62,8 @@ Foam::agentRotatingWallVelocityFvPatchVectorField::
       omega_old_(0.0),
       control_time_(0.0),
       theta_cumulative_(0.0),
-      dt_theta_cumulative_(0.0)
+      dt_theta_cumulative_(0.0),
+      update_omega_(false)
 {
     if (dict.found("value"))
     {
@@ -119,7 +120,8 @@ Foam::agentRotatingWallVelocityFvPatchVectorField::
       omega_old_(rwvpvf.omega_old_),
       control_time_(rwvpvf.control_time_),
       theta_cumulative_(rwvpvf.theta_cumulative_),
-      dt_theta_cumulative_(rwvpvf.dt_theta_cumulative_)
+      dt_theta_cumulative_(rwvpvf.dt_theta_cumulative_),
+      update_omega_(rwvpvf.update_omega_)
 {
 }
 
@@ -142,7 +144,8 @@ Foam::agentRotatingWallVelocityFvPatchVectorField::
       omega_old_(rwvpvf.omega_old_),
       control_time_(rwvpvf.control_time_),
       theta_cumulative_(rwvpvf.theta_cumulative_),
-      dt_theta_cumulative_(rwvpvf.dt_theta_cumulative_)
+      dt_theta_cumulative_(rwvpvf.dt_theta_cumulative_),
+      update_omega_(rwvpvf.update_omega_)
 {
 }
 
