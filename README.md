@@ -33,6 +33,7 @@ The exercises are designed for native Linux operating systems like Ubuntu (recom
 
 | # | topic | notebook |
 |--:|:------|:---------|
+| 0 | Course-specific Python refresher | [view](./notebooks/python_intro.ipynb) |
 | 1 | Setting up your system | [view](./notebooks/system_setup.ipynb) |
 | 2+3 | End-to-end simulations in OpenFOAM and Basilisk | [view](./notebooks/cfd_intro_exercise.ipynb) |
 | 4+5 | End-to-end machine learning project in PyTorch | [view](./notebooks/ml_intro_exercise.ipynb) |
