@@ -1,0 +1,641 @@
+#
+# Functions to simplify the execution and cleanup of OpenFOAM simulations.
+#
+## Most functions are copied from:
+## - $WM_PROJECT_DIR/bin/tools/RunFunctions
+## - $WM_PROJECT_DIR/bin/tools/CleanFunctions
+## of OpenFOAM-v2206 (www.openfoam.com). The main modifications are:
+## - support of containerized execution with Apptainer
+## - modified MPI process binding for execution without resource manager
+# 
+## Containerized execution with Apptainer
+##
+## Execution with Apptainer is supported via the following environment
+## variables:
+## - ML_CFD_IMAGE: path to the Apptainer image
+## - ML_CFD_BASHRC: path to the OpenFOAM bashrc file inside the container
+##
+## Functions using the image (if found) are:
+## - getNumberOfProcessors
+## - runApplication
+## - runParallel
+##
+## Disable default OpenMPI process binding
+##
+## The default process binding behavior of OpenMPI can cause unwanted
+## resource management when MPI jobs are run without resource manager,
+## e.g., when running jobs locally. MPI jobs with rank <= 2 will bind
+## to cores such that several different MPI jobs might bind to the same
+## cores. Consequently, the execution is slowed down significantly and
+## the available resources are not leveraged properly. To fix this
+## behavior, the option `--bind-to none` is added to mpirun if
+## OMPI_BIND_TO_NONE is set. See also:
+## - https://www.open-mpi.org/doc/v4.1/man1/mpirun.1.php (under Quick Summary)
+## - https://stackoverflow.com/questions/47813384/weird-behaviour-of-mpirun-always-strictly-binding-to-cores-0-and-1-when-startin
+
+
+ML_CFD_BASHRC="${ML_CFD_BASHRC:=/usr/lib/openfoam/openfoam2206/etc/bashrc}"
+
+imageFound()
+{
+    if [ -f "$ML_CFD_IMAGE" ]; then
+        return 0
+    fi
+    return 1
+}
+
+setImage()
+{
+    if [ -f "$1" ]; then
+        ML_CFD_IMAGE=$1
+    else
+        echo "Image $1 not found"
+    fi
+}
+
+
+#---------------------------------*- sh -*-------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | www.openfoam.com
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+#     Copyright (C) 2011-2016 OpenFOAM Foundation
+#     Copyright (C) 2015-2022 OpenCFD Ltd.
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, distributed under GPL-3.0-or-later.
+#
+# Script
+#     RunFunctions
+#
+# Description
+#     Miscellaneous functions for running tutorial cases
+#
+#------------------------------------------------------------------------------
+
+#
+# Check presence of '-parallel' in the argument list.
+#
+isParallel()
+{
+    for i; do [ "$i" = "-parallel" ] && return 0; done
+    return 1
+}
+
+
+#
+# Extract 'numberOfSubdomains' from system/decomposeParDict
+# (or alternative location).
+#
+# On failure:
+#    return '1'
+#    exit status 1
+#
+getNumberOfProcessors()
+{
+    local dict="${1:-system/decomposeParDict}"
+
+    # Re-use positional parameters for automatic whitespace elimination
+    if imageFound
+    then
+        cmd="foamDictionary -entry numberOfSubdomains -value $dict"
+        set -- $(apptainer exec $ML_CFD_IMAGE bash -c "source $ML_CFD_BASHRC && $cmd")
+    else
+        set -- $(foamDictionary -entry numberOfSubdomains -value "$dict" 2>/dev/null)
+    fi
+
+    if [ "$#" -eq 1 ]
+    then
+        echo "$1"
+    else
+        echo "Error getting 'numberOfSubdomains' from '$dict'" 1>&2
+        echo 1      # Fallback is 1 proc (serial)
+        return 1
+    fi
+}
+
+
+#
+# Extract 'application' from system/controlDict
+#
+# On failure:
+#    return 'false' which is also a command (ie, shell builtin or /bin/false)
+#    exit status 1
+#
+getApplication()
+{
+    # Re-use positional parameters for automatic whitespace elimination
+    if imageFound
+    then
+        cmd="foamDictionary -entry application -value system/controlDict"
+        set -- $(apptainer exec $ML_CFD_IMAGE bash -c "source $ML_CFD_BASHRC && $cmd")
+    else
+        set -- $(foamDictionary -entry application -value system/controlDict 2>/dev/null)
+    fi
+
+    if [ "$#" -eq 1 ]
+    then
+        echo "$1"
+    else
+        echo "Error getting 'application' from system/controlDict" 1>&2
+        echo false  # Fallback
+        return 1
+    fi
+}
+
+
+#
+# Run given application in serial with logfile output.
+# The preexistence of the log file prevents rerunning.
+#
+runApplication()
+{
+    local appName appRun logFile logMode
+
+    # Any additional parsed arguments (eg, decomposeParDict)
+    local appArgs
+
+    # Parse options until executable is encountered
+    while [ "$#" -gt 0 ] && [ -z "$appRun" ]
+    do
+        case "$1" in
+            -a | -append)
+                logMode=append
+                ;;
+            -o | -overwrite)
+                logMode=overwrite
+                ;;
+            -s | -suffix)
+                logFile=".$2"
+                shift
+                ;;
+            -decomposeParDict)
+                appArgs="$appArgs $1 $2"
+                shift
+                ;;
+            '')
+                ;;
+            *)
+                appRun="$1"
+                ;;
+        esac
+        shift
+    done
+
+    appName="${appRun##*/}"
+    logFile="log.$appName$logFile"
+
+    if [ -f "$logFile" ] && [ -z "$logMode" ]
+    then
+        echo "$appName already run on $PWD:" \
+             "remove log file '$logFile' to re-run"
+    else
+        if imageFound
+        then
+            echo "Running $appRun on $PWD with image $ML_CFD_IMAGE"
+            if [ "logMode" = append ]
+            then
+                apptainer exec $ML_CFD_IMAGE bash -c "source $ML_CFD_BASHRC && $appRun $appArgs $@" >> $logFile 2>&1
+            else
+                apptainer exec $ML_CFD_IMAGE bash -c "source $ML_CFD_BASHRC && $appRun $appArgs $@" > $logFile 2>&1
+            fi
+        else
+            echo "Running $appRun on $PWD"
+            if [ "$logMode" = append ]
+            then
+                $appRun $appArgs "$@" >> $logFile 2>&1
+            else
+                $appRun $appArgs "$@" > $logFile 2>&1
+            fi
+        fi
+    fi
+}
+
+
+#
+# Run given application in parallel with logfile output.
+# The preexistence of the log file prevents rerunning.
+#
+runParallel()
+{
+    local appName appRun logFile logMode nProcs runArgs
+
+    # Any additional parsed arguments (eg, decomposeParDict)
+    local appArgs="-parallel"
+
+    local mpirun="mpirun"
+    if [ "$FOAM_MPI" = msmpi ]
+    then
+        mpirun="mpiexec"
+    fi
+
+    # Parse options until executable is encountered
+    while [ "$#" -gt 0 ] && [ -z "$appRun" ]
+    do
+        case "$1" in
+            -a | -append)
+                logMode=append
+                ;;
+            -o | -overwrite)
+                logMode=overwrite
+                ;;
+            -s | -suffix)
+                logFile=".$2"
+                shift
+                ;;
+            -n | -np)
+                nProcs="$2"
+                shift
+                ;;
+            -decomposeParDict)
+                appArgs="$appArgs $1 $2"
+                nProcs=$(getNumberOfProcessors "$2")
+                shift
+                ;;
+            '')
+                ;;
+            *)
+                appRun="$1"
+                ;;
+        esac
+        shift
+    done
+
+    [ -n "$nProcs" ] || nProcs=$(getNumberOfProcessors system/decomposeParDict)
+
+    appName="${appRun##*/}"
+    logFile="log.$appName$logFile"
+
+    if [ -f "$logFile" ] && [ -z "$logMode" ]
+    then
+        echo "$appName already run on $PWD:" \
+             "remove log file '$logFile' to re-run"
+    else
+        if imageFound
+        then
+            echo "Running $appRun ($nProcs processes) on $PWD with image $ML_CFD_IMAGE"
+            if [[ -z "${OMPI_BIND_TO_NONE}" ]]
+            then
+                runArgs="-n $nProcs --bind-to none"
+            else
+                runArgs="-n $nProcs"
+            fi
+            if [ "$logMode" = append ]
+            then
+                mpirun $runArgs apptainer exec $ML_CFD_IMAGE bash -c "source $ML_CFD_BASHRC && $appRun $appArgs $@" </dev/null >> $logFile 2>&1
+            else
+                mpirun $runArgs apptainer exec $ML_CFD_IMAGE bash -c "source $ML_CFD_BASHRC && $appRun $appArgs $@" </dev/null > $logFile 2>&1
+            fi
+        else
+            echo "Running $appRun ($nProcs processes) on $PWD "
+            # Options '-n' and '-np' are synonymous, but msmpi only supports '-n'
+            if [ "$logMode" = append ]
+            then
+            (
+                $mpirun -n $nProcs $appRun $appArgs "$@" </dev/null >> $logFile 2>&1
+            )
+            else
+            (
+                $mpirun -n $nProcs $appRun $appArgs "$@" </dev/null > $logFile 2>&1
+            )
+            fi
+        fi
+    fi
+}
+
+
+#
+# cloneCase srcDir dstDir
+#
+cloneCase()
+{
+    local src=$1
+    local dst=$2
+    shift 2
+
+    if [ -e "$dst" ]
+    then
+        echo "Case already cloned: remove case directory $dst prior to cloning"
+        return 1
+    elif [ ! -d "$src" ]
+    then
+        echo "Error: no directory to clone:  $src"
+        return 1
+    fi
+
+    echo "Cloning $dst case from $src"
+    mkdir $dst
+    # These must exist, so do not hide error messages
+    for f in constant system
+    do
+        \cp -r $src/$f $dst
+    done
+
+    # Either (or both) may exist, so error messages may be spurious
+    for f in 0 0.orig
+    do
+        \cp -r $src/$f $dst 2>/dev/null
+    done
+    return 0
+}
+
+
+#
+# cloneParallelCase srcDir dstDir [...times]
+#
+# If any times are specified, they will be used for the cloning.
+# Otherwise the entire processor* directories are cloned
+cloneParallelCase()
+{
+    local src=$1
+    local dst=$2
+    shift 2
+
+    if [ -e "$dst" ]
+    then
+        echo "Case already cloned: remove case directory $dst prior to cloning"
+        return 1
+    fi
+
+    [ -d "$src" ] || {
+        echo "Error: no directory to clone: $src"
+        return 1
+    }
+
+    echo "Cloning $dst parallel case from $src"
+    mkdir $dst
+    # These must exist, so do not hide error messages
+    for f in constant system
+    do
+        \cp -r $src/$f $dst
+    done
+
+    [ -d $src/processor0 ] || {
+        echo "Does not appear to be a parallel case"
+        return 1
+    }
+
+    if [ "$#" -eq 0 ]
+    then
+        # Copy all processor directories
+        echo "    clone processor* directories"
+        \cp -r $src/processor* $dst
+    else
+        # Only copy some time directories
+        echo "    clone processor directories with $# times: $@"
+
+        for proc in $(\cd $src && \ls -d processor*)
+        do
+            srcProc=$src/$proc
+            dstProc=$dst/$proc
+
+            mkdir $dstProc
+            \cp -r $srcProc/constant $dstProc/
+
+            for time
+            do
+                [ -d $srcProc/$time ] && \cp -r $srcProc/$time $dstProc/
+            done
+
+        done
+    fi
+
+    return 0
+}
+
+
+#------------------------------------------------------------------------------
+
+#---------------------------------*- sh -*-------------------------------------
+# =========                 |
+# \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+#  \\    /   O peration     |
+#   \\  /    A nd           | www.openfoam.com
+#    \\/     M anipulation  |
+#------------------------------------------------------------------------------
+#     Copyright (C) 2011-2016 OpenFOAM Foundation
+#     Copyright (C) 2015-2022 OpenCFD Ltd.
+#------------------------------------------------------------------------------
+# License
+#     This file is part of OpenFOAM, distributed under GPL-3.0-or-later.
+#
+# Script
+#     CleanFunctions
+#
+# Description
+#     Miscellaneous cleanup functions for tutorial cases
+#
+#------------------------------------------------------------------------------
+
+cleanTimeDirectories()
+{
+    echo "Cleaning case $PWD"
+    zeros=""
+    while [ ${#zeros} -lt 8 ]
+    do
+        rm -rf ./"0.$zeros"[1-9]* ./"-0.$zeros"[1-9]*
+        zeros="0$zeros"
+    done
+    rm -rf ./[1-9]* ./-[1-9]*
+}
+
+
+# Various files (logs, paraview, etc)
+cleanAuxiliary()
+{
+    rm -rf \
+        ./log ./log.* ./log-* ./logSummary.* \
+        ./.fxLock ./*.xml ./ParaView* ./paraFoam* \
+        ./*.blockMesh ./*.foam ./*.OpenFOAM \
+        ./.setSet
+}
+
+
+cleanAdiosOutput()
+{
+    if [ -d adiosData ] && [ -d system ]
+    then
+        rm -rf adiosData
+    fi
+}
+
+
+cleanDynamicCode()
+{
+    if [ -d dynamicCode ] && [ -d system ]
+    then
+        rm -rf dynamicCode
+    fi
+}
+
+
+cleanSnappyFiles()
+{
+    rm -f \
+        constant/polyMesh/cellLevel \
+        constant/polyMesh/pointLevel \
+        constant/polyMesh/refinementHistory \
+        constant/polyMesh/level0Edge \
+        constant/polyMesh/surfaceIndex
+    rm -f \
+        processor*/constant/polyMesh/cellLevel \
+        processor*/constant/polyMesh/pointLevel \
+        processor*/constant/polyMesh/refinementHistory \
+        processor*/constant/polyMesh/level0Edge \
+        processor*/constant/polyMesh/surfaceIndex
+    rm -f \
+        constant/cellLevel \
+        constant/pointLevel \
+        0/cellLevel \
+        0/pointLevel
+    rm -f \
+        processor*/constant/cellLevel \
+        processor*/constant/pointLevel \
+        processor*/0/cellLevel \
+        processor*/0/pointLevel
+}
+
+
+cleanOptimisation()
+{
+    rm -rf optimisation
+    rm -rf constant/controlPoints
+}
+
+
+cleanPostProcessing()
+{
+    rm -rf Ensight EnSight ensightWrite insitu VTK
+    rm -rf postProcessing
+    rm -rf postProcessing-*
+    rm -rf cuttingPlane
+    rm -rf surfaceSampling
+}
+
+
+cleanFaMesh()
+{
+    if [ -e constant/faMesh ]
+    then
+        if [ -e constant/faMesh/faMeshDefinition ]
+        then
+            # Old constant/faMesh location for faMeshDefinition still in use:
+            # - warn but don't remove anything
+            echo
+            echo "Warning: not removing constant/faMesh/"
+            echo "    It contains a 'faMeshDefinition' file"
+            echo "    Relocate the file(s) to system/ to avoid this warning"
+            echo
+        else
+            # Can remove constant/faMesh/ entirely (no faMeshDefinition)
+            rm -rf constant/faMesh
+        fi
+    fi
+}
+
+
+cleanPolyMesh()
+{
+    if [ -e constant/polyMesh ]
+    then
+        if [ -e constant/polyMesh/blockMeshDict ] \
+        || [ -e constant/polyMesh/blockMeshDict.m4 ]
+        then
+            # Old constant/polyMesh location for blockMeshDict still in use:
+            # - warn but don't remove anything
+            echo
+            echo "Warning: not removing constant/polyMesh/"
+            echo "    It contains a 'blockMeshDict' or 'blockMeshDict.m4' file"
+            echo "    Relocate the file(s) to system/ to avoid this warning"
+            echo
+        else
+            # Can remove constant/polyMesh/ entirely (no blockMeshDict)
+            rm -rf constant/polyMesh
+        fi
+    fi
+
+    if [ -e system/blockMeshDict.m4 ]
+    then
+        rm -f system/blockMeshDict
+    fi
+}
+
+
+cleanCase()
+{
+    cleanTimeDirectories
+    cleanAdiosOutput
+    cleanAuxiliary
+    cleanDynamicCode
+    cleanOptimisation
+    cleanPostProcessing
+
+    cleanFaMesh
+    cleanPolyMesh
+    cleanSnappyFiles
+
+    rm -rf processor*
+    rm -rf TDAC
+    rm -rf probes*
+    rm -rf forces*
+    rm -rf graphs*
+    rm -rf sets
+    rm -rf system/machines
+
+    # Debug output (blockMesh, decomposePar)
+    rm -f \
+        blockTopology.vtu blockFaces.vtp blockTopology.obj blockCentres.obj \
+        cellDist.vtu \
+        0/cellDist
+
+    # From mpirunDebug
+    rm -f gdbCommands mpirun.schema
+
+    (
+        cd constant 2>/dev/null || exit 0
+
+        rm -rf \
+          cellDecomposition cellToRegion cellLevel* pointLevel* \
+          tetDualMesh \
+          ;
+    )
+}
+
+
+# Frequently used - cleanCase and rm -rf 0/
+cleanCase0()
+{
+    cleanCase
+    rm -rf 0
+}
+
+
+removeCase()
+{
+    echo "Removing case ${1:-unknown}"
+    [ "$#" -ge 1 ] && rm -rf "$1"
+}
+
+
+cleanSamples()
+{
+    rm -rf sets samples sampleSurfaces
+}
+
+
+cleanUcomponents()
+{
+    rm -rf 0/Ux 0/Uy 0/Uz
+}
+
+
+cleanApplication()
+{
+    echo "Cleaning application $PWD"
+    wclean
+}
+
+
+#------------------------------------------------------------------------------

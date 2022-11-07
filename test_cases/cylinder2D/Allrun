@@ -1,6 +1,6 @@
-#!/bin/sh
-cd "${0%/*}" || exit                                # Run from this directory
-. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#!/bin/bash
+cd "${0%/*}" || exit
+. ${ML_CFD_BASE}/RunFunctions
 #------------------------------------------------------------------------------
 
 # dummy file for post-processing with paraview
