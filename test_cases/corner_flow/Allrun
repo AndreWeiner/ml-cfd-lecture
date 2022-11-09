@@ -1,0 +1,19 @@
+#!/bin/bash
+cd "${0%/*}" || exit
+. ${ML_CFD_BASE}/RunFunctions
+#------------------------------------------------------------------------------
+
+# dummy file for post-processing with paraview
+touch post.foam
+
+# mesh creation
+runApplication blockMesh
+
+# set velocity field
+cp -r 0.org 0
+runApplication setExprFields
+
+# run scalarTransportFoam
+runApplication $(getApplication)
+
+#------------------------------------------------------------------------------
