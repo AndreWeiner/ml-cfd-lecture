@@ -1,6 +1,6 @@
 #!/bin/bash
-cd "${0%/*}" || exit                                # Run from this directory
-. ../../functions      # Tutorial clean functions
+cd "${0%/*}" || exit
+. ${ML_CFD_BASE}/RunFunctions
 #------------------------------------------------------------------------------
 
 cleanCase
