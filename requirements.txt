@@ -5,4 +5,4 @@ numpy
 pandas
 jupyterlab
 scikit-learn
-git+https://github.com/FlowModelingControl/flowtorch.git
+git+https://github.com/FlowModelingControl/flowtorch.git@aweiner
