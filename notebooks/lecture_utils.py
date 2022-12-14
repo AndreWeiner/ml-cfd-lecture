@@ -16,8 +16,8 @@ def run_epoch(
     device: str,
     results: dict,
     score_funcs: dict,
-    prefix: str
-    ) -> float:
+    prefix: str,
+) -> float:
     """Perform one optimizing step on a model.
 
     This loop is a slightly modified version of 'run_epoch'
@@ -66,7 +66,8 @@ def train_model(
     checkpoint_file: str = None,
     log_all: bool = False,
     lr_schedule: pt.optim.lr_scheduler._LRScheduler = None,
-    optimizer: pt.optim.Optimizer = None) -> pd.DataFrame:
+    optimizer: pt.optim.Optimizer = None,
+) -> pd.DataFrame:
     """Perform one optimizing step on a model.
 
     This function is a slightly modified version of 'train_network'
@@ -92,21 +93,32 @@ def train_model(
         # model update
         model = model.train()
         total_train_time += run_epoch(
-            model, optimizer, train_loader, loss_func, device,
-            results, score_funcs, prefix="train"
+            model,
+            optimizer,
+            train_loader,
+            loss_func,
+            device,
+            results,
+            score_funcs,
+            prefix="train",
         )
         results["epoch"].append(e)
         results["total_time"].append(total_train_time)
         message = f"Training loss: {results['train_loss'][-1]:2.6e}"
-
 
         # validation dataset
         if val_loader is not None:
             model = model.eval()
             with pt.no_grad():
                 _ = run_epoch(
-                    model, optimizer, val_loader, loss_func, device,
-                    results, score_funcs, prefix="val"
+                    model,
+                    optimizer,
+                    val_loader,
+                    loss_func,
+                    device,
+                    results,
+                    score_funcs,
+                    prefix="val",
                 )
             message += f"; Validation loss: {results['val_loss'][-1]:2.6e}"
 
@@ -122,8 +134,14 @@ def train_model(
             model = model.eval()
             with pt.no_grad():
                 _ = run_epoch(
-                    model, optimizer, test_loader, loss_func, device,
-                    results, score_funcs, prefix="test"
+                    model,
+                    optimizer,
+                    test_loader,
+                    loss_func,
+                    device,
+                    results,
+                    score_funcs,
+                    prefix="test",
                 )
             message += f"; Test loss: {results['test_loss'][-1]:2.6e}"
 
@@ -132,21 +150,19 @@ def train_model(
             suffix = f"_epoch_{e}" if log_all else ""
             pt.save(
                 {
-                    "epoch" : e,
-                    "model_state_dict" : model.state_dict(),
+                    "epoch": e,
+                    "model_state_dict": model.state_dict(),
                     "optimizer_state_dict": optimizer.state_dict(),
-                    "results" : results
-                }, checkpoint_file + suffix
+                    "results": results,
+                },
+                checkpoint_file + suffix,
             )
             latest_loss = results[ref_loss][-1]
             if latest_loss < best_loss:
                 best_loss = latest_loss
                 copy(checkpoint_file + suffix, checkpoint_file + "_best")
-                
 
-        print(
-            "\r", f"Epoch {e:4d}/{epochs - 1} - " + message, end=""
-        )
+        print("\r", f"Epoch {e:4d}/{epochs - 1} - " + message, end="")
 
     # if the optimizer was created in the training loop,
     # delete if to avoid unwanted side effects
@@ -154,3 +170,14 @@ def train_model(
         del optimizer
 
     return pd.DataFrame.from_dict(results)
+
+
+def create_simple_network(
+    n_in: int, n_out: int, n_neurons: int, n_hidden: int, activation: pt.nn.Module
+) -> pt.nn.Sequential:
+    layers = [pt.nn.Linear(n_in, n_neurons), activation()]
+    for _ in range(n_hidden):
+        layers.append(pt.nn.Linear(n_neurons, n_neurons))
+        layers.append(activation())
+    layers.append(pt.nn.Linear(n_neurons, n_out))
+    return pt.nn.Sequential(*layers)
