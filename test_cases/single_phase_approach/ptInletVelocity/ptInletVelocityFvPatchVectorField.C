@@ -129,13 +129,13 @@ void Foam::ptInletVelocityFvPatchVectorField::updateCoeffs()
     const polyMesh& mesh = this->internalField().mesh();
     const Time& t = mesh.time();
 
-    auto time = torch::zeros({1, 1}, torch::kFloat64);
-    time[0][0] = t.value();
+    auto time = torch::zeros({1}, torch::kFloat64);
+    time[0] = t.value();
     std::vector<torch::jit::IValue> feature{time};
     auto velocity = velocity_model_.forward(feature).toTensor();
-    auto velocityAcc = velocity.accessor<double, 2>();
+    auto velocityAcc = velocity.item<double>();
     vector v_in;
-    v_in = direction_ * velocityAcc[0][0];
+    v_in = direction_ * velocityAcc;
     vectorField::operator=(v_in);
     fixedValueFvPatchVectorField::updateCoeffs();
 }

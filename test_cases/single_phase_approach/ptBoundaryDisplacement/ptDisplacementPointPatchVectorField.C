@@ -140,13 +140,13 @@ void ptDisplacementPointPatchVectorField::updateCoeffs()
 
     std::vector<torch::jit::IValue> features{featureTensor};
     torch::Tensor radTensor = shape_model_.forward(features).toTensor();
-    auto radAccessor = radTensor.accessor<double,2>();
+    auto radAccessor = radTensor.accessor<double,1>();
     vectorField result(localPoints.size(), Zero);
 
     forAll(result, i)
     {
         vector rad = localPoints[i] - center_;
-        result[i] = rad / mag(rad) * (radAccessor[i][0]-radius_);
+        result[i] = rad / mag(rad) * (radAccessor[i]-radius_);
     }
 
     Field<vector>::operator=(result);

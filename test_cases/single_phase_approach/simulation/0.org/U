@@ -41,7 +41,7 @@ boundaryField
         origin          (0 0 0);
         axis            (0 1 0);
         normal          (0 0 1);
-        modelName       "iv_model.pt";
+        modelName       "tv_model.pt";
     }
     "wedge_.*"
     {

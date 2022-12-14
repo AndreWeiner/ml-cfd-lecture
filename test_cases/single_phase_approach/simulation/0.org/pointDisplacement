@@ -27,7 +27,7 @@ boundaryField
         center          (0 0 0);
         direction       (0 1 0);
         normal          (0 0 1);
-        modelName       "r_model.pt";
+        modelName       "rad_model.pt";
         radius          0.5;
         value           uniform (0 0 0);
     }

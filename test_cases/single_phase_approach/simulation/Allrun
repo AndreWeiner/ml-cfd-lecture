@@ -4,9 +4,9 @@ cd ${0%/*} || exit 1                        # Run from this directory
 
 # run simulation
 
-ln -s ../../../notebooks/output/r_model.pt .
-ln -s ../../../notebooks/output/rv_model.pt .
-ln -s ../../../notebooks/output/iv_model.pt .
+ln -s ${ML_CFD_BASE}/notebooks/output/rad_model.pt .
+ln -s ${ML_CFD_BASE}/notebooks/output/rv_model.pt .
+ln -s ${ML_CFD_BASE}/notebooks/output/tv_model.pt .
 runApplication blockMesh
 cp -r 0.org 0
 runApplication $(getApplication)

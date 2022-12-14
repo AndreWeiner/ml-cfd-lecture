@@ -155,7 +155,7 @@ void Foam::ptSurfaceVelocityFvPatchVectorField::updateCoeffs()
     // run forward pass to compute tangential velocity
     std::vector<torch::jit::IValue> modelFeatures{features};
     torch::Tensor uTensor = velocity_model_.forward(modelFeatures).toTensor();
-    auto uAccessor = uTensor.accessor<double,2>();
+    auto uAccessor = uTensor.accessor<double,1>();
 
     // comute normal velocity from mesh motion
     const fvMesh& mesh = internalField().mesh();
@@ -173,7 +173,7 @@ void Foam::ptSurfaceVelocityFvPatchVectorField::updateCoeffs()
     vectorField surfaceVelocity(Cf.size(), Zero);
     forAll(surfaceVelocity, faceI)
     {
-	    surfaceVelocity[faceI] = tau[faceI] * uAccessor[faceI][0] + n[faceI]*(Up[faceI] & n[faceI]);
+	    surfaceVelocity[faceI] = tau[faceI] * uAccessor[faceI] + n[faceI]*(Up[faceI] & n[faceI]);
     }
 
     vectorField::operator=(surfaceVelocity);
