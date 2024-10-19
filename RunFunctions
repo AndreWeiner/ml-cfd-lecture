@@ -34,7 +34,7 @@
 ## - https://stackoverflow.com/questions/47813384/weird-behaviour-of-mpirun-always-strictly-binding-to-cores-0-and-1-when-startin
 
 
-ML_CFD_BASHRC="${ML_CFD_BASHRC:=/usr/lib/openfoam/openfoam2206/etc/bashrc}"
+ML_CFD_BASHRC="${ML_CFD_BASHRC:=/usr/lib/openfoam/openfoam2406/etc/bashrc}"
 
 imageFound()
 {

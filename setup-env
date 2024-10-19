@@ -8,9 +8,9 @@ mkdir -p $ML_CFD_LIBBIN
 # Apptainer workflow
 echo "Setting environment variables for execution with Apptainer"
 # image location
-export ML_CFD_IMAGE="${ML_CFD_BASE}/of2206-py1.12.1-cpu.sif"
+export ML_CFD_IMAGE="${ML_CFD_BASE}/of2406-py2.5.0-cpu.sif"
 echo "Using image ${ML_CFD_IMAGE}"
 # location of OpenFOAM bashrc file inside the container
-export ML_CFD_BASHRC="/usr/lib/openfoam/openfoam2206/etc/bashrc"
+export ML_CFD_BASHRC="/usr/lib/openfoam/openfoam2406/etc/bashrc"
 # path to libTorch inside the container
 export ML_CFD_TORCH="/opt/libtorch"
