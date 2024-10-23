@@ -21,7 +21,7 @@ solvers
     {
         solver           GAMG;
         smoother         DICGaussSeidel;
-        tolerance        1e-6;
+        tolerance        1e-06;
         relTol           0.01;
     }
 
@@ -35,7 +35,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-05;
+        tolerance       1e-06;
         relTol          0.1;
     }
 
@@ -44,6 +44,16 @@ solvers
         $U;
         relTol          0;
     }
+
+    Phi
+    {
+        $p;
+    }
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
 }
 
 PIMPLE
@@ -60,7 +70,7 @@ PIMPLE
         "(U|p)"
         {
             relTol          0;
-            tolerance       0.0001;
+            tolerance       1e-04;
         }
     }
 }

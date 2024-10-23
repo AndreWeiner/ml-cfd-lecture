@@ -17,7 +17,7 @@ FoamFile
 
 ddtSchemes
 {
-    default         Euler;
+    default         backward;
 }
 
 gradSchemes
@@ -49,7 +49,7 @@ snGradSchemes
 fluxRequired
 {
     default         no;
-    p               ;
+    p;
 }
 
 

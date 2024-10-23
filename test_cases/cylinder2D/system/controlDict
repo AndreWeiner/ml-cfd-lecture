@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         8;
+endTime         10;
 
-deltaT          5.0e-4;
+deltaT          2.0e-3;
 
 writeControl    runTime;
 
-writeInterval   0.01;
+writeInterval   3.2e-2;
 
 purgeWrite      0;
 
@@ -47,24 +47,23 @@ functions
 {
     forces
     {
-        type            forceCoeffs;
-        libs            (forces);
-        writeControl    timeStep;
-        writeInterval   1;
+        type             forceCoeffs;
+        libs             (forces);
+        executeControl   timeStep;
+        executeInterval  1;
+        writeControl     timeStep;
+        writeInterval    1;
         log false;
-
         patches
         (
             cylinder
         );
-
         rhoInf      1;
         rho         rhoInf;
-
         CofR        (0.2 0.2 0.005);
         liftDir     (0 1 0);
         dragDir     (1 0 0);
-        //pitchAxis   (0 0 1);
+        pitchAxis   (0 0 1);
         magUInf     1.0;
         lRef        0.1;
         Aref        0.001;

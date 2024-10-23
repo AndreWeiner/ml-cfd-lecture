@@ -13,9 +13,10 @@ runApplication blockMesh
 cp -r 0.org 0
 runApplication setExprBoundaryFields
 
-# decompose and run case
+# decompose, initialize, and run (parallel)
 runApplication decomposePar
 runParallel renumberMesh -overwrite
+runParallel potentialFoam -writephi
 runParallel $(getApplication)
 
 #------------------------------------------------------------------------------
