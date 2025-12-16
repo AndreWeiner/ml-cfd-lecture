@@ -45,7 +45,7 @@ The exercises are designed for native Linux operating systems like Ubuntu (recom
 
 ## Datasets
 
-Both exercises and lectures sometimes require datasets. Usually, there are instructions how to create or extract the data yourself. For convenience, a downloadable snapshot of the [latest data (20. Dec 2021)](https://cloudstorage.tu-braunschweig.de/getlink/fiYPP9HwVaypRziqMCjZuQVx/datasets_20_Dec_2021.zip) is provided, too.
+Both exercises and lectures sometimes require datasets. Usually, there are instructions how to create or extract the data yourself. For convenience, a downloadable snapshot of the [latest data (20. Dec 2021)](https://datashare.tu-dresden.de/s/Ek9fP8e7rBnWF4E?openfile=true) is provided, too.
 
 ## Getting and providing help and feedback
 
