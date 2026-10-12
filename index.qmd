@@ -1,9 +1,5 @@
 ---
 title: Machine Learning in Fluid Mechanics
-format:
-  html:
-    template-partials:
-      - templates/overview/title-block.html
 ---
 
 Lecture notes and exercises from the Institute of Fluid Mechanics at TU Dresden.

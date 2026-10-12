@@ -8,11 +8,5 @@ main p, main li { overflow-wrap: anywhere; }
 main img { max-width: 100%; height: auto; }
 main :not(pre) > code { white-space: normal; overflow-wrap: anywhere; }
 
-/* University mark on the overview only; Quarto selects the matching theme asset. */
-.overview-university-logo {
-  display: block;
-  width: 220px;
-  max-width: 65vw;
-  height: auto;
-  margin: 0 0 1.5rem;
-}
+/* Keep the horizontal university wordmark readable in Quarto's navbar. */
+.navbar-logo { max-height: 56px; }
