@@ -4,7 +4,8 @@
 
 This repository contains resources accompanying the course [Machine Learning in Fluid Mechanics](https://tu-dresden.de/ing/maschinenwesen/ism/psm/studium/lehrveranstaltungen/maschinelles-lernen-in-der-stroemungsmechanik/index) offered by the Institute of Fluid Mechanics at TU Dresden. **Note that slides, Python chapters, and other resources will be regularly updated throughout the term.**
 
-![Funding logo](logo_stiftung_hochschullehre.png)
+![Funding logo](logo_stiftung_hochschullehre.png#gh-light-mode-only)
+![Funding logo](logo_stiftung_hochschullehre_white.svg#gh-dark-mode-only)
 
 This course previously received funding from the [Foundation for Innovation in Higher Education](https://stiftung-hochschullehre.de/).
 
