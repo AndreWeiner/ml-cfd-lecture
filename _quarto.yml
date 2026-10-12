@@ -13,6 +13,7 @@ project:
   - logo_stiftung_hochschullehre.png
   - requirements.txt
   - .nojekyll
+  - images/TUD*.svg
   - notebooks/media/ml-fluid-mechanics-venn-*
   - notebooks/media/supervised-regression-*
   - notebooks/media/supervised-classification-*
