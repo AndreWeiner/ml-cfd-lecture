@@ -1,0 +1,10 @@
+{
+  "hash": "971c1685ab2f304f34742c0766c69934",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: \"Open-loop control of the flow past a cylinder \u2014 Exercises\"\njupyter: python3\n---\n\n[Download Python source](cylinder_bayesian_opt_exercise.py){.btn .btn-outline-primary .btn-sm data-noresolveinput=\"true\" download=\"cylinder_bayesian_opt_exercise.py\"}\n\n![CC](https://i.creativecommons.org/l/by/4.0/88x31.png)\n\nThis work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).\n\n\n\n",
+    "supporting": [],
+    "filters": [],
+    "includes": {}
+  }
+}
