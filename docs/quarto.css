@@ -1,0 +1,9 @@
+/* Keep wide scientific content scrollable within the reading column. */
+main.content, main section, .cell, .cell-output { min-width: 0; }
+main table { display: block; max-width: 100%; overflow-x: auto; }
+.cell-output pre { overflow-x: auto; }
+.math.display { display: block; max-width: 100%; overflow-x: auto; }
+main video, main iframe { max-width: 100%; }
+main p, main li { overflow-wrap: anywhere; }
+main img { max-width: 100%; height: auto; }
+main :not(pre) > code { white-space: normal; overflow-wrap: anywhere; }

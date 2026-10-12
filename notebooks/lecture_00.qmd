@@ -1,0 +1,96 @@
+---
+title: How to learn with generative AI
+---
+
+## Learning objectives
+
+Use chat tools and coding agents proactively while developing your own understanding. After this topic, you should be able to choose useful forms of AI assistance, explain the work you produce, and build evidence that a solution is likely correct without a reference answer.
+
+## Keep understanding alongside output
+
+AI can explain unfamiliar ideas, give feedback, generate practice questions, and help you explore code. A completed task is only one measure of success. Ask yourself: **What can I now explain or do that I could not do before?**
+
+**Some struggle is essential for learning.** Recalling ideas, trying an approach, making mistakes, and diagnosing them require effort that no AI can do for you. You do not need to remain stuck indefinitely: use AI to help you take the next step, then do that step yourself.
+
+**Watching someone else—or an AI—solve a problem is not the same as solving it yourself.** An explanation can seem clear while you are following it. You discover which parts you have understood and where gaps remain only when you apply the concept independently. Practise this throughout the course; by the exam, you need to be able to reason and solve problems yourself.
+
+**Learning takes time, repeated recall, and regular practice.** Working through a problem once—even with real effort—is not enough. Return to the topic on different days, try to recall the reasoning without looking at a solution, and apply it to new problems. You may get stuck or make mistakes again; identify what went wrong, then try again. Continue practising until you can explain the concept and use it with increasing ease. **Consider your understanding satisfactory only when you can return to a problem after some time and still recall and apply the reasoning with ease and without assistance.** Solving it immediately after seeing an explanation is not enough. Make this a regular habit throughout the course rather than leaving it until just before the exam.
+
+Understanding the subject also helps you use AI effectively. You need enough knowledge to ask useful questions, judge whether an answer makes sense, recognise mistakes, and guide the tool when it goes wrong. Without that understanding, you can accept plausible but incorrect results or become stuck because you cannot tell why the output is unsatisfactory. Developing your own expertise therefore remains essential when working with AI.
+
+## A practical learning cycle
+
+**Attempt → ask → examine → practise independently → revisit.**
+
+1. **Choose a learning goal.** Identify the skill you are practising. If you are learning a discretization, develop its core yourself. If you already understand a routine task, delegating it can leave more time for the harder parts.
+2. **Make an attempt.** Write down your approach, prediction, or first few steps before asking for help.
+3. **Ask for targeted assistance.** Request one hint, a simpler example, or feedback on your reasoning. Work through the response and challenge anything unclear.
+4. **Check the result.** Design checks that could reveal mistakes, including mistakes in AI output.
+5. **Close the tool.** Explain the idea, solve a related problem, or recreate a small implementation without assistance. Return to it later to check what you remember.
+
+## Use chat tools as interactive tutors
+
+Give the tool your reasoning and ask it to help you improve it. For example:
+
+> Give me one hint, then wait for my attempt.
+
+> Here is my reasoning. Identify the first mistake without completing the solution.
+
+> Quiz me one question at a time about boundary conditions, and ask me to justify my answer.
+
+> I have expanded this vector equation into Cartesian components. Ask me questions that help me find errors rather than rewriting it for me.
+
+Explain the answer in your own words afterwards. Recognising a convincing explanation is easier than producing one yourself.
+
+If the exercises provided in the course are not sufficient for your practice, **use AI to generate additional exercises** on the same topic. Ask for variations and gradually increasing difficulty, and attempt them before requesting hints or feedback. Check that the generated tasks are clear and consistent with the course assumptions; AI-generated exercises can contain mistakes too.
+
+> Generate three additional exercises on this topic, starting at the level of the course exercises and increasing the difficulty. Give me only the questions first, without solutions, and wait for my attempt.
+
+## Use coding agents in understandable steps
+
+Describe the intended behaviour and sketch your approach before requesting changes. Ask for a plan, keep changes small, review them, and predict what the code will do before running it. Practise writing and debugging the parts central to your learning goal yourself.
+
+For example:
+
+> Help me diagnose this failure. Ask for my hypothesis first, suggest a diagnostic check, and wait before editing.
+
+> I want to implement a finite-difference approximation myself. Review my indexing and boundary treatment, but do not replace the implementation.
+
+An agent can help with routine setup or plotting once you understand the task. You should still be able to explain the code, its assumptions, and its limitations. A successful run alone does not establish that it solves the intended problem.
+
+## Build your own evidence of correctness
+
+**No reference solutions will be provided in this course.** Developing and defending a verification strategy is part of the course. You are responsible for checking your work, including anything produced by AI.
+
+Use several checks that can reveal different kinds of mistakes:
+
+| Check | Example in fluid mechanics or scientific computing |
+|:------|:---------------------------------------------------|
+| Predict before running | Sketch the expected profile and estimate its magnitude or sign. |
+| Construct simple cases | Work out a small mesh by hand, or test a case with a simple analytical solution. |
+| Check limits and consistency | Check units, signs, boundary conditions, symmetry, conservation, and limiting parameter values. |
+| Examine refinement | Compare several mesh spacings and examine whether the result approaches a stable limit. However, note that a stable limit alone does not guarantee the correct model or solution. |
+| Compare independent approaches | Compare a derivation, a simpler model, or a separate implementation that does not merely copy the same logic. |
+| Try to break the solution | Search for inputs or counterexamples that expose incorrect assumptions or indexing. |
+
+AI can suggest checks, but you must explain why they are meaningful and examine the results yourself. Asking the same tool whether its answer is correct provides little independent evidence.
+
+In this course, we will also work on defining **skills for AI agents**: reusable instructions and procedures that help agents carry out some of these checks systematically. You must still develop and choose meaningful checks yourself, drawing on your understanding of the problem and the experience you gain through practice. A skill can help implement a verification strategy, but deciding what needs to be checked and interpreting the evidence remain your responsibility.
+
+Report **what you checked, what the evidence supports, and what remains uncertain**. Passing checks increases confidence; it does not guarantee correctness.
+
+## Stay responsible for your learning
+
+Follow the rules for each assessed task and acknowledge assistance where required. Do not upload confidential information or credentials. Discuss difficult ideas with classmates and instructors too.
+
+Before finishing, check that you can explain your assumptions, defend your verification strategy, and reproduce the central reasoning without the tool.
+
+## Research and further reading
+
+The guidance above adapts the research and teaching resources discussed in the course preparation. Results depend on the task and the design of the assistance; they do not show that every AI tool improves or harms learning.
+
+- [Bastani et al., *Generative AI without guardrails can harm learning*, PNAS (2025)](https://www.pnas.org/doi/10.1073/pnas.2422633122). This high-school mathematics study contrasts unrestricted assistance with a tutor designed to protect learning. Its setting differs from this undergraduate course. Accessed on October 11, 2026.
+- [Kestin et al., *AI tutoring outperforms in-class active learning*, Scientific Reports (2025)](https://www.nature.com/articles/s41598-025-97652-6). This study examines a structured tutor in undergraduate physics over two lessons. It does not establish the effectiveness of all chatbots or their effects on long-term retention. Accessed on October 11, 2026.
+- [Anthropic, *How AI assistance impacts the formation of coding skills* (2026)](https://www.anthropic.com/research/AI-assistance-coding-skills). Developers learning an unfamiliar Python library with AI scored lower on a subsequent skills test. Exploratory analysis associated active conceptual engagement with better outcomes than extensive delegation. This was AI coding assistance, not a test of every autonomous coding agent. Accessed on October 11, 2026.
+- [University of Pennsylvania, *Supporting Students in Using AI for Learning*](https://cetli.upenn.edu/resources/generative-ai/supporting-students-in-using-ai-for-learning/). This university guide offers practical advice on using AI to support learning. Accessed on October 11, 2026.
+- [Ethan Mollick, *Assigning AI: Seven Ways of Using AI in Class*](https://www.oneusefulthing.org/p/assigning-ai-seven-ways-of-using). This article suggests using AI as a tutor, coach, practice partner, or a student whom you teach. Accessed on October 11, 2026.

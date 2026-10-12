@@ -13,3 +13,16 @@ datasets
 drl_test_1
 ml-cfd
 openfoam
+# Quarto tooling and temporary build state
+.tools/
+.venv-quarto/
+.quarto/
+notebooks/*_files/
+
+**/*.quarto_ipynb
+
+/.quarto/
+
+# Local coding-agent provider configuration
+/opencode.json
+/opencode.jsonc

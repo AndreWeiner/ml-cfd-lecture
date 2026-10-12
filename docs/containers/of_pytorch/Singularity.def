@@ -1,0 +1,37 @@
+Bootstrap: docker
+From: ubuntu:26.04
+
+%files
+    test /opt/of-pytorch-tests
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install --no-install-recommends -y ca-certificates cmake build-essential unzip wget git
+    wget -q -O /tmp/add-openfoam-repo.sh https://dl.openfoam.com/add-debian-repo.sh
+    bash /tmp/add-openfoam-repo.sh
+    rm /tmp/add-openfoam-repo.sh
+    apt-get update
+    apt-get install --no-install-recommends -y openfoam2606-dev
+    rm -rf /var/lib/apt/lists/*
+    wget -q -O /tmp/libtorch.zip 'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.14.1%2Bcpu.zip'
+    echo "0f02329a5266153cffa9dc12926ff2221fa626207b894d40bd61905cc2079821  /tmp/libtorch.zip" | sha256sum -c -
+    unzip -q /tmp/libtorch.zip -d /opt
+    rm /tmp/libtorch.zip
+    export TORCH_LIBRARIES=/opt/libtorch
+    bash -c 'source /usr/lib/openfoam/openfoam2606/etc/bashrc && /opt/of-pytorch-tests/run-tests.sh'
+
+%environment
+    export FOAM_PATH=/usr/lib/openfoam/openfoam2606
+    export TORCH_LIBRARIES=/opt/libtorch
+
+%runscript
+    exec /bin/bash -c 'source "$FOAM_PATH/etc/bashrc" ""; exec "$@"' bash "$@"
+
+%test
+    /bin/bash -c 'source "$FOAM_PATH/etc/bashrc" && /opt/of-pytorch-tests/run-tests.sh'
+
+%help
+    OpenFOAM.com v2606 with CPU LibTorch 2.14.1 on Ubuntu 26.04.
+    Run commands with arguments: apptainer run image.sif simpleFoam -help
+    Compile/run tests: apptainer run image.sif /opt/of-pytorch-tests/run-tests.sh

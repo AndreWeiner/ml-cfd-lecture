@@ -1,0 +1,63 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+  - index.qmd
+  - notebooks/lecture_00.qmd
+  - notebooks/ml_cfd_intro.py
+  - notebooks/system_setup.py
+  resources:
+  - notebooks/ml_cfd_intro.py
+  - notebooks/system_setup.py
+  - containers/of_pytorch/**
+  - logo_stiftung_hochschullehre.png
+  - requirements.txt
+  - .nojekyll
+  - notebooks/media/ml-fluid-mechanics-venn-*
+  - notebooks/media/supervised-regression-*
+  - notebooks/media/supervised-classification-*
+  - notebooks/media/unsupervised-reduction-*
+  - notebooks/media/unsupervised-clustering-*
+  - notebooks/media/reinforcement-learning-*
+  - notebooks/media/workflow-extract-*
+  - notebooks/media/workflow-use-*
+  - notebooks/media/workflow-stacked-*
+  - notebooks/media/workflow-circular-*
+website:
+  title: Machine Learning in Fluid Mechanics
+  navbar:
+    left:
+    - href: index.qmd
+      text: Course overview
+  sidebar:
+    style: docked
+    search: true
+    contents:
+    - href: index.qmd
+      text: Overview
+    - section: Lectures and exercises
+      contents:
+      - notebooks/lecture_00.qmd
+      - section: Course overview and motivation
+        contents:
+        - href: notebooks/ml_cfd_intro.py
+          text: Lecture
+        - href: notebooks/system_setup.py
+          text: Practice
+
+format:
+  html:
+    theme:
+      dark: [darkly, theme-dark.scss]
+      light: cosmo
+    respect-user-color-scheme: false
+    toc: true
+    code-copy: true
+    code-overflow: scroll
+    css: quarto.css
+execute:
+  freeze: true
+  warning: false
+  error: false
+  daemon: false
+lang: en

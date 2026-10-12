@@ -1,0 +1,9 @@
+torch==2.14.1
+matplotlib
+numpy
+pandas
+jupyterlab
+scikit-learn
+botorch
+gpytorch
+flowtorch-fluid[all]

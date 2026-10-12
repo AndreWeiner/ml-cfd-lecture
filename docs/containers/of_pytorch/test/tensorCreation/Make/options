@@ -1,0 +1,12 @@
+EXE_INC = \
+    -std=c++20 \
+    -Wno-old-style-cast \
+    -I$(TORCH_LIBRARIES)/include \
+    -I$(TORCH_LIBRARIES)/include/torch/csrc/api/include \
+
+EXE_LIBS = \
+    -lOpenFOAM \
+    -Wl,-rpath,$(TORCH_LIBRARIES)/lib $(TORCH_LIBRARIES)/lib/libtorch.so $(TORCH_LIBRARIES)/lib/libc10.so \
+    -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch_cpu.so \
+    -Wl,--as-needed $(TORCH_LIBRARIES)/lib/libc10.so \
+    -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch.so
