@@ -46,7 +46,7 @@
 #
 # The course uses Linux for Python, CFD tools, and containers. Follow the common Ubuntu steps after choosing either native Ubuntu or Windows 11 with WSL 2. The commands below assume an **x86-64/AMD64 computer**; the legacy course container images and PyTorch wheels may require a different setup on ARM-based devices.
 #
-# Use **Python 3.10 or newer**, with **Python 3.12 recommended** for this course. Ubuntu **26.04 LTS** provides Python 3.14 as its default, so Step 4 installs a separate Python 3.12 environment. We keep the system Python unchanged: PyTorch warns that the TorchScript functionality used by later course examples is not supported on Python 3.14 or newer. A CPU-only installation is sufficient to start; a GPU is not required. Keep space for the Linux distribution, Python packages, container images, and later datasets. The old estimate of 8 GB for the tools alone is not a reliable allowance for the full course.
+# Use **Python 3.10 or newer**, with **Python 3.12 recommended** for this course. Ubuntu **26.04 LTS** provides Python 3.14 as its default, so Step 4 installs a separate Python 3.12 environment. Python 3.12 is the tested course baseline; Ubuntu's system Python remains unchanged. A CPU-only installation is sufficient to start; a GPU is not required. Keep space for the Linux distribution, Python packages, container images, and later datasets. The old estimate of 8 GB for the tools alone is not a reliable allowance for the full course.
 #
 # ### Step 1 — Get access to Ubuntu
 #
@@ -130,7 +130,7 @@
 #
 # `uv` downloads a managed Python interpreter when the requested version is missing. See its [Python installation guide](https://docs.astral.sh/uv/guides/install-python/). No Python compilation or replacement of Ubuntu's system Python is required. After activation, check `python --version`; it should report 3.12.
 #
-# The CPU installation follows [PyTorch's version-specific instructions](https://docs.pytorch.org/get-started/previous-versions/). We retain PyTorch **2.14.1** because the course's OpenFOAM container and manual setup use LibTorch **2.14.1**. Do not independently upgrade one side of that pairing. Most other packages remain unpinned, so successful dependency resolution and the checks below are important. PyTorch 2.14 also deprecates TorchScript, which some existing course examples still use. A deprecation warning is not an installation failure; Python 3.12 avoids the additional unsupported-version warning seen with Python 3.14. Later examples will need their own compatibility checks.
+# The CPU installation follows [PyTorch's version-specific instructions](https://docs.pytorch.org/get-started/previous-versions/). We retain PyTorch **2.14.1** because the course's OpenFOAM container and manual setup use LibTorch **2.14.1**. Do not independently upgrade one side of that pairing. Most other packages remain unpinned, so successful dependency resolution and the checks below are important. The course uses `torch.export` for model export. Older exercises may still contain TorchScript calls until they are revised. Later examples will need their own compatibility checks.
 #
 # Install the latest available **FlowTorch** release from PyPI. The distribution is named `flowtorch-fluid`, while Python imports remain `flowtorch`. The latest published release checked for this revision is **1.9.0**; install the `all` extra to include the data loaders, reduced-order modelling, and pressure-sensitive-paint dependencies:
 #
@@ -155,6 +155,7 @@
 #
 # ```python
 # import sys
+# import warnings
 # from importlib.metadata import version
 # from pathlib import Path
 # import numpy as np
@@ -164,11 +165,18 @@
 # import pandas
 # import sklearn
 # import torch
-# import botorch
-# import gpytorch
-# import flowtorch
-# from flowtorch import DATASETS
-# from flowtorch.data import FOAMDataloader, mask_box
+# # Some dependencies currently import legacy TorchScript code internally.
+# # Hide only its known deprecation warning; this check uses torch.export.
+# with warnings.catch_warnings():
+#     warnings.filterwarnings(
+#         "ignore", message=r"`torch\.jit\.script` is deprecated\..*",
+#         category=FutureWarning, module=r"torch\.jit\._script",
+#     )
+#     import botorch
+#     import gpytorch
+#     import flowtorch
+#     from flowtorch import DATASETS
+#     from flowtorch.data import FOAMDataloader, mask_box
 #
 # print("Python:", sys.version.split()[0])
 # print("Interpreter:", sys.executable)
@@ -177,6 +185,21 @@
 # assert torch.__version__.split("+")[0] == "2.14.1"
 # x = torch.tensor([1.0, 2.0, 3.0])
 # assert torch.isclose(x.mean(), torch.tensor(2.0))
+#
+# class ExampleModel(torch.nn.Module):
+#     def forward(self, x):
+#         return x.square() + 1.0
+#
+# model = ExampleModel().eval()
+# exported = torch.export.export(model, (x,))
+# torch.testing.assert_close(exported.module()(x), torch.tensor([2.0, 5.0, 10.0]))
+# export_path = Path(__file__).with_name("setup-check.pt2")
+# torch.export.save(exported, export_path)
+# loaded = torch.export.load(export_path)
+# test_input = torch.tensor([0.0, -2.0, 4.0])
+# torch.testing.assert_close(loaded.module()(test_input), torch.tensor([1.0, 5.0, 17.0]))
+# print("PyTorch export, save/load, and inference passed:", export_path)
+#
 # t = np.linspace(0, 2 * np.pi, 100)
 # fig, ax = plt.subplots()
 # ax.plot(t, np.sin(t))
@@ -185,7 +208,7 @@
 # fig.savefig(path)
 # plt.close(fig)
 # print("Saved:", path)
-# print("Core package imports and basic calculations passed.")
+# print("Core package imports, PyTorch export, and basic calculations passed.")
 # ```
 #
 # Run it from the repository root:
@@ -194,7 +217,7 @@
 # python exercises/setup_check.py
 # ```
 #
-# Inspect the saved sine curve. These checks confirm imports and basic execution, not the correctness of every later course example. FlowTorch's example datasets are separate from the Python package; later chapters explain which data are needed.
+# Inspect the saved sine curve. The script also exports a small model, saves it as `setup-check.pt2`, reloads it, and checks its predictions against known values. Some third-party dependencies still import legacy TorchScript code internally, so the script suppresses only that specific warning during those imports. These checks confirm imports, model export, and basic execution, not the correctness of every later course example. FlowTorch's example datasets are separate from the Python package; later chapters explain which data are needed.
 #
 # The course sources are Python scripts with `# %%` cells. You can run your own scripts from the terminal or use an editor that supports individual cells. JupyterLab is optional:
 #
