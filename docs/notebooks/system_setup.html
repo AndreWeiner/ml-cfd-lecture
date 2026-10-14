@@ -407,6 +407,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-9-optional-editor-setup" id="toc-step-9-optional-editor-setup" class="nav-link" data-scroll-target="#step-9-optional-editor-setup">Step 9 — Optional editor setup</a></li>
   <li><a href="#step-10-optional-opencode-with-scads.ai-models-tudai" id="toc-step-10-optional-opencode-with-scads.ai-models-tudai" class="nav-link" data-scroll-target="#step-10-optional-opencode-with-scads.ai-models-tudai">Step 10 — Optional: OpenCode with ScaDS.AI models (TUD:AI)</a></li>
   <li><a href="#troubleshooting-windows-11-and-ubuntu" id="toc-troubleshooting-windows-11-and-ubuntu" class="nav-link" data-scroll-target="#troubleshooting-windows-11-and-ubuntu">Troubleshooting Windows 11 and Ubuntu</a></li>
+  <li><a href="#validation-of-the-virtualbox-route" id="toc-validation-of-the-virtualbox-route" class="nav-link" data-scroll-target="#validation-of-the-virtualbox-route">Validation of the VirtualBox route</a></li>
   <li><a href="#completion-record" id="toc-completion-record" class="nav-link" data-scroll-target="#completion-record">Completion record</a></li>
   </ul></li>
   </ul>
@@ -443,7 +444,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>decompose a fluid-mechanical application into suitable learning tasks and explain how they connect;</li>
 <li>identify the required data, propose meaningful checks, and explain which steps can use analytical or numerical methods;</li>
-<li>set up the course tools on Ubuntu or Windows 11 with WSL 2 and verify the main components.</li>
+<li>set up the course tools on Ubuntu, or on Windows 11 using WSL 2 or an Ubuntu VirtualBox VM, and verify the main components.</li>
 </ul>
 </section>
 <section id="part-1-theory" class="level2">
@@ -476,7 +477,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="part-2-practical-lab-setting-up-your-system" class="level2">
 <h2 class="anchored" data-anchor-id="part-2-practical-lab-setting-up-your-system">Part 2 — Practical lab: setting up your system</h2>
-<p>The course uses Linux for Python, CFD tools, and containers. Follow the common Ubuntu steps after choosing either native Ubuntu or Windows 11 with WSL 2. The commands below assume an <strong>x86-64/AMD64 computer</strong>; the legacy course container images and PyTorch wheels may require a different setup on ARM-based devices.</p>
+<p>The course uses Linux for Python, CFD tools, and containers. Choose <strong>native Ubuntu</strong>, <strong>Windows 11 with WSL 2</strong>, or <strong>Windows 11 with Ubuntu in VirtualBox</strong>, then follow the common Ubuntu steps. VirtualBox is an alternative if you have trouble with WSL. The commands below assume an <strong>x86-64/AMD64 computer</strong>; the legacy course container images and PyTorch wheels may require a different setup on ARM-based devices.</p>
 <p>Use <strong>Python 3.10 or newer</strong>, with <strong>Python 3.12 recommended</strong> for this course. Ubuntu <strong>26.04 LTS</strong> provides Python 3.14 as its default, so Step 4 installs a separate Python 3.12 environment. Python 3.12 is the tested course baseline; Ubuntu’s system Python remains unchanged. A CPU-only installation is sufficient to start; a GPU is not required. Keep space for the Linux distribution, Python packages, container images, and later datasets. The old estimate of 8 GB for the tools alone is not a reliable allowance for the full course.</p>
 <section id="step-1-get-access-to-ubuntu" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-get-access-to-ubuntu">Step 1 — Get access to Ubuntu</h3>
@@ -492,205 +493,249 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>wsl <span class="op">--</span>set-version Ubuntu-26<span class="op">.</span><span class="dv">04</span> <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>These commands follow <a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s WSL installation guide</a>. From this point onward, run Linux commands <strong>in the Ubuntu terminal</strong>, not PowerShell.</p>
 </section>
+<section id="windows-11-install-ubuntu-in-virtualbox" class="level4">
+<h4 class="anchored" data-anchor-id="windows-11-install-ubuntu-in-virtualbox">Windows 11: install Ubuntu in VirtualBox</h4>
+<p>In this route, <strong>Windows is the host</strong> and <strong>Ubuntu is the guest</strong>. Run the course’s terminal commands, Python environment, editor, and CFD simulations inside Ubuntu. You can use Windows ParaView to inspect completed results copied into a shared folder.</p>
+<ol type="1">
+<li>Download the current stable <strong>Windows installer</strong> from the <a href="https://www.oracle.com/virtualization/technologies/vm/downloads/virtualbox-downloads.html">official VirtualBox download page</a>, run it, and restart Windows if requested. The base package is sufficient for this workflow.</li>
+<li>Download the <strong>Ubuntu 26.04.1 LTS Desktop AMD64 ISO</strong> from <a href="https://ubuntu.com/download/desktop">Ubuntu</a>. This is the installer used in the course’s VM test.</li>
+<li>Open VirtualBox and create a new VM named <code>ML-CFD-Ubuntu</code>. Select the Ubuntu ISO and <strong>Linux / Ubuntu (64-bit)</strong>. Choose manual installation (skip unattended installation) so that you create your own Ubuntu account and install Guest Additions using Ubuntu packages below.</li>
+<li>Allocate <strong>4 CPU cores, 8 GB RAM, and an 80 GB dynamically allocated virtual disk</strong>. A Windows computer with at least 16 GB RAM is a practical starting point; leave enough memory and CPU capacity for Windows. The disk grows as files are added, up to its configured limit. Allow additional space for the installer and later datasets.</li>
+<li>Keep the network adapter on <strong>NAT</strong> for internet access. Use <strong>VMSVGA</strong> graphics with <strong>128 MB video memory</strong>; 3D acceleration and nested virtualization are not required for the tested setup.</li>
+<li>Start the VM and install Ubuntu. Choose your language, keyboard, time zone, username, and password. The installer’s disk selection refers to the VM’s virtual disk. Restart into the installed Ubuntu system and remove the installer ISO from the virtual optical drive if requested.</li>
+</ol>
+<p>Inside the installed Ubuntu desktop, open a terminal and install Ubuntu’s packaged Guest Additions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install virtualbox-guest-utils virtualbox-guest-x11</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-aG</span> vboxsf <span class="st">"</span><span class="va">$USER</span><span class="st">"</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> reboot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use this package route for the course VM. In the local test, the Guest Additions ISO bundled with VirtualBox 7.2.6 failed to build a module against Ubuntu’s updated kernel; the Ubuntu packages worked after reboot. If you already installed Guest Additions from an ISO, ask the teaching team before replacing that installation.</p>
+<p><strong>Create a shared folder:</strong></p>
+<ol type="1">
+<li><p>On Windows, create a folder such as <code>C:\Users\YOUR_NAME\ML-CFD-share</code>, replacing <code>YOUR_NAME</code> with your Windows username.</p></li>
+<li><p>Shut down Ubuntu. In VirtualBox, open the VM’s <strong>Settings → Shared Folders</strong> and add that Windows folder. Set the <strong>Folder Name</strong> to <code>ML-CFD-share</code>, enable <strong>Auto-mount</strong>, leave <strong>Read-only</strong> unchecked, and save it as a permanent machine folder.</p></li>
+<li><p>Start Ubuntu again. The folder should be available at <code>/media/sf_ML-CFD-share</code>.</p></li>
+<li><p>In Ubuntu, verify that you can write a file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">'Written inside Ubuntu\n'</span> <span class="op">&gt;</span> /media/sf_ML-CFD-share/guest-check.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>Open <code>guest-check.txt</code> from the Windows folder. Create another text file there using Windows, then open it from <code>/media/sf_ML-CFD-share</code> in Ubuntu. Repeat the check after a reboot.</p></li>
+</ol>
+<p>Keep the course checkout, Python environments, SIF images, and running simulation cases in Ubuntu’s home directory. Use the shared folder to exchange scripts, plots, and completed results. See <a href="https://docs.oracle.com/en/virtualization/virtualbox/7.2/user/guestadditions.html">VirtualBox’s shared-folder documentation</a>.</p>
+<p>Continue with Step 2 in the <strong>Ubuntu guest terminal</strong>. All later Ubuntu commands apply inside this VM. If VirtualBox reports unavailable hardware virtualization, check the manufacturer’s firmware instructions. VirtualBox can coexist with Windows Hyper-V, but performance can vary; use <a href="https://docs.oracle.com/en/virtualization/virtualbox/7.2/user/Troubleshooting.html">Oracle’s troubleshooting guide</a> to diagnose the reported issue.</p>
+</section>
 <section id="native-linux" class="level4">
 <h4 class="anchored" data-anchor-id="native-linux">Native Linux</h4>
-<p>If you already use Ubuntu 26.04, continue below. Otherwise, follow the <a href="https://ubuntu.com/tutorials/install-ubuntu-desktop">Ubuntu installation guide</a>. Installing a second operating system involves disk partitioning; WSL 2 avoids that step on Windows 11.</p>
+<p>If you already use Ubuntu 26.04, continue below. Otherwise, follow the <a href="https://ubuntu.com/tutorials/install-ubuntu-desktop">Ubuntu installation guide</a>. Installing a second operating system involves disk partitioning; WSL 2 and VirtualBox avoid that step on Windows 11.</p>
 </section>
 </section>
 <section id="step-2-install-basic-tools-including-the-compiler" class="level3">
 <h3 class="anchored" data-anchor-id="step-2-install-basic-tools-including-the-compiler">Step 2 — Install basic tools, including the compiler</h3>
 <p>In Ubuntu:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt upgrade</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install git build-essential python3 python3-venv python3-pip python3-dev software-properties-common cmake wget unzip</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt upgrade</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install git build-essential python3 python3-venv python3-pip python3-dev software-properties-common cmake wget unzip openmpi-bin</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A minimal WSL installation may lack a compiler. <strong>Install <code>build-essential</code>; you do not need to compile GCC yourself.</strong> It supplies GCC, G++, Make, and supporting development packages. Check:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gcc</span> <span class="at">--version</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> <span class="at">--version</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">--version</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gcc</span> <span class="at">--version</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> <span class="at">--version</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">--version</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">--version</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">command</span> <span class="at">-v</span> mpirun</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The system Python should report 3.14 on Ubuntu 26.04. The course environment created below uses Python 3.12 instead. See <a href="https://packages.ubuntu.com/resolute/build-essential">Ubuntu’s build-essential package</a>.</p>
+<p><code>openmpi-bin</code> supplies the Linux MPI launcher used by the course’s parallel CFD scripts. Install it in Ubuntu even when OpenFOAM runs in Apptainer: <code>RunFunctions</code> launches <code>mpirun</code> outside the container. The Ubuntu 26.04 launcher and the course container passed a two-process test together.</p>
 </section>
 <section id="step-3-clone-the-course-into-the-linux-home-directory" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-clone-the-course-into-the-linux-home-directory">Step 3 — Clone the course into the Linux home directory</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/Development</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/AndreWeiner/ml-cfd-lecture.git</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ml-cfd-lecture</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> exercises</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/Development</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/AndreWeiner/ml-cfd-lecture.git</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ml-cfd-lecture</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> exercises</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If you already have a checkout, use it rather than cloning again. Keep your own work in <code>exercises/</code>, which is ignored by Git. Run <code>git pull</code> from the repository root to receive updates; inspect your local changes before resolving any conflicts.</p>
 <p>With WSL, keep the checkout under <code>~/Development</code>, rather than <code>/mnt/c/...</code>, for Linux filesystem performance and permissions. Open the current folder in Windows Explorer with <code>explorer.exe .</code>. See <a href="https://learn.microsoft.com/en-us/windows/wsl/filesystems">Microsoft’s filesystem guidance</a>.</p>
+<p>With VirtualBox, use the same <code>~/Development</code> location inside Ubuntu, rather than <code>/media/sf_ML-CFD-share</code>. Edit and run your work inside the VM; copy completed results to the shared folder for Windows access.</p>
 </section>
 <section id="step-4-create-the-python-environment" class="level3">
 <h3 class="anchored" data-anchor-id="step-4-create-the-python-environment">Step 4 — Create the Python environment</h3>
 <p>From the repository root, install <code>uv</code> in a small tools environment and use it to download Python 3.12 and create the course environment:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv ~/.venvs/course-tools</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.venvs/course-tools/bin/python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> uv</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.venvs/course-tools/bin/uv</span> venv <span class="at">--python</span> 3.12 <span class="at">--seed</span> ml-cfd</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ml-cfd/bin/activate</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> pip</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install torch==2.14.1 <span class="at">--index-url</span> https://download.pytorch.org/whl/cpu</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip check</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv ~/.venvs/course-tools</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.venvs/course-tools/bin/python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> uv</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.venvs/course-tools/bin/uv</span> venv <span class="at">--python</span> 3.12 <span class="at">--seed</span> ml-cfd</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ml-cfd/bin/activate</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> pip</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install torch==2.14.1 <span class="at">--index-url</span> https://download.pytorch.org/whl/cpu</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip check</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>uv</code> downloads a managed Python interpreter when the requested version is missing. See its <a href="https://docs.astral.sh/uv/guides/install-python/">Python installation guide</a>. No Python compilation or replacement of Ubuntu’s system Python is required. After activation, check <code>python --version</code>; it should report 3.12.</p>
 <p>The CPU installation follows <a href="https://docs.pytorch.org/get-started/previous-versions/">PyTorch’s version-specific instructions</a>. We retain PyTorch <strong>2.14.1</strong> because the course’s OpenFOAM container and manual setup use LibTorch <strong>2.14.1</strong>. Do not independently upgrade one side of that pairing. Most other packages remain unpinned, so successful dependency resolution and the checks below are important. The course uses <code>torch.export</code> for model export. Older exercises may still contain TorchScript calls until they are revised. Later examples will need their own compatibility checks.</p>
 <p>Install the latest available <strong>FlowTorch</strong> release from PyPI. The distribution is named <code>flowtorch-fluid</code>, while Python imports remain <code>flowtorch</code>. The latest published release checked for this revision is <strong>1.9.0</strong>; install the <code>all</code> extra to include the data loaders, reduced-order modelling, and pressure-sensitive-paint dependencies:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> <span class="st">"flowtorch-fluid[all]"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> <span class="st">"flowtorch-fluid[all]"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>See <a href="https://pypi.org/project/flowtorch-fluid/">FlowTorch’s package instructions</a>. The removed <code>aweiner</code> Git branch is no longer used. Newer releases may change behavior, so record the installed version and check each later application with its required data.</p>
 <p>In each new terminal, reactivate the environment:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development/ml-cfd-lecture</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ml-cfd/bin/activate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development/ml-cfd-lecture</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ml-cfd/bin/activate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Use <code>python -m pip</code> inside this environment; do not install course Python packages with <code>sudo pip</code>. Leave the environment with <code>deactivate</code>.</p>
 </section>
 <section id="step-5-verify-python-and-run-a-small-script" class="level3">
 <h3 class="anchored" data-anchor-id="step-5-verify-python-and-run-a-small-script">Step 5 — Verify Python and run a small script</h3>
 <p>Save the following as <code>exercises/setup_check.py</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.metadata <span class="im">import</span> version</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>matplotlib.use(<span class="st">"Agg"</span>)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sklearn</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Some dependencies currently import legacy TorchScript code internally.</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Hide only its known deprecation warning; this check uses torch.export.</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> warnings.catch_warnings():</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    warnings.filterwarnings(</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"ignore"</span>, message<span class="op">=</span><span class="vs">r"`torch</span><span class="ch">\.</span><span class="vs">jit</span><span class="ch">\.</span><span class="vs">script` is deprecated</span><span class="ch">\.</span><span class="dv">.</span><span class="op">*</span><span class="vs">"</span>,</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        category<span class="op">=</span><span class="pp">FutureWarning</span>, module<span class="op">=</span><span class="vs">r"torch</span><span class="ch">\.</span><span class="vs">jit</span><span class="ch">\.</span><span class="vs">_script"</span>,</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> botorch</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> gpytorch</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> flowtorch</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> flowtorch <span class="im">import</span> DATASETS</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> flowtorch.data <span class="im">import</span> FOAMDataloader, mask_box</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Python:"</span>, sys.version.split()[<span class="dv">0</span>])</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Interpreter:"</span>, sys.executable)</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyTorch:"</span>, torch.__version__)</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"FlowTorch:"</span>, version(<span class="st">"flowtorch-fluid"</span>))</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.__version__.split(<span class="st">"+"</span>)[<span class="dv">0</span>] <span class="op">==</span> <span class="st">"2.14.1"</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.isclose(x.mean(), torch.tensor(<span class="fl">2.0</span>))</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ExampleModel(torch.nn.Module):</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x.square() <span class="op">+</span> <span class="fl">1.0</span></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ExampleModel().<span class="bu">eval</span>()</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>exported <span class="op">=</span> torch.export.export(model, (x,))</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>torch.testing.assert_close(exported.module()(x), torch.tensor([<span class="fl">2.0</span>, <span class="fl">5.0</span>, <span class="fl">10.0</span>]))</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>export_path <span class="op">=</span> Path(<span class="va">__file__</span>).with_name(<span class="st">"setup-check.pt2"</span>)</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>torch.export.save(exported, export_path)</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>loaded <span class="op">=</span> torch.export.load(export_path)</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>test_input <span class="op">=</span> torch.tensor([<span class="fl">0.0</span>, <span class="op">-</span><span class="fl">2.0</span>, <span class="fl">4.0</span>])</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>torch.testing.assert_close(loaded.module()(test_input), torch.tensor([<span class="fl">1.0</span>, <span class="fl">5.0</span>, <span class="fl">17.0</span>]))</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyTorch export, save/load, and inference passed:"</span>, export_path)</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, <span class="dv">100</span>)</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>ax.plot(t, np.sin(t))</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"t"</span>, ylabel<span class="op">=</span><span class="st">"sin(t)"</span>)</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> Path(<span class="va">__file__</span>).with_name(<span class="st">"setup-check.png"</span>)</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>fig.savefig(path)</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>plt.close(fig)</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved:"</span>, path)</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Core package imports, PyTorch export, and basic calculations passed."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> importlib.metadata <span class="im">import</span> version</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>matplotlib.use(<span class="st">"Agg"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sklearn</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Some dependencies currently import legacy TorchScript code internally.</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Hide only its known deprecation warning; this check uses torch.export.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> warnings.catch_warnings():</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    warnings.filterwarnings(</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"ignore"</span>, message<span class="op">=</span><span class="vs">r"`torch</span><span class="ch">\.</span><span class="vs">jit</span><span class="ch">\.</span><span class="vs">script` is deprecated</span><span class="ch">\.</span><span class="dv">.</span><span class="op">*</span><span class="vs">"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        category<span class="op">=</span><span class="pp">FutureWarning</span>, module<span class="op">=</span><span class="vs">r"torch</span><span class="ch">\.</span><span class="vs">jit</span><span class="ch">\.</span><span class="vs">_script"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> botorch</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> gpytorch</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> flowtorch</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> flowtorch <span class="im">import</span> DATASETS</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> flowtorch.data <span class="im">import</span> FOAMDataloader, mask_box</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Python:"</span>, sys.version.split()[<span class="dv">0</span>])</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Interpreter:"</span>, sys.executable)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyTorch:"</span>, torch.__version__)</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"FlowTorch:"</span>, version(<span class="st">"flowtorch-fluid"</span>))</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.__version__.split(<span class="st">"+"</span>)[<span class="dv">0</span>] <span class="op">==</span> <span class="st">"2.14.1"</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.isclose(x.mean(), torch.tensor(<span class="fl">2.0</span>))</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ExampleModel(torch.nn.Module):</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x.square() <span class="op">+</span> <span class="fl">1.0</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ExampleModel().<span class="bu">eval</span>()</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>exported <span class="op">=</span> torch.export.export(model, (x,))</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>torch.testing.assert_close(exported.module()(x), torch.tensor([<span class="fl">2.0</span>, <span class="fl">5.0</span>, <span class="fl">10.0</span>]))</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>export_path <span class="op">=</span> Path(<span class="va">__file__</span>).with_name(<span class="st">"setup-check.pt2"</span>)</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>torch.export.save(exported, export_path)</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>loaded <span class="op">=</span> torch.export.load(export_path)</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>test_input <span class="op">=</span> torch.tensor([<span class="fl">0.0</span>, <span class="op">-</span><span class="fl">2.0</span>, <span class="fl">4.0</span>])</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>torch.testing.assert_close(loaded.module()(test_input), torch.tensor([<span class="fl">1.0</span>, <span class="fl">5.0</span>, <span class="fl">17.0</span>]))</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyTorch export, save/load, and inference passed:"</span>, export_path)</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, <span class="dv">100</span>)</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>ax.plot(t, np.sin(t))</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"t"</span>, ylabel<span class="op">=</span><span class="st">"sin(t)"</span>)</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> Path(<span class="va">__file__</span>).with_name(<span class="st">"setup-check.png"</span>)</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>fig.savefig(path)</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>plt.close(fig)</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved:"</span>, path)</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Core package imports, PyTorch export, and basic calculations passed."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Run it from the repository root:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> exercises/setup_check.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> exercises/setup_check.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Inspect the saved sine curve. The script also exports a small model, saves it as <code>setup-check.pt2</code>, reloads it, and checks its predictions against known values. Some third-party dependencies still import legacy TorchScript code internally, so the script suppresses only that specific warning during those imports. These checks confirm imports, model export, and basic execution, not the correctness of every later course example. FlowTorch’s example datasets are separate from the Python package; later chapters explain which data are needed.</p>
 <p>The course sources are Python scripts with <code># %%</code> cells. You can run your own scripts from the terminal or use an editor that supports individual cells. JupyterLab is optional:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> exercises</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">jupyter</span> lab <span class="at">--no-browser</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Open the printed localhost URL, including its token, in your Windows or Linux browser. Keep the server terminal open; stop it with Ctrl+C. The browser token is private. You do not need JupyterLab to run ordinary Python scripts.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> exercises</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">jupyter</span> lab <span class="at">--no-browser</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Open the printed localhost URL, including its token, in your Windows browser for WSL, or your Ubuntu browser for native Linux and VirtualBox. In VirtualBox, <code>localhost</code> refers to the Ubuntu guest, so use the browser <strong>inside the VM</strong>. Keep the server terminal open; stop it with Ctrl+C. The browser token is private. You do not need JupyterLab to run ordinary Python scripts.</p>
 </section>
 <section id="step-6-install-the-latest-stable-paraview" class="level3">
 <h3 class="anchored" data-anchor-id="step-6-install-the-latest-stable-paraview">Step 6 — Install the latest stable ParaView</h3>
 <p>Use the latest stable binary from the <a href="https://www.paraview.org/download/">official ParaView download page</a>, rather than Ubuntu’s potentially older <code>apt</code> package. The latest stable release checked on 12 October 2026 is <strong>6.2.0</strong>; avoid nightly builds and release candidates for the course.</p>
-<p>On Windows 11, install the Windows AMD64 package and open case files through the WSL filesystem in Explorer. This keeps the visualization application on Windows while the CFD tools run in Ubuntu.</p>
-<p>On native Ubuntu, download the Linux x86-64 archive. For the verified 6.2.0 archive, extraction and launch are:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/Applications</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzf</span> ~/Downloads/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64.tar.gz <span class="at">-C</span> ~/Applications</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/paraview</span> <span class="at">--version</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/paraview</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>On Windows 11, install the Windows AMD64 package. With WSL, open case files through the WSL filesystem in Explorer. With VirtualBox, copy the <strong>complete case directory</strong> from Ubuntu into <code>/media/sf_ML-CFD-share</code>, then open its <code>.foam</code> file from the corresponding Windows folder. A <code>.foam</code> file is only a marker; keep <code>constant</code>, <code>system</code>, and the saved time directories beside it. Reconstruct parallel results before copying, as shown after the container installation below. This keeps visualization on Windows while CFD runs in Ubuntu.</p>
+<p>You can also run ParaView inside native Ubuntu or the VirtualBox guest. Download the Linux x86-64 archive and install the GUI libraries that were missing on a fresh Ubuntu desktop. For the verified 6.2.0 archive, installation and launch are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/Applications</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzf</span> ~/Downloads/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64.tar.gz <span class="at">-C</span> ~/Applications</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/pvpython</span> <span class="at">--version</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="va">QT_QPA_PLATFORM</span><span class="op">=</span>xcb <span class="ex">~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/paraview</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Run the GUI command from a terminal in the Ubuntu desktop. <code>QT_QPA_PLATFORM=xcb</code> selects the X11 backend included in this binary, also when Ubuntu uses a Wayland desktop. The library packages above are needed only for Linux ParaView, not Windows ParaView.</p>
 <p>If the download page offers a newer stable release, use its corresponding archive and directory names. ParaView includes its own Python runtime; do not add its Python packages to the course environment’s <code>PYTHONPATH</code>.</p>
 <p>Linux GUI applications can also run through WSLg on supported Windows 11 installations. See <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">Microsoft’s WSL GUI guidance</a>.</p>
 </section>
 <section id="step-7-install-apptainer" class="level3">
 <h3 class="anchored" data-anchor-id="step-7-install-apptainer">Step 7 — Install Apptainer</h3>
 <p>In Ubuntu, install Apptainer from its official PPA:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository <span class="at">-y</span> ppa:apptainer/ppa</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install apptainer</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec docker://alpine cat /etc/alpine-release</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository <span class="at">-y</span> ppa:apptainer/ppa</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install apptainer</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec docker://alpine cat /etc/alpine-release</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This uses prebuilt packages and avoids compiling Go or Apptainer. The final command should print the container’s Alpine release. The <a href="https://apptainer.org/docs/admin/latest/installation.html#install-ubuntu-packages">Apptainer installation guide</a> documents this installation route and WSL 2 support.</p>
+<p>In VirtualBox, Apptainer runs inside Ubuntu and uses the guest’s Linux kernel. Store SIF images on Ubuntu’s disk and run them as your ordinary Ubuntu user. No additional VM or nested hardware virtualization is required. The tested PPA installation ran containers with Ubuntu’s default user-namespace restrictions; no system-wide security-setting changes were needed.</p>
 </section>
 <section id="step-8-set-up-openfoam-and-libtorch" class="level3">
 <h3 class="anchored" data-anchor-id="step-8-set-up-openfoam-and-libtorch">Step 8 — Set up OpenFOAM and LibTorch</h3>
 <p>Choose <strong>Route A (container)</strong> or <strong>Route B (manual installation)</strong> for OpenFOAM/LibTorch. Both use OpenFOAM.com <strong>v2606</strong> and CPU LibTorch <strong>2.14.1</strong>. Do not mix the OpenFOAM.com and OpenFOAM Foundation distributions when following these commands.</p>
 <section id="route-a-pull-the-course-apptainer-container" class="level4">
 <h4 class="anchored" data-anchor-id="route-a-pull-the-course-apptainer-container">Route A — Pull the course Apptainer container</h4>
-<p>The container uses <strong>Ubuntu 26.04.1 LTS</strong> as its base, with OpenFOAM.com <strong>v2606</strong> and CPU LibTorch <strong>2.14.1</strong>. Its Ubuntu version is independent of the host operating system; the Ubuntu 26.04/WSL host setup above can run this container. Download the tested image from <a href="https://github.com/users/AndreWeiner/packages/container/package/of-pytorch">GitHub Container Registry</a>, then run the acceptance checks:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull of2606-py2.14.1-cpu.sif <span class="dt">\</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  oras://ghcr.io/andreweiner/of-pytorch:of2606-libtorch2.14.1-ubuntu26.04-cpu</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run of2606-py2.14.1-cpu.sif simpleFoam <span class="at">-help</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run of2606-py2.14.1-cpu.sif /opt/of-pytorch-tests/run-tests.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Use <code>oras://</code> for this registry artifact; it is an Apptainer SIF image. The runscript activates OpenFOAM automatically. You do not need to build the container yourself.</p>
+<p>The container uses <strong>Ubuntu 26.04.1 LTS</strong> as its base, with OpenFOAM.com <strong>v2606</strong> and CPU LibTorch <strong>2.14.1</strong>. It runs in Ubuntu on native Linux, WSL 2, or VirtualBox. Download the tested image from <a href="https://github.com/users/AndreWeiner/packages/container/package/of-pytorch">GitHub Container Registry</a> into the <strong>course repository root</strong>, then run the acceptance checks:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development/ml-cfd-lecture</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull of2606-py2.14.1-cpu.sif <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  oras://ghcr.io/andreweiner/of-pytorch:of2606-libtorch2.14.1-ubuntu26.04-cpu</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run of2606-py2.14.1-cpu.sif simpleFoam <span class="at">-help</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run of2606-py2.14.1-cpu.sif /opt/of-pytorch-tests/run-tests.sh</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> setup-env</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use <code>oras://</code> for this registry artifact; it is an Apptainer SIF image. The runscript activates OpenFOAM automatically. You do not need to build the container yourself. <code>source setup-env</code> selects this image and OpenFOAM version for the course scripts; run it again from the repository root in each new terminal used for CFD exercises.</p>
+<p><strong>Later: copy parallel CFD results to Windows ParaView.</strong> After completing a cylinder simulation in the CFD exercise, reconstruct its time directories inside Ubuntu, then copy the case into the VirtualBox shared folder:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development/ml-cfd-lecture</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> setup-env</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> exercises/cylinder2D</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec <span class="st">"</span><span class="va">$ML_CFD_IMAGE</span><span class="st">"</span> bash <span class="at">-c</span> <span class="st">'source /usr/lib/openfoam/openfoam2606/etc/bashrc &amp;&amp; reconstructPar'</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> <span class="at">-r</span> <span class="st">"</span><span class="va">$PWD</span><span class="st">"</span> /media/sf_ML-CFD-share/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Open <code>cylinder2D/post.foam</code> from the Windows shared folder in ParaView, choose <strong>Reconstructed Case</strong>, and click <strong>Apply</strong>. Adjust the directory name if you used another case. For a later transfer, choose a fresh destination or replace the previous copy deliberately so that obsolete time directories are not mixed with new results.</p>
 <p>If you prefer to build it locally, the definition and compilation examples are included in <code>containers/of_pytorch/</code>. From the course repository root:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> containers/of_pytorch</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> build <span class="at">--fakeroot</span> of2606-py2.14.1-cpu.sif Singularity.def</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../..</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> containers/of_pytorch/of2606-py2.14.1-cpu.sif .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> containers/of_pytorch</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> build <span class="at">--fakeroot</span> of2606-py2.14.1-cpu.sif Singularity.def</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../..</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> containers/of_pytorch/of2606-py2.14.1-cpu.sif .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The build compiles and runs the C++ examples. If fakeroot is unavailable on your computer, use <code>sudo apptainer build</code> instead.</p>
-<p>The container contains <strong>LibTorch</strong>, the C++ frontend; your Python virtual environment remains on the host. For an interactive container shell, activate OpenFOAM explicitly:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> shell of2606-py2.14.1-cpu.sif</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /usr/lib/openfoam/openfoam2606/etc/bashrc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The container contains <strong>LibTorch</strong>, the C++ frontend; your Python virtual environment remains in Ubuntu outside the container. For an interactive container shell, activate OpenFOAM explicitly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> shell of2606-py2.14.1-cpu.sif</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /usr/lib/openfoam/openfoam2606/etc/bashrc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="route-b-install-openfoam-and-libtorch-manually" class="level4">
 <h4 class="anchored" data-anchor-id="route-b-install-openfoam-and-libtorch-manually">Route B — Install OpenFOAM and LibTorch manually</h4>
 <p>Run these commands in Ubuntu, including Ubuntu inside WSL 2. Download and inspect the official repository setup script before running it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-O</span> /tmp/add-openfoam-repo.sh https://dl.openfoam.com/add-debian-repo.sh</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">less</span> /tmp/add-openfoam-repo.sh</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> bash /tmp/add-openfoam-repo.sh</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install openfoam2606-dev</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /usr/lib/openfoam/openfoam2606/etc/bashrc</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="ex">simpleFoam</span> <span class="at">-help</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="ex">wmake</span> <span class="at">-help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-O</span> /tmp/add-openfoam-repo.sh https://dl.openfoam.com/add-debian-repo.sh</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">less</span> /tmp/add-openfoam-repo.sh</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> bash /tmp/add-openfoam-repo.sh</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install openfoam2606-dev</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /usr/lib/openfoam/openfoam2606/etc/bashrc</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="ex">simpleFoam</span> <span class="at">-help</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="ex">wmake</span> <span class="at">-help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This installs precompiled OpenFOAM packages and their development files; it does not compile OpenFOAM from source. See the <a href="https://www.openfoam.com/news/main-news/openfoam-v2606">OpenFOAM.com release and installation links</a>.</p>
 <p>Install the CPU LibTorch archive into your home directory:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/Applications</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Applications</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-O</span> libtorch-2.14.1-cpu.zip <span class="st">'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.14.1%2Bcpu.zip'</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'0f02329a5266153cffa9dc12926ff2221fa626207b894d40bd61905cc2079821  libtorch-2.14.1-cpu.zip'</span> <span class="kw">|</span> <span class="fu">sha256sum</span> <span class="at">-c</span> <span class="at">-</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> libtorch-2.14.1</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> libtorch-2.14.1-cpu.zip <span class="at">-d</span> libtorch-2.14.1</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TORCH_LIBRARIES</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/Applications/libtorch-2.14.1/libtorch"</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TORCH_LIBRARIES</span><span class="st">/build-version"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/Applications</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Applications</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-O</span> libtorch-2.14.1-cpu.zip <span class="st">'https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-2.14.1%2Bcpu.zip'</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'0f02329a5266153cffa9dc12926ff2221fa626207b894d40bd61905cc2079821  libtorch-2.14.1-cpu.zip'</span> <span class="kw">|</span> <span class="fu">sha256sum</span> <span class="at">-c</span> <span class="at">-</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> libtorch-2.14.1</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> libtorch-2.14.1-cpu.zip <span class="at">-d</span> libtorch-2.14.1</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TORCH_LIBRARIES</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/Applications/libtorch-2.14.1/libtorch"</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">"</span><span class="va">$TORCH_LIBRARIES</span><span class="st">/build-version"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The checksum records the official archive used for this revision. Avoid unpacking over an existing installation. See <a href="https://docs.pytorch.org/cppdocs/installing.html">PyTorch’s LibTorch installation guide</a>.</p>
 <p>For each terminal used to compile OpenFOAM/LibTorch code, source OpenFOAM’s <code>etc/bashrc</code> and set <code>TORCH_LIBRARIES</code> as above. LibTorch 2.14.1 requires <strong>C++20</strong>. The examples select it per application without modifying OpenFOAM’s global compiler rules. Include LibTorch headers before OpenFOAM headers to avoid the <code>TypeName</code> macro clash.</p>
 <p>Verify the combined toolchain from the course root:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development/ml-cfd-lecture</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /usr/lib/openfoam/openfoam2606/etc/bashrc</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TORCH_LIBRARIES</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/Applications/libtorch-2.14.1/libtorch"</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> containers/of_pytorch/test/run-tests.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/Development/ml-cfd-lecture</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /usr/lib/openfoam/openfoam2606/etc/bashrc</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TORCH_LIBRARIES</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/Applications/libtorch-2.14.1/libtorch"</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> containers/of_pytorch/test/run-tests.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This compiles and runs both the <code>wmake</code> tensor example and the CMake neural-network example. The checks include an analytical derivative comparison, tensor serialization, and output shape and finite-value checks.</p>
 </section>
 <section id="basilisk-for-later-exercises" class="level4">
 <h4 class="anchored" data-anchor-id="basilisk-for-later-exercises">Basilisk for later exercises</h4>
 <p>The existing Basilisk exercise still uses its separate container:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull basilisk.sif docker://andreweiner/basilisk:20-11-19</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec basilisk.sif sh <span class="at">-c</span> <span class="st">'command -v qcc; gcc --version'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull basilisk.sif docker://andreweiner/basilisk:20-11-19</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec basilisk.sif sh <span class="at">-c</span> <span class="st">'command -v qcc; gcc --version'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The first CFD exercise will compile and run the provided Basilisk solver. Listing the compiler does not yet validate that simulation. Record download or execution failures and contact the teaching team rather than substituting an arbitrary image.</p>
 </section>
 </section>
 <section id="step-9-optional-editor-setup" class="level3">
 <h3 class="anchored" data-anchor-id="step-9-optional-editor-setup">Step 9 — Optional editor setup</h3>
-<p>On Windows, install <strong>Visual Studio Code on Windows</strong>, add the <strong>WSL</strong> extension, and open the course from an Ubuntu terminal with <code>code .</code>. Install the Python extension in the WSL environment and select <code>ml-cfd/bin/python</code> as the interpreter. On native Ubuntu, install VS Code using its official instructions. See <a href="https://code.visualstudio.com/docs/remote/wsl">VS Code’s WSL guide</a>.</p>
+<p>With WSL, install <strong>Visual Studio Code on Windows</strong>, add the <strong>WSL</strong> extension, and open the course from an Ubuntu terminal with <code>code .</code>. Install the Python extension in the WSL environment and select <code>ml-cfd/bin/python</code> as the interpreter. On native Ubuntu or inside the VirtualBox guest, install the Linux edition of VS Code using its <a href="https://code.visualstudio.com/docs/setup/linux">Ubuntu instructions</a>, open <code>~/Development/ml-cfd-lecture</code>, and select that same course interpreter. See <a href="https://code.visualstudio.com/docs/remote/wsl">VS Code’s WSL guide</a>.</p>
 </section>
 <section id="step-10-optional-opencode-with-scads.ai-models-tudai" class="level3">
 <h3 class="anchored" data-anchor-id="step-10-optional-opencode-with-scads.ai-models-tudai">Step 10 — Optional: OpenCode with ScaDS.AI models (TUD:AI)</h3>
@@ -702,6 +747,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Windows 11:</strong> On the <a href="https://opencode.ai/download">official OpenCode download page</a>, select <strong>OpenCode Desktop → Windows (x64)</strong>. Run the downloaded installer and start OpenCode from the Start menu.</li>
 <li><strong>Ubuntu Linux:</strong> On the same page, download the <strong>Linux (.deb)</strong> package. Open a terminal in the download folder and install that file with <code>sudo apt install ./NAME.deb</code>, replacing <code>NAME.deb</code> with its actual filename. Start OpenCode from the applications menu.</li>
 </ul>
+<p>With VirtualBox, use the <strong>Linux installation inside Ubuntu</strong>, even though the laptop runs Windows. Open the repository in Ubuntu’s home directory so that the agent can use the Linux course environment.</p>
 <p>Open your <code>ml-cfd-lecture</code> repository folder as the project in OpenCode. Keep your own exercise scripts and generated results in <code>exercises</code>.</p>
 </section>
 <section id="create-a-tu-dresden-api-key" class="level4">
@@ -717,46 +763,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="connect-opencode-to-scads.ai-models" class="level4">
 <h4 class="anchored" data-anchor-id="connect-opencode-to-scads.ai-models">Connect OpenCode to ScaDS.AI models</h4>
 <p>Create <code>opencode.json</code> in the repository root. This local configuration is excluded from Git tracking. It sets <strong>GLM 5.3 Flash</strong> as the default and includes GLM 5.3 and Qwen3.8 27B as alternatives for course work.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"$schema"</span><span class="fu">:</span> <span class="st">"https://opencode.ai/config.json"</span><span class="fu">,</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"model"</span><span class="fu">:</span> <span class="st">"scads/zai-org/GLM-5.3-Flash"</span><span class="fu">,</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"provider"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"scads"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"TUD:AI"</span><span class="fu">,</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"npm"</span><span class="fu">:</span> <span class="st">"@ai-sdk/openai-compatible"</span><span class="fu">,</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"options"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"baseURL"</span><span class="fu">:</span> <span class="st">"https://llm.scads.ai/v1"</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"models"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"zai-org/GLM-5.3-Flash"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"GLM 5.3 Flash"</span><span class="fu">,</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"limit"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"context"</span><span class="fu">:</span> <span class="dv">1048576</span><span class="fu">,</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"output"</span><span class="fu">:</span> <span class="dv">32768</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"zai-org/GLM-5.3"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"GLM 5.3"</span><span class="fu">,</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"limit"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"context"</span><span class="fu">:</span> <span class="dv">524288</span><span class="fu">,</span></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"output"</span><span class="fu">:</span> <span class="dv">32768</span></span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"Qwen/Qwen3.8-27B"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Qwen3.8 27B"</span><span class="fu">,</span></span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"limit"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"context"</span><span class="fu">:</span> <span class="dv">262144</span><span class="fu">,</span></span>
-<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"output"</span><span class="fu">:</span> <span class="dv">32768</span></span>
-<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
-<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
-<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"$schema"</span><span class="fu">:</span> <span class="st">"https://opencode.ai/config.json"</span><span class="fu">,</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"model"</span><span class="fu">:</span> <span class="st">"scads/zai-org/GLM-5.3-Flash"</span><span class="fu">,</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"provider"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"scads"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"TUD:AI"</span><span class="fu">,</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"npm"</span><span class="fu">:</span> <span class="st">"@ai-sdk/openai-compatible"</span><span class="fu">,</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"options"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"baseURL"</span><span class="fu">:</span> <span class="st">"https://llm.scads.ai/v1"</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"models"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"zai-org/GLM-5.3-Flash"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"GLM 5.3 Flash"</span><span class="fu">,</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"limit"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"context"</span><span class="fu">:</span> <span class="dv">1048576</span><span class="fu">,</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"output"</span><span class="fu">:</span> <span class="dv">32768</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"zai-org/GLM-5.3"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"GLM 5.3"</span><span class="fu">,</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"limit"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"context"</span><span class="fu">:</span> <span class="dv">524288</span><span class="fu">,</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"output"</span><span class="fu">:</span> <span class="dv">32768</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"Qwen/Qwen3.8-27B"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Qwen3.8 27B"</span><span class="fu">,</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"limit"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"context"</span><span class="fu">:</span> <span class="dv">262144</span><span class="fu">,</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">"output"</span><span class="fu">:</span> <span class="dv">32768</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Models can change or become unavailable. Check the <a href="https://llm.scads.ai/status/">TUD:AI model availability page</a> to see which models are currently available, and update the model identifiers in this configuration if necessary. The default <code>model</code> uses the format <code>provider/model-id</code>.</p>
 <p>Restart the project after saving the configuration. Open the provider connection dialog (<code>/connect</code> in the command interface), choose <strong>TUD:AI</strong> (provider ID <code>scads</code>), and enter your portal key. If you need to add it as a custom provider, use the same provider ID, <code>scads</code>. Use the model picker (<code>/models</code> in the command interface) to switch between the configured models.</p>
 <p>The configuration contains no API key. Requests use the TUD:AI endpoint. See the <a href="https://opencode.ai/docs/providers/#custom-provider">OpenCode custom-provider guide</a> for further configuration details.</p>
-<p>On Windows, course Python commands must run inside Ubuntu/WSL, rather than with a Windows Python interpreter. Check the command and interpreter path before allowing the agent to run it.</p>
+<p>On Windows, course Python commands must run inside Ubuntu in WSL or VirtualBox. Check the command and interpreter path before allowing the agent to run it.</p>
 <p>For a first check, ask the agent to explain <code>exercises/setup_check.py</code>. Tell it to use the Python interpreter inside <code>ml-cfd</code> when running course code. Read its suggestions and verify the result yourself.</p>
 </section>
 </section>
@@ -799,6 +845,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">Install <code>build-essential</code> inside Ubuntu; a Windows compiler does not supply Linux build tools.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Parallel CFD logs report <code>mpirun: command not found</code>.</td>
+<td style="text-align: left;">Install <code>openmpi-bin</code> inside Ubuntu, then retry in a fresh copy of the case. Existing log files can cause the course scripts to skip a previous failed step.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">The VirtualBox shared folder is missing or access is denied.</td>
+<td style="text-align: left;">Check the permanent folder name <code>ML-CFD-share</code>, Auto-mount, Ubuntu’s <code>virtualbox-guest-utils</code> package, and membership of <code>vboxsf</code> using <code>id</code>. Reboot after adding group membership.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ParaView on Ubuntu reports that the Qt <code>xcb</code> plugin cannot load.</td>
+<td style="text-align: left;">Install the GUI libraries listed in Step 6 and launch from the Ubuntu desktop using <code>QT_QPA_PLATFORM=xcb</code>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Apptainer cannot download an image and reports HTTP 500.</td>
+<td style="text-align: left;">Preserve the error and retry once; a registry error can be temporary. Check the exact image URI and contact the teaching team if it persists.</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;"><code>venv</code> creation fails or pip reports an externally managed environment.</td>
 <td style="text-align: left;">Install <code>python3-venv</code> for the tools environment, then create <code>ml-cfd</code> with <code>~/.venvs/course-tools/bin/uv venv --python 3.12 --seed ml-cfd</code> as in Step 4 and activate it.</td>
 </tr>
@@ -812,15 +874,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;">Jupyter does not open a browser automatically.</td>
-<td style="text-align: left;">Use <code>jupyter lab --no-browser</code> and open its printed localhost URL manually.</td>
+<td style="text-align: left;">Use <code>jupyter lab --no-browser</code> and open its printed localhost URL manually. With VirtualBox, open it in Ubuntu’s browser.</td>
 </tr>
 </tbody>
 </table>
 <p>For WSL errors, use <a href="https://learn.microsoft.com/en-us/windows/wsl/troubleshooting">Microsoft’s troubleshooting guide</a>. Diagnose the reported problem rather than disabling Windows security features or reinstalling the distribution.</p>
 </section>
+<section id="validation-of-the-virtualbox-route" class="level3">
+<h3 class="anchored" data-anchor-id="validation-of-the-virtualbox-route">Validation of the VirtualBox route</h3>
+<p>On <strong>14 October 2026</strong>, a fresh Ubuntu 26.04.1 Desktop guest was tested on a <strong>Linux host with VirtualBox 7.2.6</strong>, using 4 cores and 8 GB RAM. The Python 3.12 environment, CPU PyTorch 2.14.1, FlowTorch 1.9.0, Apptainer 1.5.4, container C++ checks, and JupyterLab startup passed. With <code>openmpi-bin</code> installed, the cylinder workflow passed a short two-process run, mesh checking, and reconstruction. Shared-folder access worked in both directions after reboot; host ParaView 6.2 read and rendered the copied case. The guest ParaView GUI started after installing the listed libraries.</p>
+<p>This validates the Ubuntu guest workflow. Installation on a physical Windows host, Windows ParaView, optional editors/agents, and the full-duration CFD benchmark were <strong>not tested</strong>. The short simulation checks tool execution and readable output; later exercises still require their own numerical checks.</p>
+</section>
 <section id="completion-record" class="level3">
 <h3 class="anchored" data-anchor-id="completion-record">Completion record</h3>
-<p>Record your operating system, WSL version if applicable, Python and PyTorch versions, compiler version, Apptainer version, and the outcome of each check. Include the plot and any unresolved errors. Be prepared to explain which tools run on Windows, which run in Ubuntu, and which run inside a container.</p>
+<p>Record your operating system, WSL or VirtualBox version if applicable, Ubuntu version, Python and PyTorch versions, compiler version, Apptainer version, and the outcome of each check. For VirtualBox, also record the assigned CPU cores/RAM and the shared-folder check after reboot. Include the plot and any unresolved errors. Be prepared to explain which tools run on Windows, which run in Ubuntu, and which run inside a container.</p>
 
 
 </section>

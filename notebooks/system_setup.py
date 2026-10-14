@@ -13,7 +13,7 @@
 #
 # - decompose a fluid-mechanical application into suitable learning tasks and explain how they connect;
 # - identify the required data, propose meaningful checks, and explain which steps can use analytical or numerical methods;
-# - set up the course tools on Ubuntu or Windows 11 with WSL 2 and verify the main components.
+# - set up the course tools on Ubuntu, or on Windows 11 using WSL 2 or an Ubuntu VirtualBox VM, and verify the main components.
 #
 # ## Part 1 — Theory
 #
@@ -44,7 +44,7 @@
 #
 # ## Part 2 — Practical lab: setting up your system
 #
-# The course uses Linux for Python, CFD tools, and containers. Follow the common Ubuntu steps after choosing either native Ubuntu or Windows 11 with WSL 2. The commands below assume an **x86-64/AMD64 computer**; the legacy course container images and PyTorch wheels may require a different setup on ARM-based devices.
+# The course uses Linux for Python, CFD tools, and containers. Choose **native Ubuntu**, **Windows 11 with WSL 2**, or **Windows 11 with Ubuntu in VirtualBox**, then follow the common Ubuntu steps. VirtualBox is an alternative if you have trouble with WSL. The commands below assume an **x86-64/AMD64 computer**; the legacy course container images and PyTorch wheels may require a different setup on ARM-based devices.
 #
 # Use **Python 3.10 or newer**, with **Python 3.12 recommended** for this course. Ubuntu **26.04 LTS** provides Python 3.14 as its default, so Step 4 installs a separate Python 3.12 environment. Python 3.12 is the tested course baseline; Ubuntu's system Python remains unchanged. A CPU-only installation is sufficient to start; a GPU is not required. Keep space for the Linux distribution, Python packages, container images, and later datasets. The old estimate of 8 GB for the tools alone is not a reliable allowance for the full course.
 #
@@ -74,9 +74,48 @@
 #
 # These commands follow [Microsoft's WSL installation guide](https://learn.microsoft.com/en-us/windows/wsl/install). From this point onward, run Linux commands **in the Ubuntu terminal**, not PowerShell.
 #
+# #### Windows 11: install Ubuntu in VirtualBox
+#
+# In this route, **Windows is the host** and **Ubuntu is the guest**. Run the course's terminal commands, Python environment, editor, and CFD simulations inside Ubuntu. You can use Windows ParaView to inspect completed results copied into a shared folder.
+#
+# 1. Download the current stable **Windows installer** from the [official VirtualBox download page](https://www.oracle.com/virtualization/technologies/vm/downloads/virtualbox-downloads.html), run it, and restart Windows if requested. The base package is sufficient for this workflow.
+# 2. Download the **Ubuntu 26.04.1 LTS Desktop AMD64 ISO** from [Ubuntu](https://ubuntu.com/download/desktop). This is the installer used in the course's VM test.
+# 3. Open VirtualBox and create a new VM named `ML-CFD-Ubuntu`. Select the Ubuntu ISO and **Linux / Ubuntu (64-bit)**. Choose manual installation (skip unattended installation) so that you create your own Ubuntu account and install Guest Additions using Ubuntu packages below.
+# 4. Allocate **4 CPU cores, 8 GB RAM, and an 80 GB dynamically allocated virtual disk**. A Windows computer with at least 16 GB RAM is a practical starting point; leave enough memory and CPU capacity for Windows. The disk grows as files are added, up to its configured limit. Allow additional space for the installer and later datasets.
+# 5. Keep the network adapter on **NAT** for internet access. Use **VMSVGA** graphics with **128 MB video memory**; 3D acceleration and nested virtualization are not required for the tested setup.
+# 6. Start the VM and install Ubuntu. Choose your language, keyboard, time zone, username, and password. The installer's disk selection refers to the VM's virtual disk. Restart into the installed Ubuntu system and remove the installer ISO from the virtual optical drive if requested.
+#
+# Inside the installed Ubuntu desktop, open a terminal and install Ubuntu's packaged Guest Additions:
+#
+# ```bash
+# sudo apt update
+# sudo apt install virtualbox-guest-utils virtualbox-guest-x11
+# sudo usermod -aG vboxsf "$USER"
+# sudo reboot
+# ```
+#
+# Use this package route for the course VM. In the local test, the Guest Additions ISO bundled with VirtualBox 7.2.6 failed to build a module against Ubuntu's updated kernel; the Ubuntu packages worked after reboot. If you already installed Guest Additions from an ISO, ask the teaching team before replacing that installation.
+#
+# **Create a shared folder:**
+#
+# 1. On Windows, create a folder such as `C:\Users\YOUR_NAME\ML-CFD-share`, replacing `YOUR_NAME` with your Windows username.
+# 2. Shut down Ubuntu. In VirtualBox, open the VM's **Settings → Shared Folders** and add that Windows folder. Set the **Folder Name** to `ML-CFD-share`, enable **Auto-mount**, leave **Read-only** unchecked, and save it as a permanent machine folder.
+# 3. Start Ubuntu again. The folder should be available at `/media/sf_ML-CFD-share`.
+# 4. In Ubuntu, verify that you can write a file:
+#
+#    ```bash
+#    printf 'Written inside Ubuntu\n' > /media/sf_ML-CFD-share/guest-check.txt
+#    ```
+#
+# 5. Open `guest-check.txt` from the Windows folder. Create another text file there using Windows, then open it from `/media/sf_ML-CFD-share` in Ubuntu. Repeat the check after a reboot.
+#
+# Keep the course checkout, Python environments, SIF images, and running simulation cases in Ubuntu's home directory. Use the shared folder to exchange scripts, plots, and completed results. See [VirtualBox's shared-folder documentation](https://docs.oracle.com/en/virtualization/virtualbox/7.2/user/guestadditions.html).
+#
+# Continue with Step 2 in the **Ubuntu guest terminal**. All later Ubuntu commands apply inside this VM. If VirtualBox reports unavailable hardware virtualization, check the manufacturer's firmware instructions. VirtualBox can coexist with Windows Hyper-V, but performance can vary; use [Oracle's troubleshooting guide](https://docs.oracle.com/en/virtualization/virtualbox/7.2/user/Troubleshooting.html) to diagnose the reported issue.
+#
 # #### Native Linux
 #
-# If you already use Ubuntu 26.04, continue below. Otherwise, follow the [Ubuntu installation guide](https://ubuntu.com/tutorials/install-ubuntu-desktop). Installing a second operating system involves disk partitioning; WSL 2 avoids that step on Windows 11.
+# If you already use Ubuntu 26.04, continue below. Otherwise, follow the [Ubuntu installation guide](https://ubuntu.com/tutorials/install-ubuntu-desktop). Installing a second operating system involves disk partitioning; WSL 2 and VirtualBox avoid that step on Windows 11.
 #
 # ### Step 2 — Install basic tools, including the compiler
 #
@@ -85,7 +124,7 @@
 # ```bash
 # sudo apt update
 # sudo apt upgrade
-# sudo apt install git build-essential python3 python3-venv python3-pip python3-dev software-properties-common cmake wget unzip
+# sudo apt install git build-essential python3 python3-venv python3-pip python3-dev software-properties-common cmake wget unzip openmpi-bin
 # ```
 #
 # A minimal WSL installation may lack a compiler. **Install `build-essential`; you do not need to compile GCC yourself.** It supplies GCC, G++, Make, and supporting development packages. Check:
@@ -95,9 +134,12 @@
 # g++ --version
 # make --version
 # python3 --version
+# command -v mpirun
 # ```
 #
 # The system Python should report 3.14 on Ubuntu 26.04. The course environment created below uses Python 3.12 instead. See [Ubuntu's build-essential package](https://packages.ubuntu.com/resolute/build-essential).
+#
+# `openmpi-bin` supplies the Linux MPI launcher used by the course's parallel CFD scripts. Install it in Ubuntu even when OpenFOAM runs in Apptainer: `RunFunctions` launches `mpirun` outside the container. The Ubuntu 26.04 launcher and the course container passed a two-process test together.
 #
 # ### Step 3 — Clone the course into the Linux home directory
 #
@@ -112,6 +154,8 @@
 # If you already have a checkout, use it rather than cloning again. Keep your own work in `exercises/`, which is ignored by Git. Run `git pull` from the repository root to receive updates; inspect your local changes before resolving any conflicts.
 #
 # With WSL, keep the checkout under `~/Development`, rather than `/mnt/c/...`, for Linux filesystem performance and permissions. Open the current folder in Windows Explorer with `explorer.exe .`. See [Microsoft's filesystem guidance](https://learn.microsoft.com/en-us/windows/wsl/filesystems).
+#
+# With VirtualBox, use the same `~/Development` location inside Ubuntu, rather than `/media/sf_ML-CFD-share`. Edit and run your work inside the VM; copy completed results to the shared folder for Windows access.
 #
 # ### Step 4 — Create the Python environment
 #
@@ -226,22 +270,25 @@
 # jupyter lab --no-browser
 # ```
 #
-# Open the printed localhost URL, including its token, in your Windows or Linux browser. Keep the server terminal open; stop it with Ctrl+C. The browser token is private. You do not need JupyterLab to run ordinary Python scripts.
+# Open the printed localhost URL, including its token, in your Windows browser for WSL, or your Ubuntu browser for native Linux and VirtualBox. In VirtualBox, `localhost` refers to the Ubuntu guest, so use the browser **inside the VM**. Keep the server terminal open; stop it with Ctrl+C. The browser token is private. You do not need JupyterLab to run ordinary Python scripts.
 #
 # ### Step 6 — Install the latest stable ParaView
 #
 # Use the latest stable binary from the [official ParaView download page](https://www.paraview.org/download/), rather than Ubuntu's potentially older `apt` package. The latest stable release checked on 12 October 2026 is **6.2.0**; avoid nightly builds and release candidates for the course.
 #
-# On Windows 11, install the Windows AMD64 package and open case files through the WSL filesystem in Explorer. This keeps the visualization application on Windows while the CFD tools run in Ubuntu.
+# On Windows 11, install the Windows AMD64 package. With WSL, open case files through the WSL filesystem in Explorer. With VirtualBox, copy the **complete case directory** from Ubuntu into `/media/sf_ML-CFD-share`, then open its `.foam` file from the corresponding Windows folder. A `.foam` file is only a marker; keep `constant`, `system`, and the saved time directories beside it. Reconstruct parallel results before copying, as shown after the container installation below. This keeps visualization on Windows while CFD runs in Ubuntu.
 #
-# On native Ubuntu, download the Linux x86-64 archive. For the verified 6.2.0 archive, extraction and launch are:
+# You can also run ParaView inside native Ubuntu or the VirtualBox guest. Download the Linux x86-64 archive and install the GUI libraries that were missing on a fresh Ubuntu desktop. For the verified 6.2.0 archive, installation and launch are:
 #
 # ```bash
+# sudo apt install libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1
 # mkdir -p ~/Applications
 # tar -xzf ~/Downloads/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64.tar.gz -C ~/Applications
-# ~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/paraview --version
-# ~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/paraview
+# ~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/pvpython --version
+# QT_QPA_PLATFORM=xcb ~/Applications/ParaView-6.2.0-MPI-Linux-Python3.12-x86_64/bin/paraview
 # ```
+#
+# Run the GUI command from a terminal in the Ubuntu desktop. `QT_QPA_PLATFORM=xcb` selects the X11 backend included in this binary, also when Ubuntu uses a Wayland desktop. The library packages above are needed only for Linux ParaView, not Windows ParaView.
 #
 # If the download page offers a newer stable release, use its corresponding archive and directory names. ParaView includes its own Python runtime; do not add its Python packages to the course environment's `PYTHONPATH`.
 #
@@ -261,22 +308,38 @@
 #
 # This uses prebuilt packages and avoids compiling Go or Apptainer. The final command should print the container's Alpine release. The [Apptainer installation guide](https://apptainer.org/docs/admin/latest/installation.html#install-ubuntu-packages) documents this installation route and WSL 2 support.
 #
+# In VirtualBox, Apptainer runs inside Ubuntu and uses the guest's Linux kernel. Store SIF images on Ubuntu's disk and run them as your ordinary Ubuntu user. No additional VM or nested hardware virtualization is required. The tested PPA installation ran containers with Ubuntu's default user-namespace restrictions; no system-wide security-setting changes were needed.
+#
 # ### Step 8 — Set up OpenFOAM and LibTorch
 #
 # Choose **Route A (container)** or **Route B (manual installation)** for OpenFOAM/LibTorch. Both use OpenFOAM.com **v2606** and CPU LibTorch **2.14.1**. Do not mix the OpenFOAM.com and OpenFOAM Foundation distributions when following these commands.
 #
 # #### Route A — Pull the course Apptainer container
 #
-# The container uses **Ubuntu 26.04.1 LTS** as its base, with OpenFOAM.com **v2606** and CPU LibTorch **2.14.1**. Its Ubuntu version is independent of the host operating system; the Ubuntu 26.04/WSL host setup above can run this container. Download the tested image from [GitHub Container Registry](https://github.com/users/AndreWeiner/packages/container/package/of-pytorch), then run the acceptance checks:
+# The container uses **Ubuntu 26.04.1 LTS** as its base, with OpenFOAM.com **v2606** and CPU LibTorch **2.14.1**. It runs in Ubuntu on native Linux, WSL 2, or VirtualBox. Download the tested image from [GitHub Container Registry](https://github.com/users/AndreWeiner/packages/container/package/of-pytorch) into the **course repository root**, then run the acceptance checks:
 #
 # ```bash
+# cd ~/Development/ml-cfd-lecture
 # apptainer pull of2606-py2.14.1-cpu.sif \
 #   oras://ghcr.io/andreweiner/of-pytorch:of2606-libtorch2.14.1-ubuntu26.04-cpu
 # apptainer run of2606-py2.14.1-cpu.sif simpleFoam -help
 # apptainer run of2606-py2.14.1-cpu.sif /opt/of-pytorch-tests/run-tests.sh
+# source setup-env
 # ```
 #
-# Use `oras://` for this registry artifact; it is an Apptainer SIF image. The runscript activates OpenFOAM automatically. You do not need to build the container yourself.
+# Use `oras://` for this registry artifact; it is an Apptainer SIF image. The runscript activates OpenFOAM automatically. You do not need to build the container yourself. `source setup-env` selects this image and OpenFOAM version for the course scripts; run it again from the repository root in each new terminal used for CFD exercises.
+#
+# **Later: copy parallel CFD results to Windows ParaView.** After completing a cylinder simulation in the CFD exercise, reconstruct its time directories inside Ubuntu, then copy the case into the VirtualBox shared folder:
+#
+# ```bash
+# cd ~/Development/ml-cfd-lecture
+# source setup-env
+# cd exercises/cylinder2D
+# apptainer exec "$ML_CFD_IMAGE" bash -c 'source /usr/lib/openfoam/openfoam2606/etc/bashrc && reconstructPar'
+# cp -r "$PWD" /media/sf_ML-CFD-share/
+# ```
+#
+# Open `cylinder2D/post.foam` from the Windows shared folder in ParaView, choose **Reconstructed Case**, and click **Apply**. Adjust the directory name if you used another case. For a later transfer, choose a fresh destination or replace the previous copy deliberately so that obsolete time directories are not mixed with new results.
 #
 # If you prefer to build it locally, the definition and compilation examples are included in `containers/of_pytorch/`. From the course repository root:
 #
@@ -289,7 +352,7 @@
 #
 # The build compiles and runs the C++ examples. If fakeroot is unavailable on your computer, use `sudo apptainer build` instead.
 #
-# The container contains **LibTorch**, the C++ frontend; your Python virtual environment remains on the host. For an interactive container shell, activate OpenFOAM explicitly:
+# The container contains **LibTorch**, the C++ frontend; your Python virtual environment remains in Ubuntu outside the container. For an interactive container shell, activate OpenFOAM explicitly:
 #
 # ```bash
 # apptainer shell of2606-py2.14.1-cpu.sif
@@ -354,7 +417,7 @@
 #
 # ### Step 9 — Optional editor setup
 #
-# On Windows, install **Visual Studio Code on Windows**, add the **WSL** extension, and open the course from an Ubuntu terminal with `code .`. Install the Python extension in the WSL environment and select `ml-cfd/bin/python` as the interpreter. On native Ubuntu, install VS Code using its official instructions. See [VS Code's WSL guide](https://code.visualstudio.com/docs/remote/wsl).
+# With WSL, install **Visual Studio Code on Windows**, add the **WSL** extension, and open the course from an Ubuntu terminal with `code .`. Install the Python extension in the WSL environment and select `ml-cfd/bin/python` as the interpreter. On native Ubuntu or inside the VirtualBox guest, install the Linux edition of VS Code using its [Ubuntu instructions](https://code.visualstudio.com/docs/setup/linux), open `~/Development/ml-cfd-lecture`, and select that same course interpreter. See [VS Code's WSL guide](https://code.visualstudio.com/docs/remote/wsl).
 #
 # ### Step 10 — Optional: OpenCode with ScaDS.AI models (TUD:AI)
 #
@@ -366,6 +429,8 @@
 #
 # - **Windows 11:** On the [official OpenCode download page](https://opencode.ai/download), select **OpenCode Desktop → Windows (x64)**. Run the downloaded installer and start OpenCode from the Start menu.
 # - **Ubuntu Linux:** On the same page, download the **Linux (.deb)** package. Open a terminal in the download folder and install that file with `sudo apt install ./NAME.deb`, replacing `NAME.deb` with its actual filename. Start OpenCode from the applications menu.
+#
+# With VirtualBox, use the **Linux installation inside Ubuntu**, even though the laptop runs Windows. Open the repository in Ubuntu's home directory so that the agent can use the Linux course environment.
 #
 # Open your `ml-cfd-lecture` repository folder as the project in OpenCode. Keep your own exercise scripts and generated results in `exercises`.
 #
@@ -427,7 +492,7 @@
 #
 # The configuration contains no API key. Requests use the TUD:AI endpoint. See the [OpenCode custom-provider guide](https://opencode.ai/docs/providers/#custom-provider) for further configuration details.
 #
-# On Windows, course Python commands must run inside Ubuntu/WSL, rather than with a Windows Python interpreter. Check the command and interpreter path before allowing the agent to run it.
+# On Windows, course Python commands must run inside Ubuntu in WSL or VirtualBox. Check the command and interpreter path before allowing the agent to run it.
 #
 # For a first check, ask the agent to explain `exercises/setup_check.py`. Tell it to use the Python interpreter inside `ml-cfd` when running course code. Read its suggestions and verify the result yourself.
 #
@@ -441,14 +506,23 @@
 # | Error `0x8007019e` reports that WSL is not enabled. | Enable the Windows Subsystem for Linux component in Windows features and restart. |
 # | A kernel update is requested. | Run `wsl --update`, then `wsl --shutdown`, and reopen Ubuntu. The manual kernel MSI belongs to the older installation route. |
 # | `gcc`, `g++`, or `make` is missing. | Install `build-essential` inside Ubuntu; a Windows compiler does not supply Linux build tools. |
+# | Parallel CFD logs report `mpirun: command not found`. | Install `openmpi-bin` inside Ubuntu, then retry in a fresh copy of the case. Existing log files can cause the course scripts to skip a previous failed step. |
+# | The VirtualBox shared folder is missing or access is denied. | Check the permanent folder name `ML-CFD-share`, Auto-mount, Ubuntu's `virtualbox-guest-utils` package, and membership of `vboxsf` using `id`. Reboot after adding group membership. |
+# | ParaView on Ubuntu reports that the Qt `xcb` plugin cannot load. | Install the GUI libraries listed in Step 6 and launch from the Ubuntu desktop using `QT_QPA_PLATFORM=xcb`. |
+# | Apptainer cannot download an image and reports HTTP 500. | Preserve the error and retry once; a registry error can be temporary. Check the exact image URI and contact the teaching team if it persists. |
 # | `venv` creation fails or pip reports an externally managed environment. | Install `python3-venv` for the tools environment, then create `ml-cfd` with `~/.venvs/course-tools/bin/uv venv --python 3.12 --seed ml-cfd` as in Step 4 and activate it. |
 # | Python cannot import a course package. | Check `which python`, reactivate `ml-cfd`, and run `python -m pip check`. Preserve any dependency-conflict messages. |
 # | Linux file operations are slow or permissions behave unexpectedly. | Move the checkout and simulation cases into the Linux home directory. |
-# | Jupyter does not open a browser automatically. | Use `jupyter lab --no-browser` and open its printed localhost URL manually. |
+# | Jupyter does not open a browser automatically. | Use `jupyter lab --no-browser` and open its printed localhost URL manually. With VirtualBox, open it in Ubuntu's browser. |
 #
 # For WSL errors, use [Microsoft's troubleshooting guide](https://learn.microsoft.com/en-us/windows/wsl/troubleshooting). Diagnose the reported problem rather than disabling Windows security features or reinstalling the distribution.
 #
+# ### Validation of the VirtualBox route
+#
+# On **14 October 2026**, a fresh Ubuntu 26.04.1 Desktop guest was tested on a **Linux host with VirtualBox 7.2.6**, using 4 cores and 8 GB RAM. The Python 3.12 environment, CPU PyTorch 2.14.1, FlowTorch 1.9.0, Apptainer 1.5.4, container C++ checks, and JupyterLab startup passed. With `openmpi-bin` installed, the cylinder workflow passed a short two-process run, mesh checking, and reconstruction. Shared-folder access worked in both directions after reboot; host ParaView 6.2 read and rendered the copied case. The guest ParaView GUI started after installing the listed libraries.
+#
+# This validates the Ubuntu guest workflow. Installation on a physical Windows host, Windows ParaView, optional editors/agents, and the full-duration CFD benchmark were **not tested**. The short simulation checks tool execution and readable output; later exercises still require their own numerical checks.
 #
 # ### Completion record
 #
-# Record your operating system, WSL version if applicable, Python and PyTorch versions, compiler version, Apptainer version, and the outcome of each check. Include the plot and any unresolved errors. Be prepared to explain which tools run on Windows, which run in Ubuntu, and which run inside a container.
+# Record your operating system, WSL or VirtualBox version if applicable, Ubuntu version, Python and PyTorch versions, compiler version, Apptainer version, and the outcome of each check. For VirtualBox, also record the assigned CPU cores/RAM and the shared-folder check after reboot. Include the plot and any unresolved errors. Be prepared to explain which tools run on Windows, which run in Ubuntu, and which run inside a container.
