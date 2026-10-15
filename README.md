@@ -13,8 +13,8 @@ This course previously received funding from the [Foundation for Innovation in H
 
 | # | Topic | Lecture | Exercise | Slides |
 |--:|:------|:--------|:---------|:-------|
-| 0 | How to learn with generative AI | [Read](notebooks/lecture_00.qmd) | — | — |
-| 1 | Course overview and motivation | [Read](notebooks/ml_cfd_intro.py) | [Exercises](notebooks/system_setup.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
+| 0 | How to learn with generative AI | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/lecture_00.html) | — | — |
+| 1 | Course overview and motivation | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_cfd_intro.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/system_setup.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
 | 2 | Introduction to machine learning | | | |
 | 3 | Surrogate models for discrete predictions | | | |
 | 4 | Surrogate models for continuous predictions | | | |
