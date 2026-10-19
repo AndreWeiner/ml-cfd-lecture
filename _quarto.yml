@@ -6,9 +6,11 @@ project:
   - notebooks/lecture_00.qmd
   - notebooks/ml_cfd_intro.py
   - notebooks/system_setup.py
+  - notebooks/ml_intro.py
   resources:
   - notebooks/ml_cfd_intro.py
   - notebooks/system_setup.py
+  - notebooks/ml_intro.py
   - containers/of_pytorch/**
   - logo_stiftung_hochschullehre.png
   - requirements.txt
@@ -24,6 +26,7 @@ project:
   - notebooks/media/workflow-use-*
   - notebooks/media/workflow-stacked-*
   - notebooks/media/workflow-circular-*
+  - notebooks/media/doe-*
 website:
   title: Machine Learning in Fluid Mechanics
   navbar:
@@ -52,6 +55,10 @@ website:
           text: Lecture
         - href: notebooks/system_setup.py
           text: Practice
+      - section: Introduction to machine learning
+        contents:
+        - href: notebooks/ml_intro.py
+          text: Lecture
 
 format:
   html:

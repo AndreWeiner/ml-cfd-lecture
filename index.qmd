@@ -10,7 +10,7 @@ Lecture notes and exercises from the Institute of Fluid Mechanics at TU Dresden.
 |--:|:------|:--------|:---------|:-------|
 | 0 | How to learn with generative AI | [Read](notebooks/lecture_00.qmd) | — | — |
 | 1 | Course overview and motivation | [Read](notebooks/ml_cfd_intro.py) | [Exercises](notebooks/system_setup.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
-| 2 | Introduction to machine learning | | | |
+| 2 | Introduction to machine learning | [Read](notebooks/ml_intro.py) | | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
 | 3 | Surrogate models for discrete predictions | | | |
 | 4 | Surrogate models for continuous predictions | | | |
 | 5 | Analysis of coherent structures | | | |

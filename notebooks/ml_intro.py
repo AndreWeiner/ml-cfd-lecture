@@ -19,1603 +19,763 @@
 # ---
 
 # %% [markdown]
-# [Download Python source](ml_intro.py){.btn .btn-outline-primary .btn-sm data-noresolveinput="true" download="ml_intro.py"}
-
-# %% [markdown]
-# ![CC](https://i.creativecommons.org/l/by/4.0/88x31.png)
-#
 # This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
 #
-# In this notebook, we cover the following topics:
+# %% [markdown]
+# ## Learning objectives
 #
-# - Floating point numbers  
-#   - The IEEE 754 standard  
-#   - Roundoff error  
-#   - Truncation error  
-# - Exploring parameters spaces  
-# - Generating data with simulations  
-# - Normalizing data  
-# - Feature selection and design  
-# - Deep learning  
-#   - Test case overview
-#   - Simple feed-forward neural networks  
-#   - Preparing the datasets
-#   - Generic training loop  
-#   - Training with batches of data
-#   - Learning rate adjustment
-#   - Activation functions
-#   - Advanced building blocks
-#   - Dealing with uncertainty  
-#   - Visualizing prediction errors  
+# After this lecture, you should be able to:
 #
-# **Note:** if you receive an import error related to the *paraview* module when executing the cell below, update the version of flowTorch as follows:
-# ```
-# # enter the Python environment
-# source ml-cfd/bin/activate
-# # remove the old version of flowTorch
-# pip uninstall flowtorch
-# # install the latest version
-# pip install git+https://github.com/FlowModelingControl/flowtorch.git@aweiner
-# ```
-
-# %%
-from glob import glob
-from typing import List, Tuple
-from os.path import isdir, join
-from shutil import copy
-from copy import deepcopy
-from time import time
-from collections import defaultdict
-import numpy as np
-import torch as pt
-from sklearn import metrics
-import matplotlib.pyplot as plt
-import pandas as pd
-from flowtorch.data import FOAMDataloader
-
-# make results reproducible
-pt.manual_seed(0)
-
-# increase plot resolution
-plt.rcParams["figure.dpi"] = 160
-
-# create output directory
-output = "output"
-from pathlib import Path
-Path(output).mkdir(parents=True, exist_ok=True)
+# - interpret Mitchell's definition of machine learning in terms of data, tasks, and performance measures, and outline the iterative workflow from problem definition to deployment;
+# - distinguish parametric from non-parametric models and deterministic from probabilistic predictions, using representative examples;
+# - compare regular grids, random sampling, Latin hypercube sampling, Sobol sequences, and adaptive sampling in terms of coverage, randomization, and sampling cost;
+# - explain why normalization matters, apply min–max scaling and standardization, and relate physical scaling and floating-point precision to numerical behavior;
+# - design physically and mathematically motivated features, check their availability in the target application, and explain common feature-selection strategies and their limitations;
+# - formulate a supervised dataset, a neural-network mapping, predictions, and a training objective, and describe an MLP and its gradient-descent update;
+# - explain the roles of seeds and repeated training runs in reproducibility and fair comparisons of model architectures;
+# - interpret box plots, residual plots, error histograms, and feature-space heat maps, distinguishing observed errors and training variability from predictive uncertainty.
+#
 
 # %% [markdown]
-# ## Floating point numbers
+# ## What is machine learning?
 #
-# You might be wondering why a lecture about ML starts with a section on floating point numbers. The answer is that a good understanding of how floating point numbers work often helps avoiding pitfalls both in ML and CFD. Computers can not represent real numbers with arbitrary precision, and when designing and implementing numerical algorithms, using the available precision effectively can make the difference between success and failure.
+# Tom Mitchell gives the following definition in *Machine Learning* (1997, Section 1.1):
 #
-# ### The IEEE 754 standard and roundoff error
+# > A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.
 #
-# Floating point numbers are the digital representation of real numbers. The IEEE 754 standard defines how exactly most modern computers represent floating point numbers in terms of bits. One bit is always reserved for the sign $S$, and the remaining bits are shared by an integer exponent $E$ and a binary [mantissa](https://en.wikipedia.org/wiki/Significand) $M$. Using these three components, floating point numbers are written as (refer to chapter 1.1.1 in *Numerical Recipes*):
+# Source: [Tom M. Mitchell, *Machine Learning*, McGraw-Hill, 1997](https://www.cs.cmu.edu/~tom/files/MachineLearningTomMitchell.pdf).
+#
+# The definition becomes more concrete when connected to quantities used in practice:
+#
+# | Concept | Practical interpretation |
+# |:--------|:-------------------------|
+# | **Learning** | **Automation by optimization:** a model and an objective are specified, and an algorithm adjusts the model to improve its performance. |
+# | **Experience $E$** | The **data** from which the model learns, such as measurements, simulation results, or observations collected through interaction with an environment. |
+# | **Tasks $T$** | The **aim of the model**: what should it predict or do, and under which conditions? |
+# | **Performance measure $P$** | A quantitative criterion for judging how well the model performs. During training, the optimization objective is usually expressed through a **loss function** to minimize. |
+#
+# The performance measure and training loss are closely related, but need not be identical. For example, a model might be trained by minimizing its mean squared prediction error, while its performance is evaluated using the fraction of predictions within an application-specific tolerance.
+#
+# ## Common steps in machine learning
+#
+# A machine-learning application involves more than fitting a model. The following five steps provide a useful structure, with frequent iterations between them. The division into steps is somewhat subjective: a workflow can be described in finer detail or at a more abstract level. These five steps are the structure we will use in this lecture.
+#
+# ### 1. Problem definition
+#
+# Problem definition establishes what a useful solution would look like before an algorithm is chosen:
+#
+# - **Task:** What is the model's aim? Which inputs will be available, and which outputs or decisions are required?
+# - **Data sources:** What measurements, simulations, or existing datasets are available? Do they cover the conditions in which the model will be used?
+# - **Performance:** How can performance on the task be quantified?
+# - **Baseline:** What existing solution should the model be compared with? This could be a simple empirical correlation or an established numerical method.
+# - **Acceptance criteria:** When is the model good enough? Criteria might include a maximum prediction error, a required improvement over the baseline, and a limit on evaluation time.
+#
+# ### 2. Data collection and processing
+#
+# Data collection or generation provides examples representative of the intended task. **Design of experiments** helps select which combinations of input parameters to measure or simulate, so that the available budget is used effectively.
+#
+# Quality and consistency checks belong to the data-generation process. Examples include checking units, identifying missing or invalid values, and assessing whether a simulation has converged sufficiently to provide useful reference data.
+#
+# Prior knowledge can guide the construction of new input variables. This is called **feature engineering**. In fluid mechanics, for example, density, velocity, length, and viscosity can be combined into a Reynolds number. Later sections and the exercise will examine feature design in more detail.
+#
+# Data preparation includes **splitting and normalization**. Normalization places variables on suitable numerical scales; specific methods are discussed later. The three subsets serve different purposes:
+#
+# | Subset | Purpose |
+# |:-------|:--------|
+# | **Training data** | Model parameters are fitted by optimizing the training objective. |
+# | **Validation data** | Performance is monitored during training to guide choices such as hyperparameters or when to stop training. |
+# | **Test data** | The final selected model is evaluated on data that have not been used to fit parameters or make model-selection decisions. |
+#
+# The data are split before normalization statistics are fitted. Statistics computed from the training subset are then used to transform all three subsets. This prevents information from the validation or test data from leaking into training. A suitable split also reflects the intended application: closely related snapshots from the same simulation may need to remain together rather than being distributed randomly across subsets.
+#
+# ### 3. Model selection and training
+#
+# Model selection identifies a suitable **model class**, or *Ansatz function*, that can represent the relationship relevant to the task. Its parameters are then fitted to the training data by optimizing the loss function.
+#
+# Model selection and training also involve choosing and tuning **hyperparameters**. These are settings that control the model structure or training procedure, rather than parameters fitted by the training algorithm. For example, polynomial coefficients are fitted parameters, whereas the polynomial degree is a hyperparameter. Other examples include the learning rate and the number of layers in a neural network.
+#
+# Candidate settings are compared using the validation data. The test data remain reserved for the final evaluation.
+#
+# ### 4. Performance evaluation
+#
+# The selected model is evaluated on unseen test data using the performance measures and acceptance criteria defined in step 1. Comparison with the baseline solution shows whether the model offers an improvement.
+#
+# Inspection of the **prediction errors** complements aggregate scores. Where does the model perform well, and where does it struggle? For a fluid-mechanical model, errors plotted against Reynolds number or flow regime may reveal weaknesses that are hidden by a single average error.
+#
+# These steps are **iterative**. Poor performance may motivate changes to the data collection, feature design, model class, or even the problem definition. For example, large errors in a sparsely sampled parameter range may motivate additional simulations in step 2. Validation data support this development loop. If test results are used to guide further changes, that test set has become part of model development; a fresh, untouched test set is needed for an independent final evaluation.
+#
+# ### 5. Deployment
+#
+# Once the model meets the acceptance criteria, it can be integrated into the **target application**, such as a post-processing tool or a CFD solver. Deployment includes checking its behavior in that application and monitoring whether new inputs remain within the conditions for which its performance has been established. New data or changing requirements may trigger another iteration of the workflow.
+#
+
+# %% [markdown]
+# ## Common model categories
+#
+# Models can be categorized according to different properties. Two useful distinctions concern how their representation is specified and how their predictions are expressed. These distinctions are independent: a parametric model can be deterministic or probabilistic, and the same is true of a non-parametric model.
+#
+# ### Parametric and non-parametric models
+#
+# A **parametric model** has **fixed model complexity** for a chosen model structure: its representation is described by a fixed, finite number of parameters. This number does not increase with the number of training samples. Training determines the parameter values.
+#
+# Examples include:
+#
+# - **Linear regression:** a linear relationship is represented by a fixed set of coefficients, such as a slope and an intercept for a single input variable.
+# - **Polynomial regression with a fixed degree:** a polynomial of degree $d$ in one variable has $d+1$ coefficients, regardless of how many samples are available.
+# - **A neural network with a fixed architecture:** the number of weights and biases is determined by its layers and their sizes. Even a very large network is parametric when its architecture is fixed.
+#
+# A **non-parametric model** is not restricted to a representation with a fixed, finite number of parameters independent of the dataset size. Its representation or effective complexity can grow as more training data become available.
+#
+# Examples include:
+#
+# - **$k$-nearest-neighbor regression:** predictions are obtained from nearby stored training samples. The stored representation grows with the dataset rather than being compressed into a fixed set of fitted coefficients.
+# - **Decision trees whose size is allowed to grow with the data:** additional splits and leaves can represent increasingly detailed relationships. A tree constrained in advance to a fixed maximum size has limited capacity, so the growth condition matters for this distinction.
+# - **Gaussian-process regression:** a distribution over functions is updated using the training observations. In its standard exact formulation, prediction depends on a representation whose size grows with the number of observations.
+#
+# *Non-parametric* does not mean *without parameters* or *without assumptions*. A decision tree has split thresholds and leaf values, and a Gaussian process has a covariance function with hyperparameters. The distinction concerns whether the model representation is fixed in size independently of the amount of data.
+#
+# ### Deterministic and probabilistic models
+#
+# Here, the distinction concerns the **prediction represented by the model**, rather than whether its training algorithm uses randomness.
+#
+# A **deterministic predictive model** assigns a single output to a given input once the fitted model is fixed. In regression, this is a point prediction, written as $\hat{y}=y_\theta(\mathbf{x})$, where $y_\theta$ denotes the fitted model. The model does not itself provide a probability distribution describing possible target values.
+#
+# Examples include:
+#
+# - **A fitted polynomial used for point prediction:** each Reynolds number is mapped to one predicted drag coefficient.
+# - **A standard feed-forward neural network used for point regression:** fixed weights and biases map each input to a single output during inference.
+# - **$k$-nearest-neighbor regression using the mean target value of the neighbors:** a fixed dataset and a fixed rule for resolving ties give one prediction per input.
+#
+# A **probabilistic predictive model** represents possible outcomes through a probability distribution, such as $p(y\mid\mathbf{x},\mathcal{D})$, where $\mathcal{D}$ denotes the training data. For regression, this can describe a range of plausible target values; for classification, it assigns probabilities to the possible classes.
+#
+# Examples include:
+#
+# - **Logistic regression:** the model assigns probabilities to two classes, for example the probability that a flow belongs to a specified regime.
+# - **Bayesian linear regression:** a probability distribution over regression coefficients is updated from the data and used to obtain a predictive distribution.
+# - **Gaussian-process regression:** predictions include a predictive mean and variance, describing uncertainty under the model's assumptions.
+#
+# A probabilistic model can still provide a single reported prediction, such as its predictive mean or its most probable class. Conversely, random initialization or randomized training does not by itself make a model's predictions probabilistic. A neural network trained with random initialization may still return only a deterministic point prediction after training. Probability estimates also require evaluation: a probabilistic formulation alone does not guarantee reliable uncertainty estimates. The distinction between point predictions and predictive distributions is discussed further in [Rasmussen and Williams, *Gaussian Processes for Machine Learning*](https://gaussianprocess.org/gpml/chapters/RW.pdf).
+#
+
+# %% [markdown]
+# ## Design of experiments
+#
+# **Design of experiments (DoE)** is the systematic planning and selection of “experiments” to efficiently explore how input variables influence output variables. Here, an experiment can be a physical measurement or a numerical simulation. Each experiment corresponds to a combination of input parameters and provides observations of the resulting outputs.
+#
+# For example, the inputs might be the Reynolds number and the angle of attack of an airfoil, while the output is its lift coefficient. The sampling design determines which combinations are measured or simulated.
+#
+# ### Space-filling and unbiased designs
+#
+# Two useful principles for exploring a parameter space are:
+#
+# - **Space-filling:** samples cover the parameter domain broadly, with few large gaps or unnecessary clusters. Coverage matters because an unexplored region may contain behavior that the model cannot infer from other regions.
+# - **Unbiased sampling:** in the uniform-sampling sense used here, no part of the chosen parameter domain is preferentially sampled. Uniform sampling gives equally sized regions of the parameter space the same probability of being sampled.
+#
+# This meaning of *unbiased* concerns the sampling distribution, rather than the statistical bias of a fitted model or estimator. It also depends on the chosen coordinates: uniform sampling of Reynolds number differs from uniform sampling of its logarithm. Other applications may deliberately use a non-uniform distribution.
+#
+# The two-dimensional sampling sketches use two normalized parameters, $X_1$ and $X_2$, each ranging from zero to one. The regular-grid and random designs each contain **16 samples**. The LHS construction uses **four samples** to make the pairing visible, while the Sobol construction shows growing sets of **4, 8, and 16 samples**. These sampling-layout sketches illustrate input selection only. The separate one-dimensional aliasing example below also shows a synthetic output function.
+#
+# ### Uniform segmentation: a regular grid
+#
+# A regular grid divides each parameter range into equally sized segments. An experiment is placed at every combination of segment centers, producing a Cartesian grid.
+#
+# ![Sixteen experiments at the centers of a four-by-four grid in the normalized X1–X2 domain.](media/doe-grid-light.png){.light-content width=60%}
+# ![Sixteen experiments at the centers of a four-by-four grid in the normalized X1–X2 domain.](media/doe-grid-dark.png){.dark-content width=60%}
+#
+# - **Space-filling:** the grid provides regular coverage at its chosen resolution.
+# - **Sampling bias:** once the grid is fixed, its locations are predetermined. Off-grid regions cannot be selected, so this is not an unbiased random design in the sense defined above. This does not by itself imply that every estimate obtained from a grid is statistically biased.
+# - **Efficiency:** with $m$ locations along each of $d$ parameters, the sample count is $N=m^d$. The exponential growth makes grids expensive in high dimensions: ten locations per parameter require 100 experiments in two dimensions, but one million in six dimensions.
+#
+# #### Example: regular coverage can conceal a varying response
+#
+# A regular grid can cover the input range evenly while missing important variation in the output. The deliberately simple example below uses $y=\sin(x)$ over $0\leq x\leq20.2\pi$. Eleven equally spaced samples occur at $x_k=2.02\pi k$, for $k=0,\ldots,10$. The spacing is slightly larger than the period $2\pi$, so each observation occurs a little later in the sine cycle. The observed values are $y_k=\sin(0.02\pi k)$: they suggest a slowly increasing, approximately linear trend instead of revealing the repeated oscillations. The samples therefore conceal the oscillatory dependence, even though they span the entire input range. This alignment between the sampling interval and the response is an example of **aliasing**.
+#
+# ![Comparison of eleven regular-grid observations suggesting a slowly increasing trend and eleven randomized Latin hypercube observations of the same oscillatory sine function.](media/doe-aliasing-light.png){.light-content width=100%}
+# ![Comparison of eleven regular-grid observations suggesting a slowly increasing trend and eleven randomized Latin hypercube observations of the same oscillatory sine function.](media/doe-aliasing-dark.png){.dark-content width=100%}
+#
+# Both designs use the **same number of observations**. In this realization, randomized LHS breaks the systematic alignment and reveals variation in the response. The continuous reference curve represents the known synthetic function; in a real experiment, only the sampled outputs would be available.
+#
+# Randomization reduces the risk of systematic alignment, but it does not guarantee that a small dataset resolves all important behavior. The LHS observations here do not by themselves establish the number or shape of the oscillations. **Space-filling describes input coverage; adequate resolution of the response also depends on how it varies.**
+#
+# ### Independent uniform random sampling
+#
+# Independent random sampling draws each experiment from a uniform distribution over the parameter domain.
+#
+# ![Sixteen independent uniform random experiments, illustrating clusters and gaps in the normalized X1–X2 domain.](media/doe-random-light.png){.light-content width=60%}
+# ![Sixteen independent uniform random experiments, illustrating clusters and gaps in the normalized X1–X2 domain.](media/doe-random-dark.png){.dark-content width=60%}
+#
+# - **Unbiased:** equal-volume regions have equal selection probability.
+# - **Space-filling:** a finite random sample can contain clusters and large gaps. Uniform probability does not guarantee uniform coverage in a particular realization.
+# - **Efficiency:** any sample count is possible, but broad coverage may require many experiments. Closely spaced samples can provide similar information while other regions remain unexplored. Generating random inputs is cheap; the potential inefficiency concerns the measurements or simulations needed for coverage.
+#
+# ### Latin hypercube sampling
+#
+# **Latin hypercube sampling (LHS)** combines random sampling with stratification along each input coordinate. For $N$ experiments in two dimensions, the construction consists of three steps:
+#
+# 1. Each of the $X_1$ and $X_2$ ranges is divided into $N$ equal segments.
+# 2. One value is drawn uniformly at random from each segment of each parameter.
+# 3. The sampled values are paired using a random permutation, giving $N$ combinations of $X_1$ and $X_2$.
+#
+# Thus, each horizontal and each vertical strip contains exactly one experiment. There is no requirement to sample every cell of the $N\times N$ grid.
+#
+# The following sketch uses **four samples** to keep the three-stage construction and the pairing of values easy to follow. The regular-grid and random-sampling sketches use 16 samples; LHS can likewise be constructed with 16 samples or another chosen sample count.
+#
+# ![Three-stage Latin hypercube construction: segment each coordinate, sample once per segment, then shuffle and pair the values to produce four experiments.](media/doe-lhs-light.png){.light-content width=100%}
+# ![Three-stage Latin hypercube construction: segment each coordinate, sample once per segment, then shuffle and pair the values to produce four experiments.](media/doe-lhs-dark.png){.dark-content width=100%}
+#
+# - **Unbiased:** across repeated generations of the randomized design, each individual experiment can fall anywhere in the domain without favoring a particular region. Equally sized regions have the same probability of containing that experiment. However, the experiments constrain one another: once a sample occupies a particular segment of $X_1$, no other sample can use that segment; the same applies to $X_2$. For example, with four samples, each parameter range is divided into four segments. If one sample uses the lowest $X_1$ segment, the other three must use the remaining segments. The locations are therefore random but coordinated to improve coverage, rather than independent.
+# - **Space-filling:** coverage is guaranteed in each one-dimensional projection. This often improves coverage compared with independent random sampling, but does not guarantee that all multi-dimensional gaps are small.
+# - **Efficiency:** only $N$ experiments are required, regardless of the number of parameters. More dimensions do not force a Cartesian product of samples, although adequate coverage can still require a larger budget.
+#
+# ### An alternative: Sobol sequences
+#
+# A **Sobol sequence** is a low-discrepancy sequence: its points are constructed so that the fraction falling in suitable subregions closely matches those regions' volume fractions. This reduces gaps and clustering compared with independent random sampling.
+#
+# The construction can be summarized in three steps:
+#
+# 1. **Represent the sample index in binary.** Each experiment is assigned an index whose binary digits determine its coordinates. The implementation illustrated below uses a Gray-code ordering, in which successive encoded indices differ by one bit.
+# 2. **Construct coordinated coordinates.** Each parameter uses a prescribed set of binary fractions, called *direction numbers*. These are combined using binary operations to distribute the points across the domain.
+# 3. **Extend the sequence.** Additional points follow the same rule. Sample counts of $2^m$, such as 16, 32, or 64, preserve the sequence's balance properties.
+#
+# The intuition is that **Sobol sequences coordinate coverage across several resolutions**, using subdivisions into halves, quarters, eighths, and so on. They do not explicitly search for the largest remaining gap. Mathematical details are available in the [Joe–Kuo notes on generating Sobol sequences](https://web.maths.unsw.edu.au/~fkuo/sobol/joe-kuo-notes.pdf).
+#
+# ::: {.callout-note collapse="true" title="Additional reading: what is a binary fraction?"}
+# A **binary fraction** uses powers of two for its digit positions, just as a decimal fraction uses powers of ten. After the decimal point, the positions represent $1/10$, $1/100$, and so on. After the binary point, they represent
+#
 # $$
-#   S \times M \times 2^{E-e},
+# \frac{1}{2},\quad \frac{1}{4},\quad \frac{1}{8},\quad \frac{1}{16},\ldots
 # $$
-# where $e$ is a fixed machine-dependent constant. In CFD and scientific computing in general, 64 bit floating point numbers are the standard, whereas most ML libraries use 32 bit floating point values by default. Floating point numbers with 32 bit are referred to as *single precision*, and the 64 bit counterpart is termed *double precision*. Single precision operations are more efficient, whereas double precision provides more significant decimal digits. The smallest number that can be still represented by the floating point type on our computer if we add it to $1.0$ is called *machine tolerance*. We can use the NumPy library function [finfo](https://numpy.org/doc/stable/reference/generated/numpy.finfo.html) to investigate mantissa, exponent, and machine tolerance for the most common data types *float32* and *float64*.
-
-# %%
-for dtype in [np.float32, np.float64]:
-    finfo = np.finfo(dtype)
-    print(f"dtype: {finfo.dtype}")
-    print(f"Number of bits: {finfo.bits}")
-    print(f"Bits reserved for mantissa: {finfo.nmant}")
-    print(f"Bits reserved for exponent: {finfo.iexp}")
-    print("Largest representable number: {:e}".format(finfo.max))
-    print("Smallest representable number: {:e}".format(finfo.min))
-    print("Machine tolerance: {:e}".format(finfo.eps))
-    print(f"Approximately accurate up to {finfo.precision} decimal digits")
-    print("-"*46)
-
-# %% [markdown]
-# ### Roundoff error
 #
-# We can run a small experiment to observe the consequences of the limited machine tolerance in practice. The floating point data types in PyTorch are named in the same fashion as their NumPy counterparts.
-
-# %%
-a = pt.tensor(1.0, dtype=pt.float32)
-for b in [10**i for i in range(-1, -11, -1)]:
-    print("1.0 + {:1.1e} = {:10.10f}".format(b, a+b))
-
-# %% [markdown]
-# In the print statement above, we display the result with 10 decimal digits. However, the *float32* type offers only up to 7 significant digits. All additional digits are filled up with somewhat random numbers. Moreover, when adding values like $10^{-8}$ and smaller, the added small fraction falls victim to the **roundoff** error. After seeing the small experiment above, adding a value in the order of $O(10^{-8})$ to another value that is $O(1)$ will hopefully trigger your roundoff alarm sirens. However, the difficulty with numerical precision is not always so apparent. Consider some points $(x_i, y_i)$ with $-0.01\le x \le 0.01$ and $1 \le y \le 10$. Now, we want to fit a polynomial to our data, say $y(x) = ax^4+bx^3+cx^2+dx+e$, so we construct the necessary polynomial features by computing the corresponding powers of $x$. The constants are determined using some gradient-based iterative algorithm like gradient decent. At the beginning of the optimization, the weights (coefficients) $a$ to $e$ are typically initialized by sampling random numbers between zero and one. Considering the polynomial form again, most likely the optimization will be affected by roundoff errors (using single precision) because the first term $ax^4$ will be always smaller than $10^{-8}$ and the last term $e$ will be $O(1)$. In practice, we can mitigate such scenarios to some extend by normalizing the data, as we will learn later on in this notebook.
-
-# %%
-for x in pt.arange(-0.01, 0.011, 0.0025):
-    print("x={:+1.4e}, x**2={:1.4e}, x**3={:+1.4e}, x**4={:1.4e}".format(x, x**2, x**3, x**4))
-
-# %% [markdown]
-# In iterative solution algorithms, roundoff errors can be even more challenging. Consider the following two operations, in which we get a roundoff error because the intermediate result, $1/3$ can't be represented exactly as a binary number:
-
-# %%
-a = pt.tensor(1.0)
-print("a={:1.10f}".format(a))
-b = a - 2.0/3.0
-print("b={:1.10f}".format(b))
-a = 3.0*b
-print("a={:1.10f}".format(a))
-
-
-# %% [markdown]
-# Now let's simulate an simplified iterative solution algorithm, in which we execute the same options many times in a row:
-
-# %%
-def iterate(n_iter: float = 1):
-    a = pt.tensor(1.0)
-    for _ in range(n_iter):
-        b = a - 2/3
-        a = 3.0 * b
-    print(f"a={a:1.10f} after {n_iter:1d} iteration(s)")
-
-for i in range(1, 10):
-    iterate(i)
-
-# %% [markdown]
-# The discrepancy between single precision in ML and double precision in CFD is usually not critical, especially if ML is used as a means of post-processing CFD data. The situation might change if the ML model is employed somewhen during the simulation's runtime. A save option is setting the default precision of the ML library to double precision. In PyTorch, this option can be set globally at the beginning of the program.
-
-# %%
-x = pt.tensor(1.0)
-print(x.dtype)
-pt.set_default_dtype(pt.float64)
-x = pt.tensor(1.0)
-print(x.dtype)
-pt.set_default_dtype(pt.float32)
-
-# %% [markdown]
-# ## Truncation error
+# Each binary digit is either zero or one. For example,
 #
-# In contrast to the roundoff error, the truncation error is not a hardware property but results from the discrete approximation of continuous quantities. For example, we could approximate the integral of $y(x) = x^2$:
 # $$
-#   \int\limits_0^1 x^2 \mathrm{d}x = 1/3
+# (0.10)_2=1\cdot\frac{1}{2}+0\cdot\frac{1}{4}=0.5,
 # $$
-# numerically by using the trapezoidal rule.
-
-# %%
-max_intervals = 40
-residual = []
-for n_int in range(2, max_intervals+1):
-    x = pt.linspace(0, 1, n_int)
-    y = x**2
-    dx = (1.0-0.0) / n_int
-    integral = 0.5 * (y[0:-1]+y[1:]).sum() * dx
-    residual.append(abs(integral - 1.0/3.0))
-
-plt.plot(range(2, max_intervals+1), residual, label="trapezoidal rule")
-plt.plot([2, max_intervals], pt.tensor([max_intervals, 2])*(0.005), label="first order slope")
-plt.xlabel(r"$1/\Delta x$")
-plt.ylabel("residual")
-plt.xscale("log")
-plt.yscale("log")
-#plt.gca().set_aspect("equal")
-plt.legend()
-plt.savefig(f"{output}/residual_trapezoidal_rule.svg", bbox_inches="tight")
+#
+# $$
+# (0.01)_2=0\cdot\frac{1}{2}+1\cdot\frac{1}{4}=0.25,
+# $$
+#
+# $$
+# (0.11)_2=1\cdot\frac{1}{2}+1\cdot\frac{1}{4}=0.75.
+# $$
+#
+# The subscript $2$ indicates binary notation. Thus, $(0.10)_2$ means **one half**, whereas decimal $0.10$ means one tenth. More generally, a binary fraction with digits $b_1,b_2,\ldots$ has the value
+#
+# $$
+# (0.b_1b_2b_3\ldots)_2=\sum_{k=1}^{\infty}b_k\,2^{-k}.
+# $$
+# :::
+#
+# The index encoding for the first four points is:
+#
+# | Sample index $n$ | Binary representation | Gray code |
+# |:----------------:|:---------------------:|:---------:|
+# | 0 | 00 | 00 |
+# | 1 | 01 | 01 |
+# | 2 | 10 | 11 |
+# | 3 | 11 | 10 |
+#
+# For the first sample, $n=0$, both the binary representation and the Gray code are $00$. No direction numbers are selected, so both coordinates are zero: $(X_1,X_2)=(0,0)$. This is the point at the lower-left corner of each grid in the sketch. It belongs to the **unscrambled** sequence shown here; scrambling generally moves the first point away from the origin.
+#
+# For example, the index $n=2$ has Gray code $11$, so both of the first two direction numbers contribute to each coordinate. For the two-dimensional sequence shown here, this gives
+#
+# $$
+# X_1=(0.10)_2\oplus(0.01)_2=(0.11)_2=0.75,
+# $$
+#
+# $$
+# X_2=(0.10)_2\oplus(0.11)_2=(0.01)_2=0.25.
+# $$
+#
+# The subscript $2$ denotes a binary fraction, and $\oplus$ denotes bitwise exclusive OR (XOR): equal bits give zero, and different bits give one. Each coordinate uses its own direction numbers. The resulting third point, counting from $n=0$, is $(X_1,X_2)=(0.75,0.25)$.
+#
+# The following sketch shows how the point set grows. Previously sampled points are retained, and the newly added points are highlighted.
+#
+# ![An unscrambled Sobol sequence extended from four to eight to sixteen points. Previously sampled points are retained and newly added points are highlighted.](media/doe-sobol-light.png){.light-content width=100%}
+# ![An unscrambled Sobol sequence extended from four to eight to sixteen points. Previously sampled points are retained and newly added points are highlighted.](media/doe-sobol-dark.png){.dark-content width=100%}
+#
+# Unlike LHS, which enforces one sample per interval along each coordinate for a chosen sample count, Sobol sequences use a structured construction to balance coverage across multiple dimensions. An existing sequence can be extended; complete sets of $N=2^m$ points preserve its standard balance properties.
+#
+# An unscrambled Sobol sequence is deterministic. **Scrambling** randomizes the binary digits used to construct its coordinates while preserving the sequence's structured coverage. It changes the sample locations, rather than merely their order. Different random seeds produce different point sets with similar space-filling properties. For example, the first point of the unscrambled sequence is $(0,0)$, whereas scrambling generally moves it elsewhere in the domain.
+#
+# Randomized scrambling gives each point a uniform distribution over the domain, although the points remain dependent, as in randomized LHS. Repeating a calculation with independently scrambled sequences can help estimate uncertainty in a computed average or integral. Sobol designs can use a sampling budget efficiently, but neither they nor LHS eliminate the difficulty of covering a high-dimensional domain.
+#
+# ### Adaptive sampling
+#
+# **Adaptive sampling** uses the outputs of completed experiments to select later inputs. This can be particularly efficient when experiments are expensive and some regions are more informative than others. It is a powerful approach rather than a universal gold standard: its benefit depends on the task, the quality of the uncertainty model, and the cost of selecting new samples.
+#
+# A typical uncertainty-driven workflow is:
+#
+# 1. An initial design is generated, for example using randomized LHS or a scrambled Sobol sequence, and the corresponding experiments are performed.
+# 2. A surrogate model approximates the input–output relationship and estimates predictive uncertainty across the parameter domain.
+# 3. The next experiment is selected where its observation is expected to reduce uncertainty most effectively, for example by reducing uncertainty integrated over the domain.
+# 4. The new observation is added to the dataset, the surrogate and its uncertainty estimate are updated, and sample selection is repeated until the budget or an acceptance criterion is reached.
+#
+# The aim is to reduce uncertainty **after observing the new output**. Sampling where current uncertainty is already smallest would usually add little information. Adaptive designs deliberately concentrate samples according to their objective, so they generally do not preserve uniform, unbiased sampling of the domain.
+#
+# **Bayesian optimization** is a related example of adaptive sampling. A probabilistic surrogate and an acquisition function guide the search for a good objective value, balancing exploration of uncertain regions with exploitation of promising regions. For broad parameter-space exploration, uncertainty reduction is more directly associated with **active learning** or **Bayesian experimental design**. The distinction is the selection objective: learning the response throughout the domain versus finding an optimum.
+#
 
 # %% [markdown]
-# As we can see, the residual decreases proportionally to the size of discrete elements into which we divide the interval. So, even if the computer provided perfect accuracy, it would still take infinitely small elements to reach perfect accuracy. CFD simulations employing the finite volume method are typically second order accurate, so the truncation error decreases proportionally to the square of the element size.
+# ## Data normalization
 #
-# ## Exploring parameter spaces
+# ### Why is data normalization important?
 #
-# Suppose we want to conduct a CFD parameter study in which we vary the Reynolds number $Re$ and record the drag coefficient $c_d$. Our aim would be to create an ML-based surrogate model based on the pairs $Re_i$ and $c_{d,i}$. Let's assume we know a range for $Re$ that we are particularly interested in. An important question before starting the simulations is now how to pick suitable $Re$ values in the specified range. In general, we want our sampling to be:
+# Features and targets often have very different numerical scales. **Data normalization** rescales these quantities so that typical values, variations, or both are of **order one**. Depending on the method, this may also involve centering the data. The aim is a useful numerical representation, rather than forcing every individual value to be close to one.
 #
-# 1. unbiased - every point has the same chance of being selected
-# 2. efficient - we want to run as few simulations as possible
-# 3. homogeneous - we want the samples to be homogeneously distributed across the parameter space
+# Normalization can support several aspects of a learning problem:
 #
-# Let's say we want to run $N_s$ simulations. Intuitively, you may want to distribute the $N_s$ points equally spaced across the Reynolds number range, and there are good arguments to do so. However, there are at least two problems with this approach:
+# - **Numerical stability:** suitable scaling can reduce the impact of round-off errors and improve the condition number of matrices involved in fitting a model. A lower condition number means that a problem is less sensitive to small perturbations in its inputs. Scaling does not cure every source of ill-conditioning, such as nearly redundant features.
+# - **Less hyperparameter tuning:** comparable feature and target scales can make settings such as the learning rate easier to choose and reuse across problems. Normalization reduces sensitivity to scale; it does not eliminate the need for tuning.
+# - **Comparable contributions of features:** in distance-based methods such as clustering, scaling prevents a feature from dominating solely because its numerical values are larger. The choice of scaling still expresses a choice about what constitutes similarity.
+# - **Comparable numerical experiments:** loss values are easier to compare when the same target normalization, loss definition, and evaluation data are used. A change in target scale changes a squared-error loss quadratically, so a smaller loss alone need not mean a better physical prediction.
 #
-# 1. it does not scale to multiple dimensions, e.g., if we vary more than one parameter; if we want to treat every parameter equal, we should pick $N_s$ points in every parameter range and perform simulation for all parameter permutations; for $d$ parameters, this strategy would require running $N_s^d$ simulations; the number of sample points increases exponentially
-# 2. it is biased because not every point has the same chance of being sampled; the plot below show a somewhat artificial and extreme effect of bias; the true signal is periodic but the samples suggest that there is basically no correlation between input and output
-
-# %%
-x = pt.linspace(0.0, 20*np.pi, 300)
-y = pt.sin(x)
-
-x_sample_1 = pt.linspace(0, 20.1*np.pi, 11) + (2*pt.rand(11)-1)*0.1
-x_sample_2 = pt.linspace(0, 20*np.pi, 21) + (2*pt.rand(21)-1)*0.1
-
-plt.plot(x, y, alpha=0.5, ls="--", label="true function")
-plt.scatter(x_sample_1, pt.sin(x_sample_1) +
-            (2*pt.rand(11)-1)*0.05, label="sample 1")
-plt.scatter(x_sample_2, pt.sin(x_sample_2) + (2*pt.rand(21)-1)
-            * 0.05, marker="x", label="sample 2", zorder=6)
-plt.xlim(0, 20.1*np.pi)
-plt.xlabel(r"$x$")
-plt.ylabel(r"$y$")
-plt.legend(ncol=3, loc=1)
-plt.savefig(f"{output}/biased_sampling.svg", bbox_inches="tight")
-
+# ### Common normalization methods
+#
+# The following transformations can be applied separately to each feature and, where appropriate, each target. For transformations based on dataset statistics, these statistics are computed from the **training data only** and then reused unchanged for validation, test, and deployment data. Predictions are transformed back to physical units for application-level evaluation.
+#
+# #### Min–max normalization
+#
+# For a variable $x$, min–max normalization maps its observed training range to $[0,1]$:
+#
+# $$
+# \widetilde{x}=\frac{x-x_{\min}}{x_{\max}-x_{\min}}.
+# $$
+#
+# An alternative maps the same range to $[-1,1]$:
+#
+# $$
+# \widetilde{x}=2\frac{x-x_{\min}}{x_{\max}-x_{\min}}-1.
+# $$
+#
+# The choice depends on the problem and model. Both transformations are **sensitive to outliers**: a single extreme value can compress most observations into a small part of the normalized range. New observations outside the training range can produce normalized values outside the chosen interval.
+#
+# #### Zero mean and unit standard deviation
+#
+# **Standardization** centers a variable using its training mean $\mu_x$ and scales it by its training standard deviation $\sigma_x$:
+#
+# $$
+# \widetilde{x}=\frac{x-\mu_x}{\sigma_x}.
+# $$
+#
+# The transformed training variable has zero mean and unit standard deviation. Values are not restricted to a fixed interval, and standardization does not make an arbitrary distribution Gaussian. Unlike min–max scaling, standardization uses statistics of the entire training dataset rather than its two extreme values. With a small fraction of outliers, it can therefore preserve more of the spread of the main data cloud instead of compressing it into a narrow part of a fixed interval. However, sufficiently extreme outliers can still shift the mean and inflate the standard deviation, compressing the remaining observations. Standardization is thus often less affected in practice, but is not outlier-robust in the statistical sense.
+#
+# #### Scaling with physical relations
+#
+# Physical knowledge can provide characteristic scales for both features and targets. For spatial position $\mathbf{r}$, characteristic length $L$, velocity $U$, density $\rho$, and time scale $T=L/U$, examples are
+#
+# $$
+# \widetilde{\mathbf{r}}=\frac{\mathbf{r}}{L},\qquad
+# \widetilde{t}=\frac{t}{T},\qquad
+# \widetilde{\mathbf{u}}=\frac{\mathbf{u}}{U},\qquad
+# \widetilde{p}=\frac{p-p_{\mathrm{ref}}}{\rho U^2}.
+# $$
+#
+# Such **non-dimensionalization** connects numerical scaling to physical similarity. A force target can likewise be represented by a force coefficient. Characteristic scales are chosen to reflect the relevant flow, so that typical dimensionless quantities are of order one; this is not guaranteed by removing units alone. Physical scaling and statistical normalization can also be combined when useful.
+#
+# ### Optional detour: floating-point representation
+#
+# ::: {.callout-note collapse="true" title="Additional reading: IEEE 754, precision, and machine tolerance"}
+# Computers represent real numbers with finite precision. The IEEE 754 binary floating-point formats encode a sign bit $s$, an exponent field $e$, and fraction bits $b_1,\ldots,b_p$. A normal finite number has the form
+#
+# $$
+# x=(-1)^s\left(1+\sum_{k=1}^{p}b_k2^{-k}\right)2^{e-B},
+# $$
+#
+# where $B$ is the exponent bias. The leading one is implicit. The exponent provides the range of magnitudes, while the significand provides the significant digits. Special encodings represent zero, subnormal numbers near zero, infinities, and NaN (not a number).
+#
+# | Property | Single precision (`float32`, binary32) | Double precision (`float64`, binary64) |
+# |:---------|:-------------------------------------|:-------------------------------------|
+# | Total bits | 32 | 64 |
+# | Sign / exponent / stored fraction bits | 1 / 8 / 23 | 1 / 11 / 52 |
+# | Exponent bias $B$ | 127 | 1023 |
+# | Significand precision, including the leading bit | 24 binary digits | 53 binary digits |
+# | Approximate decimal precision | 7 significant digits | 16 significant digits |
+# | Machine epsilon $\epsilon$ | $2^{-23}\approx1.19\times10^{-7}$ | $2^{-52}\approx2.22\times10^{-16}$ |
+#
+# Here, **machine tolerance** refers to *machine epsilon*: the gap between $1$ and the next larger representable number, $1+\epsilon$. It describes the resolution near one, rather than a universal error bound or a guarantee of an exact result. Under rounding to nearest, sufficiently small increments are lost: in single precision, for example, $1+10^{-8}$ rounds to $1$. The spacing between representable values changes with magnitude.
+#
+# Most decimal fractions also require rounding when represented in binary. Arithmetic operations can therefore introduce **round-off errors**, and adding a small quantity to a much larger one can lose the small contribution.
+#
+# The data type is chosen consciously for the problem. CFD calculations may need double precision to resolve small residuals, accumulated updates, or differences between large terms. Many ML and post-processing tasks can use single precision with lower storage and potentially faster arithmetic, depending on the hardware. Neither application category alone determines the necessary precision: the relevant scales, algorithm, and accuracy requirements matter. NumPy's `finfo` reports these format properties.
+# :::
+#
+# ### Example 1: fitting a fourth-order polynomial
+#
+# A polynomial regression problem illustrates how scaling and finite precision interact. The input lies in $-10^{-2}\leq x\leq10^{-2}$, the target lies in $1\leq y\leq10$, and the model is
+#
+# $$
+# y_{\theta}(x)=ax^4+bx^3+cx^2+dx+e,\qquad \theta=(a,b,c,d,e).
+# $$
+#
+# For the sake of this argument, the coefficients are fitted by **gradient descent in single precision**, minimizing the mean squared error below. This is one possible fitting method: because the polynomial is linear in its coefficients, they can also be determined by solving a linear least-squares problem using matrix methods, such as QR factorization or singular value decomposition. An inverse-based expression is possible when the relevant matrix is nonsingular, although explicitly forming the inverse is generally unnecessary. The training objective is
+#
+# $$
+# \mathcal{L}(\theta)=\frac{1}{N}\sum_{i=1}^{N}\bigl(y_{\theta}(x_i)-y_i\bigr)^2.
+# $$
+#
+# Suppose the initial coefficients are of order one, as can occur with a random initialization. **What problems can arise when the polynomial features have very different scales?**
+#
+# | Polynomial feature | Maximum magnitude over the input range |
+# |:-------------------|:---------------------------------------:|
+# | $1$ | $1$ |
+# | $x$ | $10^{-2}$ |
+# | $x^2$ | $10^{-4}$ |
+# | $x^3$ | $10^{-6}$ |
+# | $x^4$ | $10^{-8}$ |
+#
+# The fourth-order contribution $ax^4$ is then of order $10^{-8}$ or smaller, while the constant term $e$ is of order one. Near one, the spacing of single-precision numbers is approximately $1.19\times10^{-7}$. For example, with $a=e=1$ and $x=10^{-2}$,
+#
+# $$
+# e+ax^4=1+10^{-8}
+# $$
+#
+# rounds to $1$ in single precision. The fourth-order contribution is lost when added to the constant term, even though $10^{-8}$ itself is representable. This is a **round-off effect caused by combining different scales**, rather than an inability to store a small number.
+#
+# The gradients also inherit the feature scales. With residual $r_i=y_{\theta}(x_i)-y_i$,
+#
+# $$
+# \frac{\partial\mathcal{L}}{\partial a}=\frac{2}{N}\sum_i r_i x_i^4,
+# \qquad
+# \frac{\partial\mathcal{L}}{\partial e}=\frac{2}{N}\sum_i r_i.
+# $$
+#
+# Updates to the fourth-order coefficient can therefore be much smaller than updates to the constant term. A single learning rate may produce very uneven progress, and sufficiently small coefficient updates can themselves be rounded away. Poor scaling also affects the conditioning of the polynomial regression matrix. These optimization and conditioning issues exist even before finite-precision effects are considered; loss of a small contribution in the forward calculation does not imply that its analytically computed gradient is necessarily zero.
+#
+# A centered min–max transformation gives
+#
+# $$
+# \widetilde{x}=\frac{x}{0.01},\qquad
+# \widetilde{y}=\frac{y-5.5}{4.5}.
+# $$
+#
+# Both variables now lie in $[-1,1]$ over the stated ranges. Constructing the polynomial features **after normalizing the input** gives the model
+#
+# $$
+# \widetilde{y}_{\widetilde{\theta}}(\widetilde{x})=\widetilde{a}\widetilde{x}^4+\widetilde{b}\widetilde{x}^3+\widetilde{c}\widetilde{x}^2+\widetilde{d}\widetilde{x}+\widetilde{e}.
+# $$
+#
+# Here
+#
+# $$
+# \widetilde{\theta}=(\widetilde{a},\widetilde{b},\widetilde{c},\widetilde{d},\widetilde{e}).
+# $$
+#
+# All feature columns can now reach magnitudes of order one, reducing their scale disparity and making a common learning rate more practical. Powers still become small near zero, and polynomial features can remain correlated. Normalization improves the numerical representation; it does not eliminate round-off errors or guarantee good conditioning.
+#
+# ### Example 2: comparable features in clustering
+#
+# We consider lift measurements of an airfoil section at varying Reynolds numbers. The aim is to group the measurements according to characteristic flow states, using similarities in the measured lift response as an indication of potentially similar flow behavior. Such groups could help identify candidate flow states for further physical investigation.
+#
+# Each of the following three measurements contains a Reynolds number and a section lift coefficient:
+#
+# | Measurement $i$ | $\mathrm{Re}$ | $c_L$ |
+# |:---------------:|:-------------:|:-----:|
+# | 1 | $10\times10^6$ | 0.50 |
+# | 2 | $12\times10^6$ | 0.20 |
+# | 3 | $15\times10^6$ | 0.10 |
+#
+# **How might these measurements be grouped into two clusters?** The similar, smaller lift coefficients suggest grouping measurements 2 and 3, separately from measurement 1. This is a plausible interpretation of the observed response, rather than proof that the two measurements share the same flow regime.
+#
+# An algorithm requires a quantitative definition of similarity. For feature vectors $\mathbf{z}_i=(\mathrm{Re}_i,c_{L,i})$, the Euclidean distance is
+#
+# $$
+# d_{ij}=\lVert\mathbf{z}_i-\mathbf{z}_j\rVert_2
+# =\sqrt{(\mathrm{Re}_i-\mathrm{Re}_j)^2+(c_{L,i}-c_{L,j})^2}.
+# $$
+#
+# The raw distances are approximately
+#
+# | Pair | Euclidean distance before normalization |
+# |:----:|:---------------------------------------:|
+# | 1–2 | $2\times10^6$ |
+# | 1–3 | $5\times10^6$ |
+# | 2–3 | $3\times10^6$ |
+#
+# Thus, measurements **1 and 2** form the closest pair, contrary to the intuitive grouping of measurements **2 and 3** based on their similar lift coefficients. The Reynolds-number differences dominate the distance almost entirely, despite both features already being dimensionless.
+#
+# With min–max scaling of each column to $[0,1]$, the values become
+#
+# | Measurement $i$ | $\widetilde{\mathrm{Re}}$ | $\widetilde{c}_L$ |
+# |:---------------:|:------------------------:|:----------------:|
+# | 1 | 0 | 1 |
+# | 2 | 0.4 | 0.25 |
+# | 3 | 1 | 0 |
+#
+# For this small illustrative dataset, all three observations define the scaling range; a predictive workflow would instead obtain scaling statistics from its training subset. The resulting distances are
+#
+# | Pair | Euclidean distance after normalization |
+# |:----:|:--------------------------------------:|
+# | 1–2 | $\sqrt{0.4^2+0.75^2}=0.85$ |
+# | 1–3 | $\sqrt{2}\approx1.414$ |
+# | 2–3 | $\sqrt{0.6^2+0.25^2}=0.65$ |
+#
+# Measurements **2 and 3** now form the closest pair, consistent with the initial interpretation based on their lift coefficients. Normalization gives the observed ranges of both features comparable influence. It does not establish a uniquely correct clustering: the meaningful weighting of Reynolds number and lift coefficient still depends on the physical question.
+#
 
 # %% [markdown]
-# To make the samples unbiased, we should select the samples randomly. However, selecting $N_s$ points at random may give you some stomach ache, too, because large portions of the parameter space might remain unexplored. Random sampling is relatively inefficient.
+# ## Feature design and selection
 #
-# A good compromise between the homogeneity of equally spaced sample points and efficient unbiased sampling is *latin hypercube sampling* (LHS). If the goal is to perform $N_s$ simulations, each parameter range is equally divided into $N_s$ sections. Then, one random sample is drawn in each section of each parameter. If there is more than one parameter, the samples drawn from the individual parameter ranges are shuffled. Combining (stacking) the shuffled individual samples yields the final samples in the full parameter space. Below, we implement a simple version of LHS in PyTorch. 
-
-# %%
-def lhs_sampling(x_min, x_max, n_samples):
-    assert len(x_min) == len(x_max)
-    n_parameters = len(x_min)
-    samples = pt.zeros((n_parameters, n_samples))
-    for i, (lower, upper) in enumerate(zip(x_min, x_max)):
-        bounds = pt.linspace(lower, upper, n_samples+1)
-        rand = bounds[:-1] + pt.rand(n_samples) * (bounds[1:]-bounds[:-1])
-        samples[i, :] = rand[pt.randperm(n_samples)]
-    return samples
-
-
-N_s = 10
-samples = lhs_sampling([0, 90], [5, 100], N_s)
-plt.scatter(samples[0, :], samples[1, :], zorder=6, label="samples")
-plt.xticks(pt.linspace(0, 5, N_s+1))
-plt.yticks(pt.linspace(90, 100, N_s+1))
-plt.grid(True, ls="--")
-plt.legend()
-plt.xlabel("parameter 1")
-plt.ylabel("parameter 2")
-plt.title("latin hypercube sampling")
-plt.savefig(f"{output}/lhs_sampling.svg", bbox_inches="tight")
-
-
-# %% [markdown]
-# ## Generating data from simulations
+# Some features are naturally given by a problem, such as a Reynolds number, a wall-normal coordinate, or a measured velocity. **Feature design**, also called *feature engineering*, derives new variables from these quantities. A suitable representation can make a relationship easier to learn, allowing a more accurate model or a simpler model that requires less data and computation. The benefit depends on the task and is assessed through validation.
 #
-# The previous section covered how to sample a parameter space efficiently and unbiased. This section outlines some tools and strategies to run automated CFD parameter studies. Every parameter study should start with a tested and validated base simulation. Typical criteria for a good base simulation are similar to the ones of any good CFD simulation:
+# ### Goals of feature design
 #
-# - the setup correctly reflects the mathematical problem
-# - a mesh dependency study was performed, and the results show sufficiently low mesh dependency
-# - key performance quantities were validated against high-fidelity reference data
-# - the setup is optimized; mesh-independent results are obtained as quickly as possible
+# #### Embedding mathematical constraints
 #
-# The easiest way to perform a parameter study is to create a copy of the base simulation, modify the parameters in question, and run the new setup. However, the change of one parameter often requires the adjustment of related settings, too. For example, increasing the inlet velocity or the pressure gradient driving the flow leads to an increased Courant number if the mesh remains unchanged. Since the increased Courant number might cause stability issues, the numerical time step should be lowered. Tools like OpenFOAM support time step adjustment based on the maximum Courant number, which simplifies parameter changes to some extend. If the time step needs adjustment, the characteristic time scale of the problem has probably changed, too. For example, the vortex shedding frequency displayed by the flow past a cylinder increases proportionally to the Reynolds number in the range $80 < Re < 1000$. If our aim is to run the simulation until a quasi-steady vortex shedding is reached, the required physical simulation time decreases as the Reynolds number increases. Running all simulation up to the same physical end time would be a waste of resources.
+# A transformation can enforce a mathematical property of a feature. For example, the **sigmoid function** maps any finite real input $z$ into the interval $(0,1)$:
 #
-# On the other hand side, changing too many parameters at once might make the setup unnecessarily complex and could introduce unforeseeable side effects. Mesh generation, for example, is often an intricate and time consuming process, such that we may want to run all simulations employing the same mesh. However, how do we ensure that the results remain mesh independent despite an increase, say, of the Reynolds number? A simple strategy for this scenario would be to pick the most demanding case in terms of mesh resolution and to build the mesh based on this configuration. Of course, the computational efficiency for less demanding cases decreases, but building optimized meshes for all conditions might be untractable.
-#
-# Once the base case is ready, we can write a script that copies, modifies, and runs new setups. Shell or Python scripts are good choices to automate the process. Shell programming is a good option for simple parameter variations and to automate workflows in general. The *Allrun* scripts provided in the *test_cases* are simple recipes to perform a list processing steps required to perform the simulation. Python scripts are more powerful but require a Python interpreter and possibly additional library dependencies. Python also allows executing shell commands via the standard library functions [os.system()](https://docs.python.org/3/library/os.html#os.system) or [subprocess.Popen()](https://docs.python.org/3/library/subprocess.html#subprocess.Popen). The *system* function is rather limited but sufficient for running simple and short shell commands. For example, the lines
-# ```
-# cmd = "sed -i 's/old_text/new_text/' exampleDict"
-# os.system(cmd)
-# ```
-# would search the file *exampleDict* for the string *old_text* and replace the text with *new_text*. On the other hand side, *Popen* offers greater flexibility in terms of process control. The same command as above executed with *subprocess* would be:
-#
-# ```
-# cmd = ["sed", "-i", "'s/old_text/new_text/'", "exampleDict"]
-# p = subprocess.Popen(cmd)
-# # print exit code to check if execution was successful
-# print(p.poll())
-# ```
-#
-# In the case of OpenFOAM simulations, the *Popen* function is a good candidate to perform individual simulations:
-#
-# ```
-# def run_simulation(path: str):
-#     """Execute a simulation by running the *Allrun* script.
-#
-#     :param path: path to simulation folder
-#     :type path: str
-#     """
-#     return_code = Popen(["./Allrun"], cwd=path).wait()
-#     if return_code == 0:
-#         print(f"Simulation {path} completed successfully.")
-#     else:
-#         print(f"Warning: simulation {path} failed.")
-# ```
-# If we had a list of paths to modified simulations, we could loop over the list and use the *run_simulation* function to execute one simulation after the other. We can accelerate the execution process if we have enough resources to perform multiple simulations at once. Python supports running multiple processes at once via the *multiprocessing* module. A suitable workflow making use of the *run_simulation* function defined before, would be to create a process pool based on the number of available CPU cores and to map all the list of all simulation paths to the *run_simulation* function:
-# ```
-# simulations = ["./sim_0/", "./sim_1/", "./sim_2/"]
-# pool = Pool(2)
-# with pool:
-#     pool.map(run_simulation, simulations)
-# ```
-# Employing the code snippet above, simulations zero and one would be run roughly at the same time. Whichever subprocess finishes first will then execute simulation two.
-
-# %% [markdown]
-# ## Normalizing data
-#
-# Suppose we created a dataset, in which an airfoil's drag coefficient was determined for several Reynolds numbers $Re$ and angles of attack $\alpha$. The Reynolds number ranges between $Re=10\times 10^6$ and $Re=20\times 10^6$. The angle of attack was varied between $\alpha = 0^\circ$ and $\alpha = 4^\circ$. Now we want to build a surrogate model by means of regression. Based on section 1, it should be clear that combining the features $Re$ and $\alpha$ directly in a model is not a good idea. So, how can we improve the situation? A simple solution is to normalize both features. There are two common ways to normalize any kind of data. In a min-max-scaling, each feature $x_i$ are scaled to the range $[0,1]$:
 # $$
-#   \tilde{x}_i = \frac{x_i-x_{i,min}}{x_{i,max}-x_{i,min}}.
+# \sigma(z)=\frac{1}{1+\exp(-z)}.
 # $$
-# Alternatively, the equation above could also be rescaled to the range $[-1,1]$. Min-max scaling works great if the input data are clean, e.g., if there are no outliers. A normalization technique less sensitive to outliers scales the features with their mean $\mu_x$ and standard deviation $\sigma_x$:
+#
+# For a positive maximum scale $M$, the feature $M\sigma(z)$ lies between zero and $M$. This provides a bounded input representation. The bounds are approached asymptotically; finite-precision calculations may round to an endpoint.
+#
+# ![The sigmoid function maps real inputs to values between zero and one, approaching both bounds asymptotically.](media/doe-sigmoid-light.png){.light-content width=100%}
+# ![The sigmoid function maps real inputs to values between zero and one, approaching both bounds asymptotically.](media/doe-sigmoid-dark.png){.dark-content width=100%}
+#
+# Bounding an input feature does not automatically bound the model output. If the required constraint concerns an output, it can instead be imposed through an output transformation, for example $y_\theta(\mathbf{x})=M\sigma(g_\theta(\mathbf{x}))$, where $g_\theta$ is an otherwise unconstrained model. Saturation near the sigmoid's bounds also reduces sensitivity to input changes, so the transformation is chosen with the relevant range in mind.
+#
+# #### Embedding known physical relationships
+#
+# Physical knowledge can provide a baseline relationship, leaving the model to learn a correction. For a turbulent boundary layer, the logarithmic law of the wall provides a familiar starting point within an appropriate logarithmic region:
+#
 # $$
-#   \tilde{x}_i = \frac{x_i-\mu_{x_i}}{\sigma_{x_i}}.
+# u^+=\frac{1}{\kappa_0}\ln y^+ + B_0,
+# \qquad u^+=\frac{\overline{u}}{u_\tau},
+# \qquad y^+=\frac{y u_\tau}{\nu}.
 # $$
-# The re-scaled features have zero mean and unit standard deviation. These properties are also the reason why this scaling is a good choice when training neural networks employing sigmoid and hyperbolic tangents activation functions. These activation functions are not so popular any longer in most fields using deep learning. However, for PINNs they are essential because one can compute arbitrarily many derivatives of both functions. Without going further into detail about neural networks, it is sufficient to now that we do not want activation functions to *saturate*, which mean to become insensitive to the input. Looking at the sigmoid function depicted below, saturation occurs if the argument becomes too small or too low. Data normalized by their mean and standard deviation lead to activation values in the most sensitive range (the slope is the highest around $x=0$).
-
-# %%
-def sigmoid(x: pt.Tensor) -> pt.Tensor:
-    """Compute the sigmoid function.
-
-    :param x: input argument
-    :type x: pt.Tensor
-    :return: sigmoid of x
-    :rtype: pt.Tensor
-    """
-    return 1.0 / (1.0 + pt.exp(-x))
-
-
-x = pt.linspace(-10, 10, 40)
-plt.plot(x, sigmoid(x), label=r"$\sigma (x)$")
-plt.plot(x, sigmoid(x)*(1.0-sigmoid(x)), ls="--",
-         label=r"$\mathrm{d}\sigma (x)/\mathrm{d} x$")
-plt.xlabel(r"$x$")
-plt.xlim(-10, 10)
-plt.legend()
-plt.savefig(f"{output}/sigmoid_function.svg", bbox_inches="tight")
-
-# %% [markdown]
-# Clustering is another great example to demonstrate the importance of normalization. Suppose we have the following data points for Reynolds number $Re$ and lift coefficient $c_l$:
 #
-# | $i$ | $Re$ | $c_l$ |
-# |:---:|:----:|:--------:|
-# | 1 | $10\times 10^6$ | $0.3$ |
-# | 2 | $12\times 10^6$ | $0.12$ |
-# | 3 | $15\times 10^6$ | $0.11$ |
+# Here $u_\tau$ is the friction velocity, $\nu$ is the kinematic viscosity, and $\kappa_0$ and $B_0$ are reference constants. A candidate model for pressure-gradient effects could make the effective coefficients functions of a dimensionless pressure-gradient descriptor $\beta$:
 #
-# Clustering is about grouping similar data points. Eyeballing the data, you probably see that something significant must have happened in the range $10\times 10^6 < Re < 12\times 10^6$ because the lift dropped to about one third for the measurement points 2 and 3. If you were tasked to sort similar data points into two different bins, you would probably separate point 1 from the points 2 and 3. To automate the clustering, we need a more precise definition of the notion of similarity we used so far. The most common metric to measure the distance between data points is the [Euclidean norm](https://en.wikipedia.org/wiki/Euclidean_distance). For the data point above, the distances are:
+# $$
+# u^+_\theta(y^+,\beta)=\frac{1}{\kappa_\theta(\beta)}\ln y^+ + B_\theta(\beta).
+# $$
 #
-# | points | distance |
-# |:------:|:--------:|
-# | 1-2 | $2\times 10^6$ |
-# | 1-3 | $5\times 10^6$ |
-# | 2-3 | $3\times 10^6$ |
+# For example, in an attached boundary layer, a commonly used descriptor is $\beta=(\delta^*/\tau_w)\,\mathrm{d}p_e/\mathrm{d}x$, with displacement thickness $\delta^*$, wall shear stress $\tau_w$, and edge pressure $p_e$. A baseline-plus-correction form makes the learning task explicit:
 #
-# According to the Euclidean distance, we should rather group points 1 and two together because the distance between them is the smallest. Of course, this outcome is not really what we wanted. Again, normalization can help the situation. The min-max-normalized data are:
+# $$
+# u^+_\theta=\frac{1}{\kappa_0}\ln y^+ + B_0
+# +\Delta A_\theta(\beta)\ln y^+ +\Delta B_\theta(\beta).
+# $$
 #
-# | $i$ | $\tilde{Re}$ | $\tilde{c}_l$ |
-# |:---:|:----:|:--------:|
-# | 1 | $0$ | $1$ |
-# | 2 | $0.4$ | $0.05$ |
-# | 3 | $1$ | $0$ |
+# The model learns deviations from the reference profile rather than a velocity profile from scratch. The quantities $\ln y^+$ and $\beta$ are physically motivated features. This is a modeling Ansatz, not a general law stating that pressure-gradient effects can always be absorbed into two coefficients. Its validity depends on the flow regime and region considered; near separation, wall-based scales and this pressure-gradient descriptor can become unsuitable. Other effects, including flow history, may require additional information.
 #
-# The distances between the points are now:
+# #### Improving the distribution of samples in feature space
 #
-# | points | distance |
-# |:------:|:--------:|
-# | 1-2 | $1.03$ |
-# | 1-3 | $1.41$ |
-# | 2-3 | $0.60$ |
+# A feature can span several orders of magnitude. For example,
 #
-# This time, the distance reflects out initial evaluation. The distance between points 2 and 3 is the smallest. In higher dimensions, seeing such normalization-related issue is not straight forward. Therefore, it is good practice to **always** normalize all the data, features as well as labels. In the worst case, normalization costs you a few extra operations to scale and re-scale the model's input and output. In most cases, normalization improves accuracy and accelerates the training.
+# $$
+# \mathrm{Re}=1,\ 10,\ 100,\ 1000
+# \quad\longrightarrow\quad
+# \log_{10}(\mathrm{Re})=0,\ 1,\ 2,\ 3.
+# $$
 #
-# Finally, if the data points of a feature are very unevenly distributed in the feature space, it might be sensible to work with the logarithm of the feature instead of the feature itself. An example displaying the usefulness of logarithmic scaling is part of the next lecture.
+# The samples are equally spaced in the logarithmic coordinate. This transformation changes the representation of the existing samples; it does not collect new data or make an arbitrary sample distribution uniform. It is useful when relative changes or multiplicative relationships matter. A logarithm requires positive values, and its argument is dimensionless.
 #
-# ## Feature selection and design
+# #### Simplifying variation and nonlinear relationships
 #
-# Selecting and designing good features is one of the most essential parts of applying ML to CFD problems. Sometimes, the features and labels are naturally given, and it is straight forward to identify the mapping that the ML model has to perform. Suppose we have a car model and want to create a surrogate model predicting the drag as a function of the Reynolds number based on a couple of CFD simulations. In the simulation, the inlet velocity may be defined to impose a certain Reynolds number und the aerodynamic forces acting on the car result from the velocity and pressure fields. There would be only one feature and one label, and we could choose from a variety of regression algorithms to build a suitable surrogate model. However, sometimes it can be sensible to design additional features based on the extracted raw data. Potential reasons for designing new features could be:
+# Other transformations can reduce unnecessary variation or make relationships easier to represent:
 #
-# - to enforce mathematical constraints like symmetry or boundedness
-# - to leverage known (physical) relations
-# - to reduce the variance in the data before training
+# - **Polynomial features:** replacing a scalar input $x$ by features such as $(x,x^2,x^3)$ allows a relationship nonlinear in $x$ to be represented by a model linear in its coefficients. Feature scaling remains important, as the preceding example shows.
+# - **Ratios and dimensionless groups:** quantities such as $u/U$ or $\mathrm{Re}=UL/\nu$ can combine naturally given variables into features relevant to physical similarity. Denominators need to remain meaningful over the application range.
+# - **Trigonometric features:** $(\sin\alpha,\cos\alpha)$ can represent a periodic angle without an artificial discontinuity between zero and $2\pi$.
+# - **Other nonlinear transformations:** logarithms or physically motivated baseline corrections can simplify a response's variation. A reduction in variance or nonlinearity is a possible benefit, rather than a property guaranteed by every transformation.
 #
-# In summary, one could say that feature design serves the purpose to simplify the ML problem. Good features accelerate the model training and often lead to smaller yet more accurate models. However, care has to be taken when selecting or designing features. It is essential to know right from the beginning what exactly the model is going to be used for in a target application. One common pitfall is basing the model on features that are not (easily) available in the target application. For example, when deriving models for low-fidelity simulations based on high fidelity data, we must first convert the high-fidelity data into features that are also available during the runtime of the low-fidelity simulation. To give a more specific example, direct numerical simulations (DNS) data may be used for turbulence modeling in large eddy simulation (LES) or Reynolds-averaged Navier-Stokes (RANS) simulation approaches. In all approaches, there is going to be a *velocity field*. However, the mathematical definition of velocity and other quantities varies in each simulation. DNS provides spatially and temporally resolved fields, while LES works with filtered and RANS with time-averaged information. Therefore, the first processing step should be to filter or average the DNS data before exploring and designing new features. Not only the mathematical definition of features but also assumptions about the spatial arrangement might be important. For example, DNS solvers might operate on structured Cartesian meshes, while solver for industrial applications operate on unstructured meshes with arbitrary topology. While it might seem a good idea at first to use specialized neural network architectures like convolutional neural networks to process the array-like DNS data, such a model would be hard or even impossible to apply in the unstructured target solver.
+# ### Guidelines for designing features
 #
-# A general rule of thumb for designing additional features is to have rather too many than too few features. Not all features should and will be used for model training since the model may become unnecessary complex or prone to over-fitting the data. However, instead of eliminating features manually, one could consider employing feature exploration and selection strategies. Some examples are:
+# **Units and physical meaning matter.** Dimensionless quantities often provide a useful starting point and facilitate comparisons across scales. Physical dimensions must still be consistent when quantities are combined: adding a velocity directly to a pressure has no physical meaning. Non-dimensionalization removes units but does not by itself determine the appropriate weighting of features.
 #
-#  - [correlation heatmaps](https://stackoverflow.com/questions/39409866/correlation-heatmap) visualize the linear correlation between different features and labels; if the correlation between a feature and a label is strong, the feature might be a good candidate for modeling
-#  - sequential forward/backward selection performs eliminatory rounds with varying numbers and combinations of features; each round, one feature is removed (backward selection) or added (forward selection)
-#  - decision trees or ensemble variants thereof have a built-in [feature importance](https://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html) to rank features (based on the internal criteria at each node of the tree)
-#  - [permutation feature importance](https://scikit-learn.org/stable/modules/permutation_importance.html#permutation-importance) shuffles the values of a single feature randomly and observes how the performance of a training model is affected
+# **Features must be available in the target application.** A useful training feature cannot support deployment if it requires information unavailable when the model is evaluated. This concerns both the mathematical definition of a quantity and the process used to extract it.
 #
-#  The feature ranking strategies have different pros and cons. Sequential backward selection, for example, yields a meaningful ranking in most cases but can be very expensive to compute. Decision trees, on the other hand, are easily trained, but their *feature importance* is more susceptible to small changes in the data.
+# For example, DNS provides a velocity field resolved in space and time, whereas a RANS calculation provides a Reynolds-averaged velocity field. These quantities are not directly interchangeable merely because both are called velocity. A model intended for RANS requires training features consistent with the quantities available in RANS. This may involve averaging the DNS data first and then extracting the corresponding mean-flow features; for LES, an appropriate spatial filtering operation is needed instead. For nonlinear feature transformations, averaging and feature construction generally do not commute, so the extraction order follows the intended definition of the feature.
+#
+# Spatial representation also matters. A feature construction that depends on a structured Cartesian array of DNS values may not transfer directly to an unstructured mesh in the target solver. Suitable features reflect the information and geometry available during deployment. Statistical transformations and feature-selection decisions are fitted using training and validation data, with the test set reserved for final evaluation.
+#
+# ### Selecting useful feature combinations
+#
+# Feature design may produce a large set of plausible candidates. **Feature selection** seeks a useful subset, balancing predictive performance, model complexity, computational cost, and availability in the target application. Selection is part of model development, rather than a decision based on the final test results.
+#
+# #### Correlation heatmaps
+#
+# A correlation heatmap summarizes pairwise correlations between features and, in supervised learning, targets. It can reveal redundant variables and strong linear associations. Weak linear correlation does not rule out a useful nonlinear relationship, and pairwise correlations do not describe all interactions between features. The heatmap provides an initial screening tool rather than a complete selection rule.
+#
+# #### Sequential forward and backward selection
+#
+# **Forward selection** starts with no features and adds the candidate that gives the greatest improvement in validation performance at each step. **Backward selection** starts with a candidate set and removes the feature whose exclusion is least harmful, or most beneficial. Both approaches compare models fitted with different subsets.
+#
+# These searches can be expensive because they require repeated fitting. They are also greedy: a locally preferred choice need not identify the best overall combination, particularly when features interact.
+#
+# #### Permutation importance
+#
+# **Permutation importance** assesses how much a fitted model relies on a feature. Its values are randomly shuffled across observations in a validation dataset, breaking their association with the other measurements. The decrease in predictive performance indicates the feature's importance to that particular model. Repeated shuffles help assess variation in the result.
+#
+# This provides a performance-based check beyond pairwise correlation, but it is not universally more robust than other selection methods. Correlated features can substitute for one another and appear individually unimportant; shuffling can also create unrealistic feature combinations. Importance scores can guide subset selection, followed by refitting and validation of the reduced model.
+#
+# #### Feature weighting learned during optimization
+#
+# Some models learn how strongly different inputs contribute during training. For example, an **attention mechanism** can assign input-dependent weights to feature representations, allowing their contributions to vary with the sample. This integrates feature weighting into optimization, but does not necessarily remove features or produce a smaller input set.
+#
+# Explicit selection can instead be encouraged through sparse coefficients or learned feature gates. Attention weights alone are not a reliable ranking of physical importance or evidence of a causal relationship. The resulting representation and any proposed reduction in features still require validation.
+#
 
 # %% [markdown]
 # ## Deep learning
 #
-# ### Test case overview
+# Neural networks are a flexible class of **Ansatz functions** that can be used in many different modeling contexts. Their ability to represent complex, nonlinear relationships between inputs and outputs makes them a useful starting point when simpler model forms are too restrictive. They are not a universal solution: their suitability depends on the task, the available data, and requirements such as computational cost and interpretability.
 #
-# To demonstrate the training and evaluation of neural networks, we need some training data. Here, we work with developed velocity profiles of a 1D channel flow simulation. Conducting the parameter study to create the data is part of the accompanying exercise session. The channel flow is characterized by the Reynolds number $Re=2\delta\bar{U}/\nu$, where $\delta$ is one half of the channel height, $\bar{U}$ is the average velocity along the channel, and $\nu$ is the kinematic viscosity. In the parameter study, 16 different values $ 10^4 < Re < 10^5$ were sampled with latin hypercube sampling and the corresponding simulations executed. The main output of a single simulation is the velocity along the channel $u_x$ at several distances $y$ normal to the channel wall. Our goal is creating a model that provides us with the normalized streamwise velocity $\tilde{u}_x = u_x/\bar{U}_{max}$ value for a given normalized distance from the wall $\tilde{y} = y/(2\delta)$ and the Reynolds number:
-# $$
-#   \tilde{u}_{x} = f_\theta(\tilde{y}, Re).
-# $$
-# The features are $\tilde{y}$ and $Re$. The label is $\tilde{u}_x$. Such a model could be the basis for improving the accuracy of the near wall region of turbulent flow simulations. Note that there are more clever ways to normalize $y$ and $u_x$, but we stick to the version above to make the learning slightly more challenging.
+# ### Models, datasets, and predictions
 #
-# As a first step, we load the velocity profiles, the points normal to the wall at which the velocity values are defined, and the Reynolds numbers.
-
-# %%
-cases = glob("../exercises/boundary_layer_1D_variation/Ub_*")
-cases = sorted(cases, key=lambda case: float(case.split("_")[-1]))
-loader = FOAMDataloader(cases[0])
-y = loader.vertices[:, 1]
-u_x = pt.zeros((y.shape[0], len(cases)))
-for i, case in enumerate(cases):
-    loader = FOAMDataloader(case)
-    u_x[:, i] = loader.load_snapshot("U", loader.write_times[-1])[:, 0]
-
-Ubar = pt.tensor([float(case.split("_")[-1]) for case in cases])
-print("Shape of data matrix: ", u_x.shape)
-
-# %% [markdown]
-# There are 200 points normal to the wall and 16 different Reynolds numbers. Each velocity profile contains 200 values and all 16 profiles assembled yield a $200\times 16$ tensor. Since the data are low-dimensional, we have the luxury of being able to visualize the full dataset all at once.
-
-# %%
-delta, nu = 0.5, 1.0e-5
-Re = pt.tensor([Ub.item()*2*delta/nu for Ub in Ubar])
-for i in range(len(Re)):
-    plt.plot(u_x[:, i], y, label=r"$Re={:1.0f}$".format(round(Re[i].item(), 0)))
-plt.xlabel(r"$u_x$")
-plt.ylabel(r"$y$")
-plt.xlim(0.0, 1.1)
-plt.ylim(-0.01, 0.5)
-plt.legend(loc="upper center", ncol=4, bbox_to_anchor=[0.5, 1.3])
-plt.savefig(f"{output}/developed_1d_profile.svg", bbox_inches="tight")
-
-# %% [markdown]
-# The normalization visualized does not alter the nature of the data significantly. However, if $y$ and $u_x$ had very different values ranges, normalizing by the channel height and the average velocity would bring both quantities much closer to the desired range about $O(1)$.
-
-# %%
-for i in range(len(Re)):
-    plt.plot(u_x[:, i]/Ubar.max(), y/(2*delta), label=r"$Re={:1.0f}$".format(round(Re[i].item(), 0)))
-plt.xlabel(r"$\tilde{u}_x$")
-plt.ylabel(r"$\tilde{y}$")
-plt.xlim(0.0, 1.2)
-plt.ylim(-0.01, 0.5)
-plt.legend(loc="upper center", ncol=4, bbox_to_anchor=[0.5, 1.3])
-plt.savefig(f"{output}/developed_1d_profile_normalized.svg", bbox_inches="tight")
-
-
-# %% [markdown]
-# A first inspection of the data shows the expected behavior. As the Reynolds number increases, the average channel velocity increases and the profiles become steeper close to the wall. These observations are a good first sanity check. However, we should validate the data against known results for the same or similar settings. Luckily, the problem is relatively simple such that we can compare the outcome against an existing analytical function. We know that close to the wall, the velocity profile should follow first a linear and then a logarithmic trend. This relation is know as [law of the wall](https://en.wikipedia.org/wiki/Law_of_the_wall). Spalding's function comines both linear and logarithmic zones. However, Spalding's function is given in so-called inner coordinates:
-# $$
-#   u_\tau = \sqrt{\nu\partial_yu_x|_{y=0}/\rho},\quad y^+ = yu_\tau/\nu,\quad u^+ = u_x/u_\tau.
-# $$
-# The velocity $u_\tau$ is also called shear stress or friction velocity. Since the simulation is incompressible, we assume a density of unity. Spalding's function is then given as:
-# $$
-#   y^+ = u^+ + \left[e^{u^+\kappa} - 1 - u^+\kappa\left(1+u^+\kappa/2\right) - \left(u^+\kappa\right)^3/6\right] / E,
-# $$
-# where the constants have values of $E=9.8$ and $\kappa = 0.41$.
+# A **neural network** is a parameterized mapping from a feature space to a target, or label, space:
 #
-# To compare against Spalding's function, we have to convert the velocity profiles into inner coordinates. The velocity's slope at the wall $\partial_yu_x|_{y=0}$ can be approximated for each velocity profile using finite differences and assuming a velocity of zero at the wall. The linear approximation of the slope is reasonable since the boundary layer is fully resolved by the mesh. In the figure below, we can observe how the simulation data nicely collapse almost into a single profile, which is in agreement with Spalding's function.
-
-# %%
-def spalding(up: pt.Tensor, E: float=9.8, kappa: float=0.41) -> pt.Tensor:
-    """Compute Spalding's velocity profile.
-
-    :param up: velocity in inner coordinates U-plus
-    :type up: pt.Tensor
-    :param E: wall roughness constant, defaults to 9.8
-    :type E: float, optional
-    :param kappa: van Kármán constant, defaults to 0.41
-    :type kappa: float, optional
-    :return: distance in inner coordinates y-plus
-    :rtype: pt.Tensor
-    """
-    upk = up*kappa
-    temp = pt.exp(upk) - 1 - upk*(1+upk/2) - upk**3/6
-    return up + temp/E
-
-dy_u_x = (0.0 - u_x[0, :]) / (0.0 - y[0])
-U_tau = pt.sqrt(nu * dy_u_x)
-
-for i, Ub in enumerate(Ubar):
-    y_plus = y*U_tau[i]/nu
-    U_plus = u_x[:, i] / U_tau[i]
-    plt.plot(y_plus, U_plus, lw=1, ls="--")
-
-U_spalding = pt.linspace(0.01, 25, 100)
-plt.plot(spalding(U_spalding), U_spalding, c="k", label="Spalding's function")
-plt.xlabel(r"$y^+$")
-plt.ylabel(r"$u^+$")
-plt.xlim(0.01, 2500)
-plt.xscale("log")
-plt.legend()
-plt.savefig(f"{output}/1d_profile_inner.svg", bbox_inches="tight")
-
-# %% [markdown]
-# ### Simple feed-forward neural networks
-#
-# Deep learning (DL) is a sub-field of ML that focuses on the design, implementation, and optimization of deep neural networks. Neural networks form a class of parametrized functions characterized by great approximation capabilities, especially if high-dimensional mappings from features to labels are required. The functional form of neural networks is inspired by the [perceptron](https://en.wikipedia.org/wiki/Perceptron), which was the first mathematical approach to explain the working of neurons (nerve cells) in the brain. The building blocks of modern neural networks still have some resemblance with the original perceptron, but many modifications have been introduced. These modifications are largely driven by empirical observations and mathematical intuition. In this lecture, we introduce the mathematical form of relatively simple feed-forward neural networks with fully connected layers and use them as a black box function approximation tool. In the next lecture, we learn more about the inner workings of neural networks.
-#
-# The picture below depicts a feed-forward neural network with its typical components: input and output layers, hidden layers, neurons with activations, bias units, and connections between these components.
-#
-# <img src="media/example_nn.png" style="width:600px">
-#
-# In the input layer, one neuron is reserved for each possible feature $x_i$ of the feature vector $\mathbf{x} = \left[x_1, x_2, ..., x_{N_f}\right]^T$, where $N_f$ is the number of features. The network sketched above has two neurons for two input features, so $N_f = 2$. Considering the test case described in the previous section, the two input features $x_1$ and $x_2$ would be the normalized channel height and the Reynolds number, and the single output would be the normalized streamwise velocity. The connections between the input and the first hidden layer represent free parameters, also called weights. If each neuron of one layer is connected with each neuron of the consecutive layer, the layers are said to be *fully connected*. Fully connected layers are part of almost any modern neural network architecture. In every neuron $j$ of a hidden layer $l$, a weighted sum $z_j^l$ of all $N_{neu}^{l-1}$ neurons (features) of the previous layer $l-1$ is computed:
 # $$
-#   z_j^l\left(\mathbf{x}^{l-1}\right) = \sum\limits_{i=1}^{N_{neu}^{l-1}} w_{ji}^{l-1} x_i^{l-1} + b_j^{l-1}.
-# $$
-# The coefficients $w_{ij}$ of weight matrix $\mathbf{W}$ are represented by the lines connecting pairs of neurons in the sketch above. $b_j$ is the bias unit for the $j$th neuron in the next layer. In vector-matrix notation, we can write the above as:
-# $$
-#   \mathbf{z}_l = \mathbf{W}_{l-1}^T \mathbf{x}_{l-1} + \mathbf{b}_{l-1},
-# $$
-# where $\mathbf{z}_l$ and $\mathbf{b}_{l-1}$ are a vector of length $N_{neu}^{l}$, $\mathbf{x}_{l-1}$ is a vectors of length $N_{neu}^{l-1}$, and $\mathbf{W}_{l-1}$ is a matrix of shape $N_{neu}^{l-1}\times N_{neu}^l$. To increase the network's ability of approximating complex functions, the weighted input must be transformed by a non-linear function. Otherwise, the resulting approximating would remain linear with respect to the inputs regardless of the amount of added layers. Motivated by the biological roots of the approach, the non-linear transformation function $a(z)$ is commonly called activation function. Typical activation functions will be covered further down in this notebook. The weighted sum of the inputs combined with the activation function results in the inputs (features) of the next layer. Therefore, one could interpret the activation's output as new features $x_j^l$:
-# $$
-#   \mathbf{x}_l = a_l(\mathbf{z}_l) = a_l(\mathbf{W}_{l-1}^T\mathbf{x}_{l-1}+\mathbf{b}_{l-1}).
-# $$
-# The length of the new feature vector corresponds to $N_{neu}^l$. Note that the activation function gets a lower script $l$ to indicate that different activation functions may be used in different layers. All networks created and trained in this lecture employ the same activation functions in all hidden layers but may use an application-specific activation for the output layer. In a general regression task, it is likely that the last activation function is linear, i.e., an identity mapping ($a(z) = z$). Following the notation introduced above, we can express a fully-connected feed-forward neural network with two hidden layers and linear (no) activation for the output as:
-# $$
-#   f_\theta(\mathbf{x}) = \mathbf{W}_2^T a_1(\mathbf{W}_1^T a_0(\mathbf{W}_0^T\mathbf{x} + \mathbf{b}_0) + \mathbf{b}_1) + \mathbf{b}_2,
-# $$
-# where $\theta$ represents all the networks tunable parameters contained in the weight matrices and bias units. The re-combination of the feature vector in each one of the network's layers may be written as a repeated function composition $f(g(x)) = f\circ g(x)$. Abbreviating the transformation in a single layer $l$ as $m_l(\mathbf{x}_l)$, the full network $f_{\theta}(\mathbf{x})$ may be expressed as:
-# $$
-#   f_{\theta}(\mathbf{x}) = m_{N_L} \circ m_{N_{L-1}}\circ ... \circ m_0 (\mathbf{x}),
-# $$
-# where $\mathbf{x}$ is the original feature vector provided by the input layer and $N_L$ is the overall number of layers. Evaluating the model for a concrete feature vector $\mathbf{x}_i$, a so-called *forward pass*, yields a prediction, typically denoted by $\hat{\mathbf{y}}_i$:
-# $$
-#   \hat{\mathbf{y}}_i = f_{\theta}(\mathbf{x}_i).
-# $$
-# Training a neural networks means optimizing its free parameters such that all predictions $\hat{\mathbf{y}}_i$ match the true labels $\mathbf{y}_i$ closely. The precise formulation and implementation of the optimization problem follows in the next sections.
-#
-# The define the network structure discussed before, we can employ [Linear](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html) modules, [ReLU](https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html?highlight=relu#torch.nn.ReLU) activations, and wrap the layers in a [Sequential](https://pytorch.org/docs/stable/generated/torch.nn.Sequential.html?highlight=sequential#torch.nn.Sequential) container, which forwards the output from one layer to the next. Making predictions works by calling the sequential container like a function.
-
-# %%
-n_in, n_out = 2, 1
-n_neurons = 20
-simple_network = pt.nn.Sequential(
-    pt.nn.Linear(n_in, n_neurons),
-    pt.nn.ReLU(),
-    pt.nn.Linear(n_neurons, n_neurons),
-    pt.nn.ReLU(),
-    pt.nn.Linear(n_neurons, n_out)
-)
-example_input = pt.rand(n_in)
-simple_network(example_input)
-
-
-# %% [markdown]
-# ### Preparing the datasets
-#
-# PyTorch comes with several functions and classes that facilitate the creation of datasets. These abstractions are bundled the the subpackage `torch.utils.data`. As a first step, we reshape our data and wrap the features and labels in a [TensorDataset](https://pytorch.org/docs/stable/data.html#torch.utils.data.TensorDataset). `TensorDatasets` are special in that the entire data must fit into memory. Keeping the data in memory avoids the relatively slow loading from the hard disk. On the other hand, the size of the dataset is limited by the available memory. For larger datasets, PyTorch provides a general [Dataset](https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset) class, which prefetches data from disk to reduce waiting times during training.
-#
-# The `TensorDataset` constructor expects feature and label tensors as input. Currently, we have the distance normal to the wall, the Reynolds numbers, and the velocity profiles in separate data structures. However, the data structure needed to train a model $\tilde{u}_x = f_\theta(\tilde{y}, Re)$ looks as follows:
-#
-# | $\tilde{u}_x$ | $\tilde{y}$ | $Re$ |
-# |:-----:|:---:|:----:|
-# | $0.131$ | $0.0001$ | $98362$ |
-# | $0.201$ | $0.0002$ | $98362$ |
-# | ... | ... | ... |
-#
-# The order of the columns is arbitrary and we could also separate the label $\tilde{u}_x$ from the two features $\tilde{y}$ and $Re$. For $N_r$ selected Reynolds numbers/profiles and $N_y$ points per profile, the resulting tensor should have $N_r\times N_y$ rows and three columns. The `reshape_data` function below creates the required format.
-
-# %%
-def reshape_data(u_x_norm: pt.Tensor, y_norm: pt.Tensor, Re: pt.Tensor) -> pt.Tensor:
-    """Create feature and label vectors.
-
-    :param u_x_norm: velocity profiles normalized with Ubar; first zeroth dimension
-     corresponds to the distance y; first dimension corresponds to the Reynolds number
-    :type u_x_norm: pt.Tensor
-    :param y_norm: distance from the wall normalized by twice the channel hight;
-        ordered from lowest to largest
-    :type y_norm: pt.Tensor
-    :param Re: Reynolds number based on average velocity, twice the channel height,
-        and kinematic viscosity
-    :type Re: pt.Tensor
-    :return: data suitable for training; if there are Ny points normal to
-        the wall and Nr different Reynolds numbers, the resulting tensor
-        has the shape (Ny*Nr, 3)
-    :rtype: pt.Tensor
-    """
-    data = pt.zeros((u_x_norm.shape[0]*u_x_norm.shape[1], 3))
-    for i in range(u_x_norm.shape[1]):
-        start, end = i*u_x_norm.shape[0], (i+1)*u_x_norm.shape[0]
-        data[start:end, 0] = u_x_norm[:, i]
-        data[start:end, 1] = y_norm
-        data[start:end, 2] = Re[i]
-    return data
-
-
-# %%
-# normalize velocity and wall normal distance
-u_x_norm = u_x / Ubar.max()
-y_norm = y/(2*delta)
-# reshape data
-reshaped_data = reshape_data(u_x_norm, y_norm, Re)
-# create a TensorDataset
-dataset = pt.utils.data.TensorDataset(reshaped_data[:, 1:], reshaped_data[:, 0])
-# the dataset supports indexing; dataset[0] returns the 0th feature-label-pair
-dataset[0]
-
-# %% [markdown]
-# Next, we split the data into three parts. One part contains most of the data and will be used for optimizing the network's free parameters. The other two parts are significantly smaller and will be used to evaluate the training process. One of the smaller parts is meant to provide feedback during the optimization while the other one is only evaluated after the training is done. In summary, the data is split into:
-#
-# - **training data**: optimization of model parameters
-# - **validation data**: model evaluation during training
-# - **testing data**: final model evaluation after training
-#
-# Note that the naming of testing and validation data is somewhat arbitrary and ML practitioners may use the terms interchangeably. For the low-dimensional problem considered here, we can inspect the model's properties by means of standard visualization techniques. However, as the problems become high-dimensional, the split is essential to assess the model's characteristics. More about the assessment follows in a dedicated section of this notebook.
-#
-# PyTorch's [random_split](https://pytorch.org/docs/stable/data.html#torch.utils.data.random_split) divides a dataset according to user-defined sizes. The code below creates three datasets, where the first dataset contains roughly $70\%$ of the data and the remaining features-label-pairs are equally distributed in validation and testing data.
-
-# %%
-train_size = int(0.7*len(dataset))
-val_size = int(0.15*len(dataset))
-test_size = len(dataset) - train_size - val_size
-train_dataset, val_dataset, test_dataset = pt.utils.data.random_split(dataset, (train_size, val_size, test_size))
-len(dataset), len(train_dataset), len(val_dataset), len(test_dataset)
-
-# %% [markdown]
-# The splitting approach employed before is a good option for general datasets. However, our data comes with a certain structure related to the fact that groups of feature-labels-pairs belong to a single profile/simulation. With the current split, validation and testing data won't be very different from the training data due the high mesh resolution in $y$ direction. What we rather want to test with the additional two datasets in the performance at unknown Reynolds numbers. We can build this stricter evaluation approach by splitting the datasets based on individual velocity profiles. The randomly select the profiles/simulations, we use the [multinomial](https://pytorch.org/docs/stable/generated/torch.multinomial.html) probability distribution. The multinomial probability distribution draws samples from discrete events (categories) according to a given list of probabilities for each category. When sampling, the probability distribution returns the indices of the drawn categories. In our case, there are 16 different categories, one for each Reynolds number. The probability tensor is initialized with ones, meaning that every category has the same chance of being drawn. We then draw ten Reynolds numbers for training, set the corresponding indices of the probability tensor to zero, and repeat the process for validation and testing data. It is important to note that, by the implementation's defaults, no category will be drawn twice because the `replacement` variable is set to `False`.
-#
-# A final constrained we apply to the splitting strategy concerns the minimum and maximum Reynolds numbers. We don't want the model to extrapolate, which is in general something to avoid. Therefore, we enforce the lowest and highest $Re$ data to be in the training set. This task is easy since the `Re` tensor is already sorted.
-
-# %%
-Re
-
-# %%
-# select two snapshots for testing
-n_Re = len(Re)
-probs = pt.ones(u_x.shape[-1])
-probs[0] = 0.0
-probs[-1] = 0.0
-train_size, val_size, test_size = 8, 3, 3
-test_idx = pt.multinomial(probs, test_size)
-probs[test_idx] = 0.0
-val_idx = pt.multinomial(probs, val_size)
-probs[val_idx] = 0.0
-train_idx = pt.multinomial(probs, train_size)
-train_idx = pt.cat((train_idx, pt.tensor([0, n_Re-1], dtype=pt.int64)))
-print("Re for testing: ", Re[test_idx])
-print("Re for validation: ", Re[val_idx])
-print("Re for training: ", Re[train_idx])
-
-
-# %% [markdown]
-# Before creating the final datasets, we need to normalize the data to avoid roundoff errors. The `MinMaxScaler` class defined below wraps around the minimum/maximum values and scaling/rescaling functions. We also created a dataset without normalization to show the importance of feature normalization later on. Note that we create the scaler objects only based on the training data, because we don't want to use any information from the test data during training.
-
-# %%
-class MinMaxScaler(object):
-    """Class to scale/re-scale data to the range [-1, 1] and back.
-    """
-    def __init__(self):
-        self.min = None
-        self.max = None
-        self.initialized = False
-
-    def fit(self, data):
-        self.min = data.min(dim=0).values
-        self.max = data.max(dim=0).values
-        self.initialized = True
-        return self
-
-    def scale(self, data):
-        assert self.initialized
-        data_norm = (data - self.min) / (self.max - self.min)
-        return 2.0*data_norm - 1.0
-
-    def rescale(self, data_norm):
-        assert self.initialized
-        data = (data_norm + 1.0) * 0.5
-        return data * (self.max - self.min) + self.min
-
-
-# %%
-train_tensor = reshape_data(u_x_norm[:, train_idx], y_norm, Re[train_idx])
-val_tensor = reshape_data(u_x_norm[:, val_idx], y_norm, Re[val_idx])
-test_tensor = reshape_data(u_x_norm[:, test_idx], y_norm, Re[test_idx])
-feature_scaler = MinMaxScaler().fit(train_tensor[:, 1:])
-label_scaler = MinMaxScaler().fit(train_tensor[:, 0])
-train_dataset = pt.utils.data.TensorDataset(
-    feature_scaler.scale(train_tensor[:, 1:]), label_scaler.scale(train_tensor[:, 0]).unsqueeze(-1)
-)
-val_dataset = pt.utils.data.TensorDataset(
-    feature_scaler.scale(val_tensor[:, 1:]), label_scaler.scale(val_tensor[:, 0]).unsqueeze(-1)
-)
-test_dataset = pt.utils.data.TensorDataset(
-    feature_scaler.scale(test_tensor[:, 1:]), label_scaler.scale(test_tensor[:, 0]).unsqueeze(-1)
-)
-train_dataset_raw = pt.utils.data.TensorDataset(train_tensor[:, 1:], train_tensor[:, 0].unsqueeze(-1))
-val_dataset_raw = pt.utils.data.TensorDataset(val_tensor[:, 1:], val_tensor[:, 0].unsqueeze(-1))
-test_dataset_raw = pt.utils.data.TensorDataset(test_tensor[:, 1:], test_tensor[:, 0].unsqueeze(-1))
-len(train_dataset), len(val_dataset), len(test_dataset)
-
-# %% [markdown]
-# There is one final useful abstraction for datasets, namely a [Dataloader](https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader). As you will see in the next section, it is useful loop over the datasets in small junks of feature-label-pairs, so-called batches. The dataloader takes a dataset as input and allows us to loop over such non-overlapping batches (non-overlapping means that a single feature-label-pair cannot be contained in multiple batches). Moreover, we can let the dataloader shuffle the batches such that the batches are different each time we loop over the dataset (we don't want the order of the data in the set to affect the training).
-
-# %%
-train_loader = pt.utils.data.DataLoader(train_dataset, batch_size=int(len(train_dataset) / 4), shuffle=True)
-for features, labels in train_loader:
-    print(features.shape, labels.shape)
-
-
-# %% [markdown]
-# ### Generic training loop
-#
-# To simplify notation, we define a long vector $\mathbf{\theta}$ holding all of the network's parameters (weights). For optimizing the wights, we need a metric expressing how good the model's prediction is. The most common metric used for regression problems is the mean squared error (MSE), also referred to as $L_2$ norm/loss. For a set of $N$ generic pairs of feature vectors $\mathbf{x}_i$ and label vectors $\mathbf{y}_i$, the $L_2$ loss is defined as:
-# $$
-#   L_2(\mathbf{\mathbf{\theta}}) = \frac{1}{N}\sum\limits_{i=1}^N \left( \mathbf{y}_i - f_{\mathbf{\theta}}(\mathbf{x}_i) \right)^2,
-# $$
-# where $f_{\mathbf{\theta}}(\mathbf{x})$ is the model with weights $\mathbf{\theta}$ and $ \hat{\mathbf{y}}_i = f_{\mathbf{\theta}}(\mathbf{x}_i) $ is the prediction for the $i$th feature vector instance. The goal of the parameter optimization/training is to find the parameter configuration $\mathbf{\theta}^\ast$ yielding the minimal loss:
-# $$
-#   \mathbf{\theta}^\ast = \underset{\mathbf{\theta}}{\mathrm{argmin}} L_2 (\mathbf{\theta}).
+# \mathbf{y}_\theta:\mathbb{R}^{n_x}\longrightarrow\mathbb{R}^{n_y},
+# \qquad \mathbf{x}\longmapsto\mathbf{y}_\theta(\mathbf{x}).
 # $$
 #
-# The most common update rule for the model weights is called gradient decent. The idea is simple: we compute the gradient of the loss function with respect to the weights and make a small adjustment of the weights in the negative gradient direction:
+# Both features and targets can be **vector-valued**. For example, several flow descriptors might be mapped to several force coefficients. The parameter vector $\theta$ collects the network's trainable weights and biases. Its architecture determines how these parameters enter the mapping. Deep learning uses networks with multiple successive layers of learned representations.
+#
+# In supervised learning, a **dataset** consists of paired observations:
+#
 # $$
-#   \mathbf{\theta}_{n+1} = \mathbf{\theta}_n - \lambda_0 \frac{\mathrm{d}L}{\mathrm{d}\mathbf{\theta}},
+# \mathcal{D}=\{(\mathbf{x}_i,\mathbf{y}_i)\}_{i=1}^{N},
+# \qquad \mathbf{x}_i\in\mathbb{R}^{n_x},\quad
+# \mathbf{y}_i\in\mathbb{R}^{n_y}.
 # $$
-# where $n$ indicate the current iteration, $\lambda_0$ is the learning rate, and $L$ represents a generic loss function. Modern training approaches use a more advanced version of gradient decent that may be expressed as:
+#
+# Each pair is one sample. The **prediction** is the Ansatz function evaluated at the sample's features:
+#
 # $$
-#   \mathbf{\theta}_{n+1} = \mathbf{\theta}_n - g\left(\lambda_0,\frac{\mathrm{d}L}{\mathrm{d}\mathbf{\theta}}\right),
+# \widehat{\mathbf{y}}_i=\mathbf{y}_\theta(\mathbf{x}_i).
 # $$
-# where $g$ is a functional abstraction of techniques like momentum, learning rate scheduling, and gradient clipping. The first two of these techniques are introduced and implemented later on in this notebook.
 #
-# In general, the loss function of a neural network may be non-linear and non-convex. Therefore, the loss values do not always decreases monotonically. If we perform a fixed number of optimization epochs/iterations, the final parameter configuration is not necessarily the best one. A simple strategy to keep the best model is to compare the current loss value against the best loss values encountered during the training. If a new best loss is reached, a snapshot of the model is saved. After the training, we can load and evaluate only the best model.
-
-# %% [markdown]
-# The code block below implements a relatively comprehensive training loop, which will be used for almost all examples in the course involving neural networks. A few important features of the `train_model` function are:
+# Thus, $\mathbf{y}_\theta$ denotes the model, $\widehat{\mathbf{y}}_i$ its prediction at $\mathbf{x}_i$, and $\mathbf{y}_i$ the observed target. A prediction can also be made at a new input $\mathbf{x}_*$ for which the target is unknown.
 #
-# - evaluation of user-defined metric on training, validation, and test data
-# - monitoring of training performance in terms of loss and training time
-# - saving of checkpoints; the checkpoints allow to restart the training, e.g., after an unexpected failure
-# - saving of the best model based on the training or validation loss
-# - learning rate adjustment based on a user-defined scheduler
+# ### Training as an optimization problem
 #
-# Only some of these features are explored in this notebook.
-
-# %%
-def run_epoch(
-    model: pt.nn.Module,
-    optimizer: pt.optim.Optimizer,
-    data_loader: pt.utils.data.DataLoader,
-    loss_func: pt.nn.Module,
-    device: str,
-    results: dict,
-    score_funcs: dict,
-    prefix: str
-    ) -> float:
-    """Perform one optimizing step on a model.
-
-    This loop is a slightly modified version of 'run_epoch'
-    provided in chapter 5 of 'Inside Deep Learning' by Edward Raff;
-    refer to:
-    https://github.com/EdwardRaff/Inside-Deep-Learning/blob/main/idlmam.py
-    """
-
-    # keeping track of loss, predictions, and time
-    running_loss, labels_true, labels_pred = [], [], []
-    start_time = time()
-
-    # loop over all batches
-    for features, labels in data_loader:
-        features, labels = features.to(device), labels.to(device)
-        pred = model(features)
-        loss = loss_func(labels, pred)
-        if model.training:
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
-        running_loss.append(loss.item())
-
-        # the dataset might get shuffled in the next loop
-        if len(score_funcs) > 0:
-            labels_true.extend(labels.detach().cpu().tolist())
-            labels_pred.extend(pred.detach().cpu().tolist())
-
-    # keep track of performance
-    results[f"{prefix}_loss"].append(sum(running_loss) / len(running_loss))
-    for name, func in score_funcs.items():
-        results[f"{prefix}_{name}"].append(func(labels_true, labels_pred))
-
-    return time() - start_time
-
-
-def train_model(
-    model: pt.nn.Module,
-    loss_func: pt.nn.Module,
-    train_loader: pt.utils.data.DataLoader,
-    val_loader: pt.utils.data.DataLoader = None,
-    test_loader: pt.utils.data.DataLoader = None,
-    score_funcs: dict = {},
-    epochs: int = 100,
-    device: str = "cpu",
-    checkpoint_file: str = None,
-    log_all: bool = False,
-    lr_schedule: pt.optim.lr_scheduler._LRScheduler = None,
-    optimizer: pt.optim.Optimizer = None) -> pd.DataFrame:
-    """Perform one optimizing step on a model.
-
-    This function is a slightly modified version of 'train_network'
-    provided in chapter 5 of 'Inside Deep Learning' by Edward Raff;
-    refer to:
-    https://github.com/EdwardRaff/Inside-Deep-Learning/blob/main/idlmam.py
-    """
-
-    # dictionary for keeping track of training performance
-    results = defaultdict(list)
-    best_loss = float("inf")
-    ref_loss = "train_loss" if val_loader is None else "val_loss"
-
-    # use AdamW as default optimizer if none specified
-    delete_optimizer = False
-    if optimizer is None:
-        optimizer = pt.optim.AdamW(model.parameters())
-        delete_optimizer = True
-
-    total_train_time = 0.0
-    model.to(device)
-    for e in range(epochs):
-        # model update
-        model = model.train()
-        total_train_time += run_epoch(
-            model, optimizer, train_loader, loss_func, device,
-            results, score_funcs, prefix="train"
-        )
-        results["epoch"].append(e)
-        results["total_time"].append(total_train_time)
-        message = f"Training loss: {results['train_loss'][-1]:2.6e}"
-
-
-        # validation dataset
-        if val_loader is not None:
-            model = model.eval()
-            with pt.no_grad():
-                _ = run_epoch(
-                    model, optimizer, val_loader, loss_func, device,
-                    results, score_funcs, prefix="val"
-                )
-            message += f"; Validation loss: {results['val_loss'][-1]:2.6e}"
-
-        # update of learning rate
-        if lr_schedule is not None:
-            if isinstance(lr_schedule, pt.optim.lr_scheduler.ReduceLROnPlateau):
-                lr_schedule.step(results["val_loss"][-1])
-            else:
-                lr_schedule.step()
-
-        # test dataset
-        if test_loader is not None:
-            model = model.eval()
-            with pt.no_grad():
-                _ = run_epoch(
-                    model, optimizer, test_loader, loss_func, device,
-                    results, score_funcs, prefix="test"
-                )
-            message += f"; Test loss: {results['test_loss'][-1]:2.6e}"
-
-        # save checkpoint
-        if checkpoint_file is not None:
-            suffix = f"_epoch_{e}" if log_all else ""
-            pt.save(
-                {
-                    "epoch" : e,
-                    "model_state_dict" : model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "results" : results
-                }, checkpoint_file + suffix
-            )
-            latest_loss = results[ref_loss][-1]
-            if latest_loss < best_loss:
-                best_loss = latest_loss
-                copy(checkpoint_file + suffix, checkpoint_file + "_best")
-                
-
-        print(
-            "\r", f"Epoch {e:4d}/{epochs - 1} - " + message, end=""
-        )
-
-    # if the optimizer was created in the training loop,
-    # delete if to avoid unwanted side effects
-    if delete_optimizer:
-        del optimizer
-
-    return pd.DataFrame.from_dict(results)
-
-
-# %% [markdown]
-# The function below simplifies the construction of simple fully-connected neural networks with a variable of hidden layers.
-
-# %%
-def create_simple_network(n_in: int, n_out: int, n_neurons: int,
-    n_hidden: int, activation: pt.nn.Module) -> pt.nn.Sequential:
-    layers = [
-        pt.nn.Linear(n_in, n_neurons),
-        activation()
-    ]
-    for _ in range(n_hidden):
-        layers.append(pt.nn.Linear(n_neurons, n_neurons))
-        layers.append(activation())
-    layers.append(pt.nn.Linear(n_neurons, n_out))
-    return pt.nn.Sequential(*layers)
-
-
-# %%
-model_0_base = create_simple_network(2, 1, 50, 2, pt.nn.ReLU)
-train_loader = pt.utils.data.DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
-val_loader = pt.utils.data.DataLoader(val_dataset, batch_size=len(val_dataset))
-test_loader = pt.utils.data.DataLoader(test_dataset, batch_size=len(test_dataset))
-score_funcs = {
-    "Lmax" : metrics.max_error,
-    "L1" : metrics.mean_absolute_error,
-    "R2" : metrics.r2_score
-}
-
-# %%
-model_0 = deepcopy(model_0_base)
-results_0 = train_model(
-    model_0,
-    pt.nn.MSELoss(),
-    train_loader, val_loader, test_loader,
-    score_funcs,
-    500,
-    optimizer=pt.optim.AdamW(model_0.parameters(), lr=0.001)
-)
-
-# %% [markdown]
-# Plotting the MSE loss indicates a steady learning. With more epochs, the loss is likely to drop further. Moreover, the loss computed on validation and test data shows a similar trend as on the training data. Therefore, the model is most likely not overfitting (memorizing) the training data.
-
-# %%
-plt.plot(results_0["epoch"], results_0["train_loss"], lw=1, label="training")
-plt.plot(results_0["epoch"], results_0["val_loss"], lw=1, label="validation")
-plt.plot(results_0["epoch"], results_0["test_loss"], lw=1, label="testing")
-plt.yscale("log")
-plt.xlim(0, 500)
-plt.xlabel("epoch")
-plt.ylabel("MSE")
-plt.legend()
-plt.savefig(join(output, "loss_lecture_4_model_0.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# Normalizing the data is enormously important to mitigate the influence of roundoff errors. To demonstrate the impact of normalization, we repeat the training with the unscaled data. The enormous difference in the order of magnitude between $\tilde{y}$ and $Re$ inhibits the learning after about 150 epochs.
-
-# %%
-train_loader_raw = pt.utils.data.DataLoader(train_dataset_raw, batch_size=len(train_dataset_raw), shuffle=True)
-val_loader_raw = pt.utils.data.DataLoader(val_dataset_raw, batch_size=len(val_dataset_raw))
-test_loader_raw = pt.utils.data.DataLoader(test_dataset_raw, batch_size=len(test_dataset_raw))
-model_0_raw = deepcopy(model_0_base)
-results_0_raw = train_model(
-    model_0_raw,
-    pt.nn.MSELoss(),
-    train_loader_raw, val_loader_raw, test_loader_raw,
-    epochs=500,
-    optimizer=pt.optim.AdamW(model_0_raw.parameters(), lr=0.001)
-)
-
-# %%
-plt.plot(results_0_raw["epoch"], results_0_raw["train_loss"], lw=1, label="training")
-plt.plot(results_0_raw["epoch"], results_0_raw["val_loss"], lw=1, label="validation")
-plt.plot(results_0_raw["epoch"], results_0_raw["test_loss"], lw=1, label="testing")
-plt.yscale("log")
-plt.xlim(0, 500)
-plt.xlabel("epoch")
-plt.ylabel("MSE")
-plt.legend()
-plt.savefig(join(output, "loss_lecture_4_model_0_raw.svg"), bbox_inches="tight")
-plt.show()
-
-
-# %% [markdown]
-# Comparing the prediction of the first model against the true labels shows that the model reflect the trend of with respect to the Reynolds number already quite well. Some fluctuations of the predicted profiles around the true ones are visible.
-
-# %%
-def make_prediction(model, data, feature_scaler, label_scaler):
-    return label_scaler.rescale(
-        model(feature_scaler.scale(data)).squeeze().detach()
-    )
-
-
-# %%
-pred_train_0 = make_prediction(model_0, train_tensor[:, 1:], feature_scaler, label_scaler)
-pred_val_0 = make_prediction(model_0, val_tensor[:, 1:], feature_scaler, label_scaler)
-pred_test_0 = make_prediction(model_0, test_tensor[:, 1:], feature_scaler, label_scaler)
-
-
-n_points = len(y)
-for i in range(len(Re)):
-    plt.plot(u_x[:, i]/Ubar.max(), y/(2*delta), ls="-", c="k")
-plt.scatter(pred_train_0, train_tensor[:, 1], s=1, c="C0", zorder=6, label="training")
-plt.scatter(pred_val_0, val_tensor[:, 1], s=1, c="C1", zorder=6, label="validation")
-plt.scatter(pred_test_0, test_tensor[:, 1], s=1, c="C2", zorder=6, label="testing")
-plt.xlabel(r"$\tilde{u}_x$")
-plt.ylabel(r"$\tilde{y}$")
-plt.xlim(0, 1.2)
-plt.ylim(-0.01, 0.5)
-plt.legend()
-plt.savefig(join(output, "prediction_lecture_4_model_0.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# ### Training with batches of data
+# Training determines parameter values that reduce the discrepancy between predictions and observed targets. For a training dataset $\mathcal{D}_{\mathrm{train}}$ with $N_{\mathrm{train}}$ samples, a common regression objective is the **mean squared Euclidean error**:
 #
-# So far, we used the entire training dataset at once to update the weights in a single epoch. Instead, we can also create small junks of data and update the weights based on each individual junk. This idea is called batch training and leads many more updates within a single epoch. Moreover, computing the gradient based on a subset of the data sometimes helps to overcome local minima and reduces the memory requirements of the training. A drawback of decreasing the batch size, i.e., creating smaller junks, is the increased training time because smaller batches don't allow to exploit parallelization to its full potential.
-
-# %%
-batch_sizes = (64, 128, 512, len(train_dataset))
-batch_results = []
-for bs in batch_sizes:
-    model_bs = deepcopy(model_0_base)
-    batch_results.append(
-        train_model(
-            model_bs,
-            pt.nn.MSELoss(),
-            pt.utils.data.DataLoader(train_dataset, batch_size=bs, shuffle=True),
-            epochs=500,
-            optimizer=pt.optim.AdamW(model_bs.parameters(), lr=0.001)
-        )
-    )
+# $$
+# \mathcal{L}_{\mathrm{train}}(\theta)
+# =\frac{1}{N_{\mathrm{train}}}\sum_{i=1}^{N_{\mathrm{train}}}
+# \left\|\mathbf{y}_\theta(\mathbf{x}_i)-\mathbf{y}_i\right\|_2^2,
+# \qquad
+# \theta^*\in\operatorname*{arg\,min}_{\theta}\mathcal{L}_{\mathrm{train}}(\theta).
+# $$
+#
+# The squared $L_2$ norm sums squared errors across target components. Here the averaging is over samples; a further division by $n_y$ would average over components as well. The mathematical optimum $\theta^*$ states the goal; a numerical training algorithm usually returns an approximate solution. Validation data guide model selection and stopping, while test data evaluate the final model.
+#
+# ### The multilayer perceptron
+#
+# A **multilayer perceptron (MLP)** is a feed-forward network that composes affine transformations with nonlinear activation functions. For $L$ layers with trainable parameters, a common regression form is
+#
+# $$
+# \mathbf{h}^{(0)}=\mathbf{x},
+# $$
+#
+# $$
+# \mathbf{h}^{(\ell)}=
+# \phi_\ell\!\left(W^{(\ell)}\mathbf{h}^{(\ell-1)}+\mathbf{b}^{(\ell)}\right),
+# \qquad \ell=1,\ldots,L-1,
+# $$
+#
+# $$
+# \mathbf{y}_\theta(\mathbf{x})=
+# W^{(L)}\mathbf{h}^{(L-1)}+\mathbf{b}^{(L)}.
+# $$
+#
+# With $n_0=n_x$ and $n_L=n_y$, the matrix $W^{(\ell)}$ contains connection weights, $\mathbf{b}^{(\ell)}$ contains biases, and $\phi_\ell$ acts componentwise. A layer with $n_{\ell-1}$ inputs and $n_\ell$ outputs has $W^{(\ell)}\in\mathbb{R}^{n_\ell\times n_{\ell-1}}$ and $\mathbf{b}^{(\ell)}\in\mathbb{R}^{n_\ell}$. All these weights and biases belong to $\theta$. Common activations include the sigmoid and $\operatorname{ReLU}(z)=\max(0,z)$. Without nonlinear activations, successive affine layers collapse to a single affine mapping.
+#
+# ![A fully connected multilayer perceptron maps three input features through two hidden layers to a two-component prediction. Connections carry weights; each trainable layer also has biases.](media/doe-mlp-light.png){.light-content width=100%}
+# ![A fully connected multilayer perceptron maps three input features through two hidden layers to a two-component prediction. Connections carry weights; each trainable layer also has biases.](media/doe-mlp-dark.png){.dark-content width=100%}
+#
+# The sketch is illustrative: its layer sizes are not a recommended architecture. The output layer above is affine, suitable for unconstrained regression; other tasks may require an output transformation. The MLP illustrates the repeated combination of trainable transformations and nonlinearities found throughout neural-network modeling, although not every architecture is fully connected.
+#
+# ### Gradient descent
+#
+# Starting from initialized parameters $\theta^{(0)}$, **gradient descent** uses the negative loss gradient as a local descent direction:
+#
+# $$
+# \theta^{(k+1)}=\theta^{(k)}
+# -\eta\,\nabla_\theta\mathcal{L}_{\mathrm{train}}(\theta^{(k)}),
+# \qquad \eta>0.
+# $$
+#
+# The learning rate $\eta$ controls the step size; an excessively large step can increase the loss rather than decrease it. Each iteration evaluates predictions and the loss, computes its parameter gradient, and updates the parameters. **Backpropagation** computes these gradients efficiently using the chain rule; it is the gradient calculation, rather than the update rule itself. At activation points that are not differentiable, such as the ReLU at zero, implementations use a specified derivative convention.
+#
+# The formula uses the complete training dataset. **Mini-batch** methods approximate the gradient using a subset of samples at each update, reducing the cost per update and introducing variation through batch selection. Training usually involves repeated passes through the dataset, called **epochs**.
+#
+# ### Training variability and repeatable comparisons
+#
+# Neural-network training is generally a **nonlinear, non-convex optimization problem**. Different initial parameters can lead to different optimization trajectories and outcomes, even on the same dataset. Random batch ordering and changes in the training data can introduce further variability. Non-convexity alone does not make an algorithm random, but it can make its outcome sensitive to these choices.
+#
+# A **seed** initializes a pseudo-random number generator. With the same generator, seed, and sequence of calls, the same random-number sequence is obtained. This helps reproduce initialization, shuffling, and data splits. A seed is a reproducibility setting, not a measure of model quality; numerical nondeterminism or changes in software and hardware can still affect results.
+#
+# Model training is therefore treated like a numerical experiment with sources of stochastic variation. A meaningful comparison of two architectures uses **multiple training runs with different seeds**, comparable training budgets and tuning procedures, and a common evaluation protocol. Results include a typical performance measure, such as the mean or median, together with its spread. If sensitivity to the available data is also of interest, repeated data splits or resampling provide a separate assessment. A single favorable run is insufficient evidence that an architecture is better.
+#
+# Variation between training runs is distinct from the predictive uncertainty described by a probabilistic model. A network with randomized training can still produce a deterministic prediction once its parameters are fixed.
+#
+# More complex building blocks include **normalization layers**, which transform intermediate representations, and **residual connections**, which add a bypassed representation to a learned transformation. These and other architectural components are outside the scope of this introductory section.
 
 # %% [markdown]
-# In the plot below we see that the loss drops significantly faster for smaller batches and reaches also lower final loss values. However, also the loss fluctuations increase as the gradient prediction becomes more spurious.
-
-# %%
-for bs, res in zip(batch_sizes, batch_results):
-    plt.plot(res["epoch"], res["train_loss"], lw=1, label=f"{bs:d}, T={res['total_time'].values[-1]:2.2f}s")
-
-plt.xlabel("epoch")
-plt.ylabel("MSE")
-plt.yscale("log")
-plt.xlim(0, 500)
-plt.legend()
-plt.savefig(join(output, "batch_size_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# ### Learning rate adjustment
+# ## Visualizing prediction errors and model uncertainties
 #
-# One way to counteract oscillations in the training loss is an adjustment of the learning rate. Smaller learning lead to smaller changes in the weights. However, if the learning rate is too small, we may never reach a good optimum or require an excessive amount of epochs/resources. In the learning rate test below, a value of $\lambda_0 = 5\times 10^{-4}$ yields the best final loss value. Nonetheless, higher learning rates yield a much stronger drop in the initial epochs. Next, we combine the best attributes of low and high learning rates by employing dynamic learning rate adjustment.
-
-# %%
-lr_to_test = [1.0e-2, 5.0e-3, 1.0e-3, 5.0e-4, 1.0e-4]
-lr_results = []
-train_loader = pt.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True)
-for lr in lr_to_test:
-    model_lr = deepcopy(model_0_base)
-    lr_results.append(
-        train_model(
-            model_lr,
-            pt.nn.MSELoss(),
-            train_loader, val_loader, test_loader,
-            epochs=500,
-            optimizer=pt.optim.AdamW(model_lr.parameters(), lr=lr)
-        )
-    )
-
-# %%
-for lr, res in zip(lr_to_test, lr_results):
-    plt.plot(res["epoch"], res["train_loss"], lw=1, label=f"{lr:1.0e}")
-
-plt.xlabel("epoch")
-plt.ylabel("MSE")
-plt.yscale("log")
-plt.xlim(0, 500)
-plt.legend()
-plt.savefig(join(output, "lr_bs128_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# In the cells below, several scheduling strategies for the learning rate are compared:
-# - **const.**: constant learning rate as initialized in the optimizer
-# - **exp. decay:** exponential decay from the initial to the minimum value within a given number of epochs
-# - **step decay:** learning rate reduction every $S$ steps
-# - **cosine:** oscillatory adjustment of the learning rate around the initial value; might help to overcome local minima
-# - **plateau:** reduce learning rate by a given factor whenever the validation loss did not decrease for `patience` steps
+# A single performance score rarely reveals all strengths and weaknesses of a model. Visualizations can show how results vary between training runs, how prediction errors are distributed, and where errors occur in feature space. These are complementary views: **training variability**, **observed prediction errors**, and a probabilistic model's **predictive uncertainty** describe different quantities.
 #
-# The stepwise, exponential, and plateau reduction yield improved final loss value, accelerate the learning, and mitigate loss fluctuations towards the end of the training.
-
-# %%
-model_exp_decay = deepcopy(model_0_base)
-train_loader = pt.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True)
-optimizer = optimizer=pt.optim.AdamW(model_exp_decay.parameters(), lr=0.01)
-gamma_exp = (1.0e-4 / 1.0e-2)**(1.0/500)
-scheduler = pt.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=gamma_exp)
-
-results_exp_decay = train_model(
-    model_exp_decay,
-    pt.nn.MSELoss(),
-    train_loader, val_loader, test_loader,
-    epochs=500,
-    lr_schedule=scheduler,
-    optimizer=optimizer
-)
-
-# %%
-model_step_decay = deepcopy(model_0_base)
-optimizer = optimizer=pt.optim.AdamW(model_step_decay.parameters(), lr=0.01)
-gamma_step = 0.3
-scheduler = pt.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=500//4, gamma=gamma_step)
-
-results_step_decay = train_model(
-    model_step_decay,
-    pt.nn.MSELoss(),
-    train_loader, val_loader, test_loader,
-    epochs=500,
-    lr_schedule=scheduler,
-    optimizer=optimizer
-)
-
-# %%
-model_cosine = deepcopy(model_0_base)
-optimizer = optimizer=pt.optim.AdamW(model_cosine.parameters(), lr=0.001)
-scheduler = pt.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=500//3, eta_min=1.0e-4)
-
-results_cosine = train_model(
-    model_cosine,
-    pt.nn.MSELoss(),
-    train_loader, val_loader, test_loader,
-    epochs=500,
-    lr_schedule=scheduler,
-    optimizer=optimizer
-)
-
-# %%
-model_plateau = deepcopy(model_0_base)
-optimizer = optimizer=pt.optim.AdamW(model_plateau.parameters(), lr=0.01)
-scheduler = pt.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode="min", factor=0.5, patience=20, min_lr=1.0e-4)
-results_plateau = train_model(
-    model_plateau,
-    pt.nn.MSELoss(),
-    train_loader, val_loader, test_loader,
-    epochs=500,
-    lr_schedule=scheduler,
-    optimizer=optimizer
-)
-
-# %%
-scheduler_res = {
-    "const." : lr_results[-2],
-    "exp. decay" : results_exp_decay,
-    "step decay" : results_step_decay,
-    "cosine" : results_cosine,
-    "plateau" : results_plateau
-}
-
-fig, (ax1, ax2) = plt.subplots(2, figsize=(6, 4), sharex=True, sharey=True)
-for key, res in scheduler_res.items():
-    ax1.plot(res["epoch"], res["train_loss"], lw=1, label=f"{key}")
-    ax2.plot(res["epoch"], res["val_loss"], lw=1, label=f"{key}")
-
-ax1.set_title("training")
-ax2.set_title("validation")
-ax2.set_xlabel("epoch")
-for ax in (ax1, ax2):
-    ax.set_ylabel("MSE")
-    ax.set_yscale("log")
-ax1.set_xlim(0, 500)
-ax1.legend(ncol=3)
-plt.savefig(join(output, "lr_scheduler_bs128_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %%
-for i, (key, res) in enumerate(scheduler_res.items()):
-    plt.plot(res["epoch"], res["test_loss"], lw=1, label=f"{key}")
-
-plt.xlabel("epoch")
-plt.ylabel("MSE")
-plt.yscale("log")
-plt.xlim(0, 500)
-plt.legend()
-plt.title("test data")
-plt.savefig(join(output, "lr_scheduler_bs128_test_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# The prediction below shows improved accuracy and reduced oscillations compared to the first attempt.
-
-# %%
-pred_train_pl = make_prediction(model_plateau, train_tensor[:, 1:], feature_scaler, label_scaler)
-pred_val_pl = make_prediction(model_plateau, val_tensor[:, 1:], feature_scaler, label_scaler)
-pred_test_pl = make_prediction(model_plateau, test_tensor[:, 1:], feature_scaler, label_scaler)
-
-
-n_points = len(y)
-for i in range(len(Re)):
-    plt.plot(u_x[:, i]/Ubar.max(), y/(2*delta), ls="-", c="k")
-plt.scatter(pred_train_pl, train_tensor[:, 1], s=1, c="C0", zorder=6, label="training")
-plt.scatter(pred_val_pl, val_tensor[:, 1], s=1, c="C1", zorder=6, label="validation")
-plt.scatter(pred_test_pl, test_tensor[:, 1], s=1, c="C2", zorder=6, label="testing")
-plt.xlabel(r"$\tilde{u}_x$")
-plt.ylabel(r"$\tilde{y}$")
-plt.xlim(0.0, 1.2)
-plt.ylim(-0.01, 0.5)
-plt.legend()
-plt.savefig(join(output, "prediction_lecture_4_model_pl.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# ### Activation functions
+# The following sketches use **synthetic data**, not results from trained networks. The box plots contain 24 illustrative evaluation losses per architecture. The residual plot, histogram, and heat map describe the same 1200 artificial test samples, with a deliberately positive mean error and larger error variation near the lower bound of $X_1$. Targets are dimensionless. For a scalar target, the signed error is defined as
 #
-# An essential element of neural networks are the activation functions applied to the weighted sum at each neuron. There are a few heuristic criteria for suitable activation function:
+# $$
+# e_i=\widehat{y}_i-y_i=y_\theta(\mathbf{x}_i)-y_i.
+# $$
 #
-# - nonlinear
-# - continuous with infinite support
-# - monotonic
-# - constant slope
-# - effectively computable
 #
-# There is no single activation function suiting all of the above requirements at once. The activation functions of hidden layers should be always nonlinear, because otherwise, the fully connected layers could be condensed into a single layers. Only the output layer might employ an identity activation, e.g., for regression problems. For classification, there are specialized activation functions converting the input into a probability or the logarithm thereof. The most common activation functions for hidden layers are depicted below.
-
-# %%
-activations = {
-    "sigmoid" : pt.nn.Sigmoid,
-    "tanh" : pt.nn.Tanh,
-    "ReLU" : pt.nn.ReLU,
-    "ELU" : pt.nn.ELU,
-    "SELU" : pt.nn.SELU
-}
-
-x = pt.arange(-3, 3.01, 0.1)
-marker = ["v", "^", "o", "<", ">"]
-ls = ["-", "-", "--", "-.", "-"]
-for i, (name, func) in enumerate(activations.items()):
-    plt.plot(x, func()(x), ls=ls[i],  marker=marker[i], markevery=10, label=name)
-plt.xlim(-3,3)
-plt.xlabel(r"$z$")
-plt.ylabel(r"$a(z)$")
-plt.grid(True, ls="--")
-plt.legend()
-plt.savefig(f"{output}/activation_functions.svg", bbox_inches="tight")
-
-# %% [markdown]
-# For many problems, the rectified linear unit (ReLU) leads to fast and accurate models. In general, it is fair to say that training with exponential linear units (ELU), scaled exponential linear units (SELU), and ReLU converges significantly faster than with sigmoid. For a mathematical definition of these function, refer to [this article](https://en.wikipedia.org/wiki/Activation_function). On the other hand, functions with higher smoothness also lead to models with higher smoothness. Models employing ReLU may have kinks and non-constant derivatives. However, ReLUs are also significantly faster to compute since they do not contain the exponential function. The experiment below compares the time needed to evaluate several different activation functions. The hyperbolic tangents function takes the most time to be evaluated.
-
-# %%
-arg = pt.linspace(-10, 10, 10000)
-
-# %%
-from timeit import repeat
-timings = repeat(lambda: pt.sigmoid(arg), number=10000, repeat=10)
-print(f"Best of 10: {min(timings) / 10000 * 1e6:.3f} µs per call")
-
-# %%
-from timeit import repeat
-timings = repeat(lambda: pt.tanh(arg), number=10000, repeat=10)
-print(f"Best of 10: {min(timings) / 10000 * 1e6:.3f} µs per call")
-
-# %%
-from timeit import repeat
-timings = repeat(lambda: pt.nn.functional.elu(arg), number=10000, repeat=10)
-print(f"Best of 10: {min(timings) / 10000 * 1e6:.3f} µs per call")
-
-# %%
-from timeit import repeat
-timings = repeat(lambda: pt.nn.functional.relu(arg), number=10000, repeat=10)
-print(f"Best of 10: {min(timings) / 10000 * 1e6:.3f} µs per call")
-
-# %%
-from timeit import repeat
-timings = repeat(lambda: pt.nn.functional.selu(arg), number=10000, repeat=10)
-print(f"Best of 10: {min(timings) / 10000 * 1e6:.3f} µs per call")
-
-# %% [markdown]
-# You might be wondering, if the difference of a few micro seconds really matters. Recall that we have to evaluate the activation function for each neuron. Networks may have a few thousand or several billion neurons.  Moreover, we have to evaluate all neurons for each data point during a forward pass. Therefore, similar statistics as the ones above may be found for the overall training time (assuming a constant number of optimization loops).
+# ### Box plots: variation between training runs
 #
-# Another important attribute of an activation function is its derivative with respect to the input. The main reason for the effectiveness of ELU/ReLU/SELU is their constant slope for positive inputs. The constant slope mitigates the problem of vanishing or exploding gradients during the training. For very large networks, it might happen that many neurons employing ReLU become inactive during the training because the slope becomes zero once the input becomes negative. To provide the chance for such neurons to recover, ELU and similar variants were invented. ELU has a small but non-vanishing slope for negative inputs. The reason why training with sigmoid or hyperbolic tangents is usually more difficult lies in their vanishing sensitivity for very large or small arguments. For a long time, this insensitivity made it practically impossible to train networks with many hidden layers because there was no way to control the range of the neurons inputs in the hidden layers. The effect is similar to training with unscaled data. In recent years, a technique called [batch normalization](https://arxiv.org/abs/1502.03167) was developed to mitigate the shift of the transformed features in the hidden layers. The SELU function has a similar effect as batch normalization but requires no additional weights.
+# ![Synthetic evaluation losses across 24 illustrative runs for each of three architectures.](media/doe-errors-box-light.png){.light-content width=100%}
+# ![Synthetic evaluation losses across 24 illustrative runs for each of three architectures.](media/doe-errors-box-dark.png){.dark-content width=100%}
 #
-# As a side note, training approaches like PINNs require the computation of higher-order derivatives. Therefore, sigmoid or hyperbolic tangents and all the associated drawbacks are basically the only option.
-
-# %%
-x = pt.arange(-3, 3.01, 0.01, requires_grad=True)
-marker = ["v", "^", "o", "<", ">"]
-ls = ["-", "-", "--", "-.", "-"]
-cont = [True, True, False, True, False]
-color = ["C{:1d}".format(i) for i in range(len(activations))]
-for i, (name, func) in enumerate(activations.items()):
-    res = func()(x)
-    res.backward(pt.ones(x.shape[0]))
-    x_num = x.detach().numpy()
-    grad_num =  x.grad.numpy()
-    if cont[i]:
-        plt.plot(x_num, grad_num,
-            ls=ls[i], lw=2, marker=marker[i], markevery=100, color=color[i], label=name)
-    else:
-        plt.plot([xi for xi in x_num if xi <= 0.0], [dx for xi, dx in zip(x_num, grad_num) if xi <= 0.0],
-                ls=ls[i], marker=marker[i], markevery=100, color=color[i], label=name)
-        plt.plot([xi for xi in x_num if xi > 0.0], [dx for xi, dx in zip(x_num, grad_num) if xi > 0.0],
-                ls=ls[i], marker=marker[i], color=color[i], markevery=100)
-    x.grad.data.zero_()
-    
-plt.xlim(-3,3)
-plt.xlabel(r"$z$")
-plt.ylabel(r"$\mathrm{d}_za(z)$")
-plt.grid(True, ls="--")
-plt.legend()
-plt.savefig(f"{output}/activation_slopes.svg", bbox_inches="tight")
-
-# %%
-results_act = {}
-models_act = {}
-train_loader = pt.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True)
-
-for key, act in activations.items():
-    model = create_simple_network(2, 1, 50, 2, act)
-    optimizer = optimizer=pt.optim.AdamW(model.parameters(), lr=0.01)
-    scheduler = pt.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode="min", factor=0.5, patience=20, min_lr=1.0e-4)
-    results_act[key] = train_model(
-        model,
-        pt.nn.MSELoss(),
-        train_loader, val_loader, test_loader,
-        epochs=500,
-        lr_schedule=scheduler,
-        optimizer=optimizer
-    )
-    models_act[key] = deepcopy(model)
-
-# %%
-fig, (ax1, ax2) = plt.subplots(2, figsize=(6, 4), sharex=True, sharey=True)
-for i, (key, res) in enumerate(results_act.items()):
-    ax1.plot(res["epoch"], res["train_loss"], lw=1, label=f"{key}")
-    ax2.plot(res["epoch"], res["val_loss"], lw=1, label=f"{key}")
-
-ax1.set_title("training")
-ax2.set_title("validation")
-ax2.set_xlabel("epoch")
-for ax in (ax1, ax2):
-    ax.set_ylabel("MSE")
-    ax.set_yscale("log")
-ax1.set_xlim(0, 500)
-ax1.legend(ncol=3)
-plt.savefig(join(output, "activations_plateau_bs128_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# The plot below shows the model employing hyperbolic tangents activations. The accuracy is improved even further. Moreover, all profiles are significantly smoother.
-
-# %%
-model = models_act["tanh"]
-pred_train = make_prediction(model, train_tensor[:, 1:], feature_scaler, label_scaler)
-pred_val = make_prediction(model, val_tensor[:, 1:], feature_scaler, label_scaler)
-pred_test = make_prediction(model, test_tensor[:, 1:], feature_scaler, label_scaler)
-
-
-n_points = len(y)
-for i in range(len(Re)):
-    plt.plot(u_x[:, i]/Ubar.max(), y/(2*delta), ls="-", c="k")
-plt.scatter(pred_train, train_tensor[:, 1], s=1, c="C0", zorder=6, label="training")
-plt.scatter(pred_val, val_tensor[:, 1], s=1, c="C1", zorder=6, label="validation")
-plt.scatter(pred_test, test_tensor[:, 1], s=1, c="C2", zorder=6, label="testing")
-plt.xlabel(r"$\tilde{u}_x$")
-plt.ylabel(r"$\tilde{y}$")
-plt.xlim(0.0, 1.2)
-plt.ylim(-0.01, 0.5)
-plt.legend()
-plt.savefig(join(output, "prediction_act_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-
-# %% [markdown]
-# ### Advanced building blocks
+# When training is repeated with different seeds, a **box plot** summarizes the distribution of a chosen performance measure, such as evaluation mean squared error. Comparing architectures then involves both typical performance and variability, rather than only the best run.
 #
-# In the next cells, we test a few advanced network building blocks, namely:
-# - normalization: normalization layers aim to improve learning by re-scaling the output of the precessing layer; batch normalization learns normalization across batches, while layer normalization learns normalizing the neuron output within a layer
-# - skip connections: skipping connections means that the input of an early layer in the network is also provided to layer following later, thereby skipping one or more layers in-between; the inputs are merged by concatenation
-# - residual blocks: similar to skip connections, residual blocks merge the input of a layer with its output; however, the input for the next layer is created by addition instead of concatenation
-
-# %%
-def create_normalized_network(n_in: int, n_out: int, n_neurons: int,
-    n_hidden: int, activation: pt.nn.Module, layer_norm: bool = False
-    ) -> pt.nn.Sequential:
-    if layer_norm:
-        norm_layer, norm_size = pt.nn.LayerNorm, [n_neurons]
-    else:
-        norm_layer, norm_size = pt.nn.BatchNorm1d, n_neurons
-    layers = [
-        pt.nn.Linear(n_in, n_neurons),
-        activation(),
-        norm_layer(norm_size)
-    ]
-    for _ in range(n_hidden):
-        layers.append(pt.nn.Linear(n_neurons, n_neurons))
-        layers.append(activation())
-        layers.append(norm_layer(norm_size))
-    layers.append(pt.nn.Linear(n_neurons, n_out))
-    return pt.nn.Sequential(*layers)
-
-
-# %%
-class SkipBlock(pt.nn.Module):
-    def __init__(self, n_in: int, n_out: int, activation: pt.nn.Module = pt.nn.Tanh,
-                 norm: str = None):
-        super(SkipBlock, self).__init__()
-        self._layer_1 = pt.nn.Linear(n_in, n_in)
-        self._layer_2 = pt.nn.Linear(2*n_in, n_out)
-        if norm == "batch":
-            self._norm_1 = pt.nn.BatchNorm1d(n_in)
-            self._norm_2 = pt.nn.BatchNorm1d(n_out)
-        elif norm == "layer":
-            self._norm_1 = pt.nn.LayerNorm([n_in])
-            self._norm_2 = pt.nn.LayerNorm([n_out])
-        else:
-            self._norm_1 = pt.nn.Identity()
-            self._norm_2 = pt.nn.Identity()
-        self._activation = activation()
-
-    def forward(self, x):
-        h = self._norm_1(self._activation(self._layer_1(x)))
-        x = pt.cat([x, h], dim=1)
-        return self._norm_2(self._activation(self._layer_2(x)))
-
-
-# %%
-def create_skip_network(n_in: int, n_out: int, n_neurons: int, n_hidden: int,
-                       activation: pt.nn.Module, norm: str = None) -> pt.nn.Sequential:
-    layers = [
-        SkipBlock(n_in, n_neurons, activation, norm)
-    ]
-    for _ in range(n_hidden):
-        layers.append(SkipBlock(n_neurons, n_neurons, activation, norm))
-    layers.append(pt.nn.Linear(n_neurons, n_out))
-    return pt.nn.Sequential(*layers)
-
-
-# %%
-class ResidualBlock(pt.nn.Module):
-    def __init__(self, n_in: int, n_out: int, activation: pt.nn.Module, norm: str = None):
-        super().__init__()
-        layers = [pt.nn.Linear(n_in, n_out)]
-        layers.append(activation())
-        if norm == "batch":
-            layers.append(pt.nn.BatchNorm1d(n_out))
-        elif norm == "layer":
-            layers.append(pt.nn.LayerNorm([n_out]))
-        self.F = pt.nn.Sequential(*layers)
-
-    def forward(self, x):
-        return x + self.F(x)
-
-
-# %%
-def create_res_network(n_in: int, n_out: int, n_neurons: int, n_hidden: int,
-                       activation: pt.nn.Module, norm: str = None) -> pt.nn.Sequential:
-    layers = [
-        pt.nn.Linear(n_in, n_neurons),
-        activation()
-    ]
-    for _ in range(n_hidden):
-        layers.append(ResidualBlock(n_neurons, n_neurons, activation, norm))
-    layers.append(pt.nn.Linear(n_neurons, n_out))
-    return pt.nn.Sequential(*layers)
-
-
-# %%
-def generate_advanced_models():
-    return {
-        "ref." : create_simple_network(2, 1, 50, 2, pt.nn.Tanh),
-        "batch norm." : create_normalized_network(2, 1, 50, 2, pt.nn.Tanh, False),
-        "layer norm." : create_normalized_network(2, 1, 50, 2, pt.nn.Tanh, True),
-        "skip conn." : create_skip_network(2, 1, 50, 2, pt.nn.Tanh, None),
-        "skip conn., layer norm." : create_skip_network(2, 1, 50, 2, pt.nn.Tanh, "layer"),
-        "res. block" : create_res_network(2, 1, 50, 2, pt.nn.Tanh, None),
-        "res. block, layer norm." : create_res_network(2, 1, 50, 2, pt.nn.Tanh, "layer")
-    }
-
-
-# %%
-results_adv = {}
-train_loader = pt.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True)
-for key, model in generate_advanced_models().items():
-    optimizer = optimizer=pt.optim.AdamW(model.parameters(), lr=0.01)
-    scheduler = pt.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode="min", factor=0.5, patience=20, min_lr=1.0e-4)
-    results_adv[key] =  train_model(model, pt.nn.MSELoss(), train_loader, val_loader, test_loader,
-                                    epochs=500, lr_schedule=scheduler, optimizer=optimizer)
-
-# %%
-for key, res in results_adv.items():
-    plt.plot(res["epoch"], res["val_loss"], lw=1, label=key)
-
-plt.title("Validation loss")
-plt.xlabel("epoch")
-plt.ylabel("MSE")
-plt.yscale("log")
-plt.xlim(0, 500)
-plt.legend(ncol=3, fontsize=8)
-plt.savefig(join(output, "adv_networks_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# ### Dealing with uncertainty
+# In the conventional box plot used here:
 #
-# The training of neural networks is not deterministic. If you go back to any cell in which the model training was performed and execute the cell several times, every time you will end up with a different model and a different loss behavior. The reason for this observation is twofold:
+# - The **median line** marks the 50th percentile: half the observations lie on either side, allowing for ties.
+# - The **box** extends from the first quartile $Q_1$ (25th percentile) to the third quartile $Q_3$ (75th percentile). Its height is the **interquartile range**, $\mathrm{IQR}=Q_3-Q_1$.
+# - The **whiskers** extend to the most extreme observed values within $1.5\,\mathrm{IQR}$ below $Q_1$ and above $Q_3$.
+# - Points beyond the whiskers are plotted individually as **potential outliers**. This convention does not establish that a run is invalid.
 #
-# 1. the loss function is non-convex
-# 2. the initial network parameters are sampled randomly
+# A box plot does not automatically show the mean or a confidence interval. Here its spread describes variation in evaluation loss across runs, rather than uncertainty in an individual prediction.
 #
-# Basically, we end up in different local minima in each training run. Fortunately, the situation is not as bad as it seems, because neural networks tend to have many local minima yielding good models. Nonetheless, if we want to rigorously compare two different neural networks, we have to deal with the uncertainty of the training as we would it in a real experiment. We repeat the training several times and compare different models on a statistical basis, e.g., by comparing mean, median, or standard deviation over all runs. In the example below, we compare several network designs based on the best $L_2$ loss. To keep the training time reasonable each training is repeated ten times.
-
-# %%
-n_repeat = 10
-results_repeat = defaultdict(list)
-for i in range(n_repeat):
-    pt.manual_seed(i)
-    for key, model in generate_advanced_models().items():
-        optimizer = optimizer=pt.optim.AdamW(model.parameters(), lr=0.01)
-        scheduler = pt.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode="min", factor=0.5, patience=20, min_lr=1.0e-4)
-        results_repeat[key].append(train_model(model, pt.nn.MSELoss(), train_loader, val_loader, test_loader,
-                                   epochs=500, lr_schedule=scheduler, optimizer=optimizer))
-
-# %%
-for i, key in enumerate(results_repeat.keys()):
-    test_loss = np.asarray(
-        [res["test_loss"].values[-10:].mean() for res in results_repeat[key]]
-    )
-    plt.boxplot(test_loss, positions=[i], flierprops={
-                "markersize": 6, "markeredgecolor": "C3"})
-plt.gca().set_xticklabels(("ref.", "batch\nnorm.", "layer\nnorm.", "skip\nconn.", "skip+ln", "res.\nblock", "res+ln"))
-plt.yscale("log")
-plt.ylabel("MSE (test)")
-plt.grid(ls="--")
-plt.savefig(join(output, "uncertainty_arch_lecture_4.svg"), bbox_inches="tight")
-plt.show()
-
-# %% [markdown]
-# [Box plots](https://en.wikipedia.org/wiki/Box_plot) present a very rich visualization of groups of data. In the figure above, we compare the box plots resulting from the different network architectures. Box plots mainly work with quantiles. The $p$th quantile, denoted by $q_p$, is obtained by sorting the data and then counting through the data until $p\%$ of the overall number of data points are reached. For example, the $50$ th quantile of the set $\{ 3, 1, 5, 4, 2\}$ would be $q_{50} = 2$. The $50\%$ quantile is commonly called median. In a box plot, the lower and upper boundaries of the box are given by the $25$th and $75$th quantiles, respectively. The orange line in the plot below indicates the median. Quantiles are also used to identify outliers. The inter quantile range (IQR) is defined as $q_r = q_{75} - q_{25}$. Outlier detection based on the IQR assumes that values in the range $q_{25}-kq_r \le x \le q_{75}+kq_r$ are regular values, whereas values outside this range are outliers. The factor $k$ is often chosen as $k=1.5$. Outliers in the plot below are indicated by red circles. The so-called whiskers (the little antennas extending from the box) indicate the largest and smallest values not considered to be outliers. From box plots, we can infer the spread of the data and also how it is distributed. For example, if the whiskers are symmetric and the median is in the middle of the box, the data are normally distributed (approximately).
+# ### Direct comparison of predictions and test data
 #
-# In ML research, we want our experiments to be repeatable, even if random sampling is part of the process. Luckily, there are no true random numbers in computer programs. Instead, they are said to be *pseudo random*, because we can define a so-called *seed* parameter that makes the sampling repeatable. In the loop of the code cell above, we use the loop count as seed. Therefore, the initial weights change for each training run in a repeatable manner.
-
-# %% [markdown]
-# An important design parameter to change the model's flexibility (the ability to fit data) is the number of hidden layers. In the code cell below, we conduct a similar experiment as before but vary only the number of hidden layers. As can be seen in the box plots, the loss and also the spread of the loss decreases significantly as the number of hidden layers increases. Moreover, the improvement in the $L_2$ loss seems to become smaller and smaller with each additional hidden layers.
-
-# %% [markdown]
-# ### Visualizing prediction errors
+# ![Signed prediction errors plotted against observed test targets for 1200 synthetic samples.](media/doe-errors-residual-light.png){.light-content width=100%}
+# ![Signed prediction errors plotted against observed test targets for 1200 synthetic samples.](media/doe-errors-residual-dark.png){.dark-content width=100%}
 #
-# As mentioned before, it is relatively easy to assess the model's behavior for the present problem. For high-dimensional parameter spaces, the evaluation is less straightforward, and we have to rely on statistics and other less intuitive means of visualization. Two techniques are demonstrated below:
+# For a small, low-dimensional problem, observations and predictions can be plotted against an input coordinate, or their difference can be shown directly. The plot above shows the signed error against the observed test target, with zero indicating agreement. Trends or changing spread can reveal systematic errors or regions of poor performance. Under the stated sign convention, positive errors mean overprediction.
 #
-# - a histogram of the prediction error; the histogram shows how the error is distributed; ideally, all prediction errors should be located in a narrow band around zero; we can immediately read the maximum prediction errors and infer how many predictions yield such high errors
-# - a heatmap with the maximum prediction errors in different sub-sections of the feature space; if we had more features, we would create the same plot for the two most important features, or we would create several heatmaps for different combinations of features; the heatmap indicates which sections of the feature space yield high prediction errors; in the example below we see that prediction errors are high for small distances and large Reynolds numbers
-
-# %%
-final_model = create_skip_network(2, 1, 50, 2, pt.nn.Tanh)
-optimizer = optimizer=pt.optim.AdamW(final_model.parameters(), lr=1.0e-2)
-scheduler = pt.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode="min", factor=0.5, patience=20, min_lr=1.0e-4)
-final_results = train_model(final_model, pt.nn.MSELoss(), train_loader, val_loader, test_loader,
-                            epochs=500, lr_schedule=scheduler, optimizer=optimizer)
-
-# %%
-pred_train_final = make_prediction(final_model, train_tensor[:, 1:], feature_scaler, label_scaler)
-pred_val_final = make_prediction(final_model, val_tensor[:, 1:], feature_scaler, label_scaler)
-pred_test_final = make_prediction(final_model, test_tensor[:, 1:], feature_scaler, label_scaler)
-
-
-n_points = len(y)
-for i in range(len(Re)):
-    plt.plot(u_x[:, i]/Ubar.max(), y/(2*delta), ls="-", c="k")
-plt.scatter(pred_train_final, train_tensor[:, 1], s=1, c="C0", zorder=6, label="training")
-plt.scatter(pred_val_final, val_tensor[:, 1], s=1, c="C1", zorder=6, label="validation")
-plt.scatter(pred_test_final, test_tensor[:, 1], s=1, c="C2", zorder=6, label="testing")
-plt.xlabel(r"$\tilde{u}_x$")
-plt.ylabel(r"$\tilde{y}$")
-plt.xlim(0.0, 1.2)
-plt.ylim(-0.01, 0.5)
-plt.legend()
-plt.savefig(join(output, "final_prediction_lecture_4_model_pl.svg"), bbox_inches="tight")
-plt.show()
-
-# %%
-deviation = pred_train_final - train_tensor[:, 0]
-dev_min, dev_max = deviation.min().item(), deviation.max().item()
-counts = pt.histc(deviation, bins=50, min=dev_min, max=dev_max).detach()
-bin_width = (dev_max-dev_min) / 50
-centers = pt.arange(dev_min+0.5*bin_width, dev_min +
-                    50*bin_width, bin_width).detach()
-
-plt.bar(centers, counts, width=bin_width*0.8)
-plt.xlabel(r"$\hat{\tilde{u}}_x - \tilde{u}_{x}$")
-plt.ylabel("bin count")
-plt.savefig(f"{output}/profile_error_hist.svg", bbox_inches="tight")
-
-
-# %%
-def max_error_map(x: pt.Tensor, err: pt.Tensor, bins: int) -> pt.Tensor:
-    """Divide feature space in bins and compute maximum error for each bin.
-
-    :param x: feature tensor
-    :type x: pt.Tensor
-    :param err: absolute error values
-    :type err: pt.Tensor
-    :param bins: number of bin
-    :type bins: int
-    :return: 2D tensor with maximum errors for each bin; if there are N bins,
-        the result will be a NxN tensor
-    :rtype: pt.Tensor
-    """
-    step = 2.0 / bins
-    bounds_low = pt.arange(-1, 1.0, step)
-    bounds_up = pt.arange(-1+step, 1.0+0.5*step, step)
-    max_error = pt.zeros((bins, bins))
-    for i, (low_i, up_i) in enumerate(zip(bounds_low, bounds_up)):
-        for j, (low_j, up_j) in enumerate(zip(bounds_low, bounds_up)):
-            errors = pt.where((x[:, 0] >= low_i) & (x[:, 1] >= low_j) & (
-                x[:, 0] < up_i) & (x[:, 1] < up_j), err.type(pt.float64), 0.0)
-            max_error[i, j] = errors.max()
-    return max_error
-
-
-error_map = max_error_map(feature_scaler.scale(train_tensor[:, 1:]), deviation.abs(), 10)
-edges = pt.linspace(-1, 1, 10+1)
-xx, yy = pt.meshgrid(edges, edges, indexing="ij")
-pcol = plt.pcolormesh(xx.detach(), yy.detach(), error_map.detach())
-plt.colorbar(pcol, label=r"$|\hat{\tilde{u}}_x - \tilde{u}_{x}|$")
-plt.xlabel(r"$\tilde{y}_{norm}$")
-plt.ylabel(r"$Re_{norm}$")
-plt.savefig(join(output, "profile_error_heatmap.svg"), bbox_inches="tight")
-plt.show()
+# Direct plots become harder to interpret when inputs and outputs are high-dimensional. Componentwise errors, aggregate measures, or selected projections can help, although a projection may conceal structure in other directions.
+#
+# ### Histograms: the distribution of prediction errors
+#
+# ![Histogram of signed prediction errors for the same 1200 synthetic test samples.](media/doe-errors-hist-light.png){.light-content width=100%}
+# ![Histogram of signed prediction errors for the same 1200 synthetic test samples.](media/doe-errors-hist-dark.png){.dark-content width=100%}
+#
+# An **error histogram** shows how often different error ranges occur. A concentration near zero suggests many accurate predictions; long tails or isolated extreme values indicate occasional large errors. A distribution shifted away from zero can indicate systematic overprediction or underprediction. The signed errors in the histogram above retain this information; a histogram of absolute errors would conceal the sign.
+#
+# Histogram appearance depends on bin width and sample count. A near-zero mean error also does not rule out systematic errors in different parts of the domain, because positive and negative errors can cancel.
+#
+# ### Heat maps: errors in subsets of feature space
+#
+# ![Maximum absolute prediction error in bins of the two-dimensional synthetic feature space.](media/doe-errors-map-light.png){.light-content width=100%}
+# ![Maximum absolute prediction error in bins of the two-dimensional synthetic feature space.](media/doe-errors-map-dark.png){.dark-content width=100%}
+#
+# A **heat map** can divide two selected feature coordinates into bins and show a statistic of the prediction errors in each bin. In the heat map above, the color represents
+#
+# $$
+# E_{jk}=\max_{i:\,\mathbf{x}_i\in B_{jk}}|e_i|,
+# $$
+#
+# where $B_{jk}$ is a bin in the $X_1$–$X_2$ plane. The elevated errors near small $X_1$ reveal a weakness that a single average score could hide. Such a pattern may motivate additional data, a revised representation, or closer examination of the model in that region.
+#
+# Maximum errors depend on individual extreme observations and on how many samples fall in a bin. Sample counts and coverage therefore matter; empty bins represent missing evidence and are left uncolored or explicitly marked, rather than assigned zero error. In a higher-dimensional feature space, a two-dimensional map groups over the remaining coordinates and can hide additional dependencies.
+#
+# Observed errors require reference targets. A probabilistic model can additionally provide predictive intervals or uncertainty maps at new inputs, but their reliability is evaluated separately, for example by checking how often held-out targets lie within the stated intervals. A large error and a large predicted uncertainty are not interchangeable.

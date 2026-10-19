@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Introduction to machine learning – Machine Learning in Fluid Mechanics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bef53a435fa9deb9018fac7b5c06cf9f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-b164dce217d8d0b484465d0fb8432922.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../quarto.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/TUD_Logo_RGB_horizontal_schwarz_en.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo light-content">
+    <img src="../images/TUD-white.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Machine Learning in Fluid Mechanics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Course overview</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/lecture_00.html">Lectures and exercises</a></li><li class="breadcrumb-item"><a href="../notebooks/ml_intro.html">Introduction to machine learning</a></li><li class="breadcrumb-item"><a href="../notebooks/ml_intro.html">Lecture</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures and exercises</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/lecture_00.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to learn with generative AI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Course overview and motivation</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_cfd_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/system_setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Introduction to machine learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#what-is-machine-learning" id="toc-what-is-machine-learning" class="nav-link" data-scroll-target="#what-is-machine-learning">What is machine learning?</a></li>
+  <li><a href="#common-steps-in-machine-learning" id="toc-common-steps-in-machine-learning" class="nav-link" data-scroll-target="#common-steps-in-machine-learning">Common steps in machine learning</a>
+  <ul class="collapse">
+  <li><a href="#problem-definition" id="toc-problem-definition" class="nav-link" data-scroll-target="#problem-definition">1. Problem definition</a></li>
+  <li><a href="#data-collection-and-processing" id="toc-data-collection-and-processing" class="nav-link" data-scroll-target="#data-collection-and-processing">2. Data collection and processing</a></li>
+  <li><a href="#model-selection-and-training" id="toc-model-selection-and-training" class="nav-link" data-scroll-target="#model-selection-and-training">3. Model selection and training</a></li>
+  <li><a href="#performance-evaluation" id="toc-performance-evaluation" class="nav-link" data-scroll-target="#performance-evaluation">4. Performance evaluation</a></li>
+  <li><a href="#deployment" id="toc-deployment" class="nav-link" data-scroll-target="#deployment">5. Deployment</a></li>
+  </ul></li>
+  <li><a href="#common-model-categories" id="toc-common-model-categories" class="nav-link" data-scroll-target="#common-model-categories">Common model categories</a>
+  <ul class="collapse">
+  <li><a href="#parametric-and-non-parametric-models" id="toc-parametric-and-non-parametric-models" class="nav-link" data-scroll-target="#parametric-and-non-parametric-models">Parametric and non-parametric models</a></li>
+  <li><a href="#deterministic-and-probabilistic-models" id="toc-deterministic-and-probabilistic-models" class="nav-link" data-scroll-target="#deterministic-and-probabilistic-models">Deterministic and probabilistic models</a></li>
+  </ul></li>
+  <li><a href="#design-of-experiments" id="toc-design-of-experiments" class="nav-link" data-scroll-target="#design-of-experiments">Design of experiments</a>
+  <ul class="collapse">
+  <li><a href="#space-filling-and-unbiased-designs" id="toc-space-filling-and-unbiased-designs" class="nav-link" data-scroll-target="#space-filling-and-unbiased-designs">Space-filling and unbiased designs</a></li>
+  <li><a href="#uniform-segmentation-a-regular-grid" id="toc-uniform-segmentation-a-regular-grid" class="nav-link" data-scroll-target="#uniform-segmentation-a-regular-grid">Uniform segmentation: a regular grid</a></li>
+  <li><a href="#independent-uniform-random-sampling" id="toc-independent-uniform-random-sampling" class="nav-link" data-scroll-target="#independent-uniform-random-sampling">Independent uniform random sampling</a></li>
+  <li><a href="#latin-hypercube-sampling" id="toc-latin-hypercube-sampling" class="nav-link" data-scroll-target="#latin-hypercube-sampling">Latin hypercube sampling</a></li>
+  <li><a href="#an-alternative-sobol-sequences" id="toc-an-alternative-sobol-sequences" class="nav-link" data-scroll-target="#an-alternative-sobol-sequences">An alternative: Sobol sequences</a></li>
+  <li><a href="#adaptive-sampling" id="toc-adaptive-sampling" class="nav-link" data-scroll-target="#adaptive-sampling">Adaptive sampling</a></li>
+  </ul></li>
+  <li><a href="#data-normalization" id="toc-data-normalization" class="nav-link" data-scroll-target="#data-normalization">Data normalization</a>
+  <ul class="collapse">
+  <li><a href="#why-is-data-normalization-important" id="toc-why-is-data-normalization-important" class="nav-link" data-scroll-target="#why-is-data-normalization-important">Why is data normalization important?</a></li>
+  <li><a href="#common-normalization-methods" id="toc-common-normalization-methods" class="nav-link" data-scroll-target="#common-normalization-methods">Common normalization methods</a></li>
+  <li><a href="#optional-detour-floating-point-representation" id="toc-optional-detour-floating-point-representation" class="nav-link" data-scroll-target="#optional-detour-floating-point-representation">Optional detour: floating-point representation</a></li>
+  <li><a href="#example-1-fitting-a-fourth-order-polynomial" id="toc-example-1-fitting-a-fourth-order-polynomial" class="nav-link" data-scroll-target="#example-1-fitting-a-fourth-order-polynomial">Example 1: fitting a fourth-order polynomial</a></li>
+  <li><a href="#example-2-comparable-features-in-clustering" id="toc-example-2-comparable-features-in-clustering" class="nav-link" data-scroll-target="#example-2-comparable-features-in-clustering">Example 2: comparable features in clustering</a></li>
+  </ul></li>
+  <li><a href="#feature-design-and-selection" id="toc-feature-design-and-selection" class="nav-link" data-scroll-target="#feature-design-and-selection">Feature design and selection</a>
+  <ul class="collapse">
+  <li><a href="#goals-of-feature-design" id="toc-goals-of-feature-design" class="nav-link" data-scroll-target="#goals-of-feature-design">Goals of feature design</a></li>
+  <li><a href="#guidelines-for-designing-features" id="toc-guidelines-for-designing-features" class="nav-link" data-scroll-target="#guidelines-for-designing-features">Guidelines for designing features</a></li>
+  <li><a href="#selecting-useful-feature-combinations" id="toc-selecting-useful-feature-combinations" class="nav-link" data-scroll-target="#selecting-useful-feature-combinations">Selecting useful feature combinations</a></li>
+  </ul></li>
+  <li><a href="#deep-learning" id="toc-deep-learning" class="nav-link" data-scroll-target="#deep-learning">Deep learning</a>
+  <ul class="collapse">
+  <li><a href="#models-datasets-and-predictions" id="toc-models-datasets-and-predictions" class="nav-link" data-scroll-target="#models-datasets-and-predictions">Models, datasets, and predictions</a></li>
+  <li><a href="#training-as-an-optimization-problem" id="toc-training-as-an-optimization-problem" class="nav-link" data-scroll-target="#training-as-an-optimization-problem">Training as an optimization problem</a></li>
+  <li><a href="#the-multilayer-perceptron" id="toc-the-multilayer-perceptron" class="nav-link" data-scroll-target="#the-multilayer-perceptron">The multilayer perceptron</a></li>
+  <li><a href="#gradient-descent" id="toc-gradient-descent" class="nav-link" data-scroll-target="#gradient-descent">Gradient descent</a></li>
+  <li><a href="#training-variability-and-repeatable-comparisons" id="toc-training-variability-and-repeatable-comparisons" class="nav-link" data-scroll-target="#training-variability-and-repeatable-comparisons">Training variability and repeatable comparisons</a></li>
+  </ul></li>
+  <li><a href="#visualizing-prediction-errors-and-model-uncertainties" id="toc-visualizing-prediction-errors-and-model-uncertainties" class="nav-link" data-scroll-target="#visualizing-prediction-errors-and-model-uncertainties">Visualizing prediction errors and model uncertainties</a>
+  <ul class="collapse">
+  <li><a href="#box-plots-variation-between-training-runs" id="toc-box-plots-variation-between-training-runs" class="nav-link" data-scroll-target="#box-plots-variation-between-training-runs">Box plots: variation between training runs</a></li>
+  <li><a href="#direct-comparison-of-predictions-and-test-data" id="toc-direct-comparison-of-predictions-and-test-data" class="nav-link" data-scroll-target="#direct-comparison-of-predictions-and-test-data">Direct comparison of predictions and test data</a></li>
+  <li><a href="#histograms-the-distribution-of-prediction-errors" id="toc-histograms-the-distribution-of-prediction-errors" class="nav-link" data-scroll-target="#histograms-the-distribution-of-prediction-errors">Histograms: the distribution of prediction errors</a></li>
+  <li><a href="#heat-maps-errors-in-subsets-of-feature-space" id="toc-heat-maps-errors-in-subsets-of-feature-space" class="nav-link" data-scroll-target="#heat-maps-errors-in-subsets-of-feature-space">Heat maps: errors in subsets of feature space</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/lecture_00.html">Lectures and exercises</a></li><li class="breadcrumb-item"><a href="../notebooks/ml_intro.html">Introduction to machine learning</a></li><li class="breadcrumb-item"><a href="../notebooks/ml_intro.html">Lecture</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Introduction to machine learning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
+<section id="learning-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h2>
+<p>After this lecture, you should be able to:</p>
+<ul>
+<li>interpret Mitchell’s definition of machine learning in terms of data, tasks, and performance measures, and outline the iterative workflow from problem definition to deployment;</li>
+<li>distinguish parametric from non-parametric models and deterministic from probabilistic predictions, using representative examples;</li>
+<li>compare regular grids, random sampling, Latin hypercube sampling, Sobol sequences, and adaptive sampling in terms of coverage, randomization, and sampling cost;</li>
+<li>explain why normalization matters, apply min–max scaling and standardization, and relate physical scaling and floating-point precision to numerical behavior;</li>
+<li>design physically and mathematically motivated features, check their availability in the target application, and explain common feature-selection strategies and their limitations;</li>
+<li>formulate a supervised dataset, a neural-network mapping, predictions, and a training objective, and describe an MLP and its gradient-descent update;</li>
+<li>explain the roles of seeds and repeated training runs in reproducibility and fair comparisons of model architectures;</li>
+<li>interpret box plots, residual plots, error histograms, and feature-space heat maps, distinguishing observed errors and training variability from predictive uncertainty.</li>
+</ul>
+</section>
+<section id="what-is-machine-learning" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-machine-learning">What is machine learning?</h2>
+<p>Tom Mitchell gives the following definition in <em>Machine Learning</em> (1997, Section 1.1):</p>
+<blockquote class="blockquote">
+<p>A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.</p>
+</blockquote>
+<p>Source: <a href="https://www.cs.cmu.edu/~tom/files/MachineLearningTomMitchell.pdf">Tom M. Mitchell, <em>Machine Learning</em>, McGraw-Hill, 1997</a>.</p>
+<p>The definition becomes more concrete when connected to quantities used in practice:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 74%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Concept</th>
+<th style="text-align: left;">Practical interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Learning</strong></td>
+<td style="text-align: left;"><strong>Automation by optimization:</strong> a model and an objective are specified, and an algorithm adjusts the model to improve its performance.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Experience <span class="math inline">\(E\)</span></strong></td>
+<td style="text-align: left;">The <strong>data</strong> from which the model learns, such as measurements, simulation results, or observations collected through interaction with an environment.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Tasks <span class="math inline">\(T\)</span></strong></td>
+<td style="text-align: left;">The <strong>aim of the model</strong>: what should it predict or do, and under which conditions?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Performance measure <span class="math inline">\(P\)</span></strong></td>
+<td style="text-align: left;">A quantitative criterion for judging how well the model performs. During training, the optimization objective is usually expressed through a <strong>loss function</strong> to minimize.</td>
+</tr>
+</tbody>
+</table>
+<p>The performance measure and training loss are closely related, but need not be identical. For example, a model might be trained by minimizing its mean squared prediction error, while its performance is evaluated using the fraction of predictions within an application-specific tolerance.</p>
+</section>
+<section id="common-steps-in-machine-learning" class="level2">
+<h2 class="anchored" data-anchor-id="common-steps-in-machine-learning">Common steps in machine learning</h2>
+<p>A machine-learning application involves more than fitting a model. The following five steps provide a useful structure, with frequent iterations between them. The division into steps is somewhat subjective: a workflow can be described in finer detail or at a more abstract level. These five steps are the structure we will use in this lecture.</p>
+<section id="problem-definition" class="level3">
+<h3 class="anchored" data-anchor-id="problem-definition">1. Problem definition</h3>
+<p>Problem definition establishes what a useful solution would look like before an algorithm is chosen:</p>
+<ul>
+<li><strong>Task:</strong> What is the model’s aim? Which inputs will be available, and which outputs or decisions are required?</li>
+<li><strong>Data sources:</strong> What measurements, simulations, or existing datasets are available? Do they cover the conditions in which the model will be used?</li>
+<li><strong>Performance:</strong> How can performance on the task be quantified?</li>
+<li><strong>Baseline:</strong> What existing solution should the model be compared with? This could be a simple empirical correlation or an established numerical method.</li>
+<li><strong>Acceptance criteria:</strong> When is the model good enough? Criteria might include a maximum prediction error, a required improvement over the baseline, and a limit on evaluation time.</li>
+</ul>
+</section>
+<section id="data-collection-and-processing" class="level3">
+<h3 class="anchored" data-anchor-id="data-collection-and-processing">2. Data collection and processing</h3>
+<p>Data collection or generation provides examples representative of the intended task. <strong>Design of experiments</strong> helps select which combinations of input parameters to measure or simulate, so that the available budget is used effectively.</p>
+<p>Quality and consistency checks belong to the data-generation process. Examples include checking units, identifying missing or invalid values, and assessing whether a simulation has converged sufficiently to provide useful reference data.</p>
+<p>Prior knowledge can guide the construction of new input variables. This is called <strong>feature engineering</strong>. In fluid mechanics, for example, density, velocity, length, and viscosity can be combined into a Reynolds number. Later sections and the exercise will examine feature design in more detail.</p>
+<p>Data preparation includes <strong>splitting and normalization</strong>. Normalization places variables on suitable numerical scales; specific methods are discussed later. The three subsets serve different purposes:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 47%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Subset</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Training data</strong></td>
+<td style="text-align: left;">Model parameters are fitted by optimizing the training objective.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Validation data</strong></td>
+<td style="text-align: left;">Performance is monitored during training to guide choices such as hyperparameters or when to stop training.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Test data</strong></td>
+<td style="text-align: left;">The final selected model is evaluated on data that have not been used to fit parameters or make model-selection decisions.</td>
+</tr>
+</tbody>
+</table>
+<p>The data are split before normalization statistics are fitted. Statistics computed from the training subset are then used to transform all three subsets. This prevents information from the validation or test data from leaking into training. A suitable split also reflects the intended application: closely related snapshots from the same simulation may need to remain together rather than being distributed randomly across subsets.</p>
+</section>
+<section id="model-selection-and-training" class="level3">
+<h3 class="anchored" data-anchor-id="model-selection-and-training">3. Model selection and training</h3>
+<p>Model selection identifies a suitable <strong>model class</strong>, or <em>Ansatz function</em>, that can represent the relationship relevant to the task. Its parameters are then fitted to the training data by optimizing the loss function.</p>
+<p>Model selection and training also involve choosing and tuning <strong>hyperparameters</strong>. These are settings that control the model structure or training procedure, rather than parameters fitted by the training algorithm. For example, polynomial coefficients are fitted parameters, whereas the polynomial degree is a hyperparameter. Other examples include the learning rate and the number of layers in a neural network.</p>
+<p>Candidate settings are compared using the validation data. The test data remain reserved for the final evaluation.</p>
+</section>
+<section id="performance-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="performance-evaluation">4. Performance evaluation</h3>
+<p>The selected model is evaluated on unseen test data using the performance measures and acceptance criteria defined in step 1. Comparison with the baseline solution shows whether the model offers an improvement.</p>
+<p>Inspection of the <strong>prediction errors</strong> complements aggregate scores. Where does the model perform well, and where does it struggle? For a fluid-mechanical model, errors plotted against Reynolds number or flow regime may reveal weaknesses that are hidden by a single average error.</p>
+<p>These steps are <strong>iterative</strong>. Poor performance may motivate changes to the data collection, feature design, model class, or even the problem definition. For example, large errors in a sparsely sampled parameter range may motivate additional simulations in step 2. Validation data support this development loop. If test results are used to guide further changes, that test set has become part of model development; a fresh, untouched test set is needed for an independent final evaluation.</p>
+</section>
+<section id="deployment" class="level3">
+<h3 class="anchored" data-anchor-id="deployment">5. Deployment</h3>
+<p>Once the model meets the acceptance criteria, it can be integrated into the <strong>target application</strong>, such as a post-processing tool or a CFD solver. Deployment includes checking its behavior in that application and monitoring whether new inputs remain within the conditions for which its performance has been established. New data or changing requirements may trigger another iteration of the workflow.</p>
+</section>
+</section>
+<section id="common-model-categories" class="level2">
+<h2 class="anchored" data-anchor-id="common-model-categories">Common model categories</h2>
+<p>Models can be categorized according to different properties. Two useful distinctions concern how their representation is specified and how their predictions are expressed. These distinctions are independent: a parametric model can be deterministic or probabilistic, and the same is true of a non-parametric model.</p>
+<section id="parametric-and-non-parametric-models" class="level3">
+<h3 class="anchored" data-anchor-id="parametric-and-non-parametric-models">Parametric and non-parametric models</h3>
+<p>A <strong>parametric model</strong> has <strong>fixed model complexity</strong> for a chosen model structure: its representation is described by a fixed, finite number of parameters. This number does not increase with the number of training samples. Training determines the parameter values.</p>
+<p>Examples include:</p>
+<ul>
+<li><strong>Linear regression:</strong> a linear relationship is represented by a fixed set of coefficients, such as a slope and an intercept for a single input variable.</li>
+<li><strong>Polynomial regression with a fixed degree:</strong> a polynomial of degree <span class="math inline">\(d\)</span> in one variable has <span class="math inline">\(d+1\)</span> coefficients, regardless of how many samples are available.</li>
+<li><strong>A neural network with a fixed architecture:</strong> the number of weights and biases is determined by its layers and their sizes. Even a very large network is parametric when its architecture is fixed.</li>
+</ul>
+<p>A <strong>non-parametric model</strong> is not restricted to a representation with a fixed, finite number of parameters independent of the dataset size. Its representation or effective complexity can grow as more training data become available.</p>
+<p>Examples include:</p>
+<ul>
+<li><strong><span class="math inline">\(k\)</span>-nearest-neighbor regression:</strong> predictions are obtained from nearby stored training samples. The stored representation grows with the dataset rather than being compressed into a fixed set of fitted coefficients.</li>
+<li><strong>Decision trees whose size is allowed to grow with the data:</strong> additional splits and leaves can represent increasingly detailed relationships. A tree constrained in advance to a fixed maximum size has limited capacity, so the growth condition matters for this distinction.</li>
+<li><strong>Gaussian-process regression:</strong> a distribution over functions is updated using the training observations. In its standard exact formulation, prediction depends on a representation whose size grows with the number of observations.</li>
+</ul>
+<p><em>Non-parametric</em> does not mean <em>without parameters</em> or <em>without assumptions</em>. A decision tree has split thresholds and leaf values, and a Gaussian process has a covariance function with hyperparameters. The distinction concerns whether the model representation is fixed in size independently of the amount of data.</p>
+</section>
+<section id="deterministic-and-probabilistic-models" class="level3">
+<h3 class="anchored" data-anchor-id="deterministic-and-probabilistic-models">Deterministic and probabilistic models</h3>
+<p>Here, the distinction concerns the <strong>prediction represented by the model</strong>, rather than whether its training algorithm uses randomness.</p>
+<p>A <strong>deterministic predictive model</strong> assigns a single output to a given input once the fitted model is fixed. In regression, this is a point prediction, written as <span class="math inline">\(\hat{y}=y_\theta(\mathbf{x})\)</span>, where <span class="math inline">\(y_\theta\)</span> denotes the fitted model. The model does not itself provide a probability distribution describing possible target values.</p>
+<p>Examples include:</p>
+<ul>
+<li><strong>A fitted polynomial used for point prediction:</strong> each Reynolds number is mapped to one predicted drag coefficient.</li>
+<li><strong>A standard feed-forward neural network used for point regression:</strong> fixed weights and biases map each input to a single output during inference.</li>
+<li><strong><span class="math inline">\(k\)</span>-nearest-neighbor regression using the mean target value of the neighbors:</strong> a fixed dataset and a fixed rule for resolving ties give one prediction per input.</li>
+</ul>
+<p>A <strong>probabilistic predictive model</strong> represents possible outcomes through a probability distribution, such as <span class="math inline">\(p(y\mid\mathbf{x},\mathcal{D})\)</span>, where <span class="math inline">\(\mathcal{D}\)</span> denotes the training data. For regression, this can describe a range of plausible target values; for classification, it assigns probabilities to the possible classes.</p>
+<p>Examples include:</p>
+<ul>
+<li><strong>Logistic regression:</strong> the model assigns probabilities to two classes, for example the probability that a flow belongs to a specified regime.</li>
+<li><strong>Bayesian linear regression:</strong> a probability distribution over regression coefficients is updated from the data and used to obtain a predictive distribution.</li>
+<li><strong>Gaussian-process regression:</strong> predictions include a predictive mean and variance, describing uncertainty under the model’s assumptions.</li>
+</ul>
+<p>A probabilistic model can still provide a single reported prediction, such as its predictive mean or its most probable class. Conversely, random initialization or randomized training does not by itself make a model’s predictions probabilistic. A neural network trained with random initialization may still return only a deterministic point prediction after training. Probability estimates also require evaluation: a probabilistic formulation alone does not guarantee reliable uncertainty estimates. The distinction between point predictions and predictive distributions is discussed further in <a href="https://gaussianprocess.org/gpml/chapters/RW.pdf">Rasmussen and Williams, <em>Gaussian Processes for Machine Learning</em></a>.</p>
+</section>
+</section>
+<section id="design-of-experiments" class="level2">
+<h2 class="anchored" data-anchor-id="design-of-experiments">Design of experiments</h2>
+<p><strong>Design of experiments (DoE)</strong> is the systematic planning and selection of “experiments” to efficiently explore how input variables influence output variables. Here, an experiment can be a physical measurement or a numerical simulation. Each experiment corresponds to a combination of input parameters and provides observations of the resulting outputs.</p>
+<p>For example, the inputs might be the Reynolds number and the angle of attack of an airfoil, while the output is its lift coefficient. The sampling design determines which combinations are measured or simulated.</p>
+<section id="space-filling-and-unbiased-designs" class="level3">
+<h3 class="anchored" data-anchor-id="space-filling-and-unbiased-designs">Space-filling and unbiased designs</h3>
+<p>Two useful principles for exploring a parameter space are:</p>
+<ul>
+<li><strong>Space-filling:</strong> samples cover the parameter domain broadly, with few large gaps or unnecessary clusters. Coverage matters because an unexplored region may contain behavior that the model cannot infer from other regions.</li>
+<li><strong>Unbiased sampling:</strong> in the uniform-sampling sense used here, no part of the chosen parameter domain is preferentially sampled. Uniform sampling gives equally sized regions of the parameter space the same probability of being sampled.</li>
+</ul>
+<p>This meaning of <em>unbiased</em> concerns the sampling distribution, rather than the statistical bias of a fitted model or estimator. It also depends on the chosen coordinates: uniform sampling of Reynolds number differs from uniform sampling of its logarithm. Other applications may deliberately use a non-uniform distribution.</p>
+<p>The two-dimensional sampling sketches use two normalized parameters, <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, each ranging from zero to one. The regular-grid and random designs each contain <strong>16 samples</strong>. The LHS construction uses <strong>four samples</strong> to make the pairing visible, while the Sobol construction shows growing sets of <strong>4, 8, and 16 samples</strong>. These sampling-layout sketches illustrate input selection only. The separate one-dimensional aliasing example below also shows a synthetic output function.</p>
+</section>
+<section id="uniform-segmentation-a-regular-grid" class="level3">
+<h3 class="anchored" data-anchor-id="uniform-segmentation-a-regular-grid">Uniform segmentation: a regular grid</h3>
+<p>A regular grid divides each parameter range into equally sized segments. An experiment is placed at every combination of segment centers, producing a Cartesian grid.</p>
+<p><img src="media/doe-grid-light.png" class="light-content img-fluid" style="width:60.0%" alt="Sixteen experiments at the centers of a four-by-four grid in the normalized X1–X2 domain."> <img src="media/doe-grid-dark.png" class="dark-content img-fluid" style="width:60.0%" alt="Sixteen experiments at the centers of a four-by-four grid in the normalized X1–X2 domain."></p>
+<ul>
+<li><strong>Space-filling:</strong> the grid provides regular coverage at its chosen resolution.</li>
+<li><strong>Sampling bias:</strong> once the grid is fixed, its locations are predetermined. Off-grid regions cannot be selected, so this is not an unbiased random design in the sense defined above. This does not by itself imply that every estimate obtained from a grid is statistically biased.</li>
+<li><strong>Efficiency:</strong> with <span class="math inline">\(m\)</span> locations along each of <span class="math inline">\(d\)</span> parameters, the sample count is <span class="math inline">\(N=m^d\)</span>. The exponential growth makes grids expensive in high dimensions: ten locations per parameter require 100 experiments in two dimensions, but one million in six dimensions.</li>
+</ul>
+<section id="example-regular-coverage-can-conceal-a-varying-response" class="level4">
+<h4 class="anchored" data-anchor-id="example-regular-coverage-can-conceal-a-varying-response">Example: regular coverage can conceal a varying response</h4>
+<p>A regular grid can cover the input range evenly while missing important variation in the output. The deliberately simple example below uses <span class="math inline">\(y=\sin(x)\)</span> over <span class="math inline">\(0\leq x\leq20.2\pi\)</span>. Eleven equally spaced samples occur at <span class="math inline">\(x_k=2.02\pi k\)</span>, for <span class="math inline">\(k=0,\ldots,10\)</span>. The spacing is slightly larger than the period <span class="math inline">\(2\pi\)</span>, so each observation occurs a little later in the sine cycle. The observed values are <span class="math inline">\(y_k=\sin(0.02\pi k)\)</span>: they suggest a slowly increasing, approximately linear trend instead of revealing the repeated oscillations. The samples therefore conceal the oscillatory dependence, even though they span the entire input range. This alignment between the sampling interval and the response is an example of <strong>aliasing</strong>.</p>
+<p><img src="media/doe-aliasing-light.png" class="light-content img-fluid" style="width:100.0%" alt="Comparison of eleven regular-grid observations suggesting a slowly increasing trend and eleven randomized Latin hypercube observations of the same oscillatory sine function."> <img src="media/doe-aliasing-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="Comparison of eleven regular-grid observations suggesting a slowly increasing trend and eleven randomized Latin hypercube observations of the same oscillatory sine function."></p>
+<p>Both designs use the <strong>same number of observations</strong>. In this realization, randomized LHS breaks the systematic alignment and reveals variation in the response. The continuous reference curve represents the known synthetic function; in a real experiment, only the sampled outputs would be available.</p>
+<p>Randomization reduces the risk of systematic alignment, but it does not guarantee that a small dataset resolves all important behavior. The LHS observations here do not by themselves establish the number or shape of the oscillations. <strong>Space-filling describes input coverage; adequate resolution of the response also depends on how it varies.</strong></p>
+</section>
+</section>
+<section id="independent-uniform-random-sampling" class="level3">
+<h3 class="anchored" data-anchor-id="independent-uniform-random-sampling">Independent uniform random sampling</h3>
+<p>Independent random sampling draws each experiment from a uniform distribution over the parameter domain.</p>
+<p><img src="media/doe-random-light.png" class="light-content img-fluid" style="width:60.0%" alt="Sixteen independent uniform random experiments, illustrating clusters and gaps in the normalized X1–X2 domain."> <img src="media/doe-random-dark.png" class="dark-content img-fluid" style="width:60.0%" alt="Sixteen independent uniform random experiments, illustrating clusters and gaps in the normalized X1–X2 domain."></p>
+<ul>
+<li><strong>Unbiased:</strong> equal-volume regions have equal selection probability.</li>
+<li><strong>Space-filling:</strong> a finite random sample can contain clusters and large gaps. Uniform probability does not guarantee uniform coverage in a particular realization.</li>
+<li><strong>Efficiency:</strong> any sample count is possible, but broad coverage may require many experiments. Closely spaced samples can provide similar information while other regions remain unexplored. Generating random inputs is cheap; the potential inefficiency concerns the measurements or simulations needed for coverage.</li>
+</ul>
+</section>
+<section id="latin-hypercube-sampling" class="level3">
+<h3 class="anchored" data-anchor-id="latin-hypercube-sampling">Latin hypercube sampling</h3>
+<p><strong>Latin hypercube sampling (LHS)</strong> combines random sampling with stratification along each input coordinate. For <span class="math inline">\(N\)</span> experiments in two dimensions, the construction consists of three steps:</p>
+<ol type="1">
+<li>Each of the <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> ranges is divided into <span class="math inline">\(N\)</span> equal segments.</li>
+<li>One value is drawn uniformly at random from each segment of each parameter.</li>
+<li>The sampled values are paired using a random permutation, giving <span class="math inline">\(N\)</span> combinations of <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>.</li>
+</ol>
+<p>Thus, each horizontal and each vertical strip contains exactly one experiment. There is no requirement to sample every cell of the <span class="math inline">\(N\times N\)</span> grid.</p>
+<p>The following sketch uses <strong>four samples</strong> to keep the three-stage construction and the pairing of values easy to follow. The regular-grid and random-sampling sketches use 16 samples; LHS can likewise be constructed with 16 samples or another chosen sample count.</p>
+<p><img src="media/doe-lhs-light.png" class="light-content img-fluid" style="width:100.0%" alt="Three-stage Latin hypercube construction: segment each coordinate, sample once per segment, then shuffle and pair the values to produce four experiments."> <img src="media/doe-lhs-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="Three-stage Latin hypercube construction: segment each coordinate, sample once per segment, then shuffle and pair the values to produce four experiments."></p>
+<ul>
+<li><strong>Unbiased:</strong> across repeated generations of the randomized design, each individual experiment can fall anywhere in the domain without favoring a particular region. Equally sized regions have the same probability of containing that experiment. However, the experiments constrain one another: once a sample occupies a particular segment of <span class="math inline">\(X_1\)</span>, no other sample can use that segment; the same applies to <span class="math inline">\(X_2\)</span>. For example, with four samples, each parameter range is divided into four segments. If one sample uses the lowest <span class="math inline">\(X_1\)</span> segment, the other three must use the remaining segments. The locations are therefore random but coordinated to improve coverage, rather than independent.</li>
+<li><strong>Space-filling:</strong> coverage is guaranteed in each one-dimensional projection. This often improves coverage compared with independent random sampling, but does not guarantee that all multi-dimensional gaps are small.</li>
+<li><strong>Efficiency:</strong> only <span class="math inline">\(N\)</span> experiments are required, regardless of the number of parameters. More dimensions do not force a Cartesian product of samples, although adequate coverage can still require a larger budget.</li>
+</ul>
+</section>
+<section id="an-alternative-sobol-sequences" class="level3">
+<h3 class="anchored" data-anchor-id="an-alternative-sobol-sequences">An alternative: Sobol sequences</h3>
+<p>A <strong>Sobol sequence</strong> is a low-discrepancy sequence: its points are constructed so that the fraction falling in suitable subregions closely matches those regions’ volume fractions. This reduces gaps and clustering compared with independent random sampling.</p>
+<p>The construction can be summarized in three steps:</p>
+<ol type="1">
+<li><strong>Represent the sample index in binary.</strong> Each experiment is assigned an index whose binary digits determine its coordinates. The implementation illustrated below uses a Gray-code ordering, in which successive encoded indices differ by one bit.</li>
+<li><strong>Construct coordinated coordinates.</strong> Each parameter uses a prescribed set of binary fractions, called <em>direction numbers</em>. These are combined using binary operations to distribute the points across the domain.</li>
+<li><strong>Extend the sequence.</strong> Additional points follow the same rule. Sample counts of <span class="math inline">\(2^m\)</span>, such as 16, 32, or 64, preserve the sequence’s balance properties.</li>
+</ol>
+<p>The intuition is that <strong>Sobol sequences coordinate coverage across several resolutions</strong>, using subdivisions into halves, quarters, eighths, and so on. They do not explicitly search for the largest remaining gap. Mathematical details are available in the <a href="https://web.maths.unsw.edu.au/~fkuo/sobol/joe-kuo-notes.pdf">Joe–Kuo notes on generating Sobol sequences</a>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Additional reading: what is a binary fraction?">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Additional reading: what is a binary fraction?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A <strong>binary fraction</strong> uses powers of two for its digit positions, just as a decimal fraction uses powers of ten. After the decimal point, the positions represent <span class="math inline">\(1/10\)</span>, <span class="math inline">\(1/100\)</span>, and so on. After the binary point, they represent</p>
+<p><span class="math display">\[
+\frac{1}{2},\quad \frac{1}{4},\quad \frac{1}{8},\quad \frac{1}{16},\ldots
+\]</span></p>
+<p>Each binary digit is either zero or one. For example,</p>
+<p><span class="math display">\[
+(0.10)_2=1\cdot\frac{1}{2}+0\cdot\frac{1}{4}=0.5,
+\]</span></p>
+<p><span class="math display">\[
+(0.01)_2=0\cdot\frac{1}{2}+1\cdot\frac{1}{4}=0.25,
+\]</span></p>
+<p><span class="math display">\[
+(0.11)_2=1\cdot\frac{1}{2}+1\cdot\frac{1}{4}=0.75.
+\]</span></p>
+<p>The subscript <span class="math inline">\(2\)</span> indicates binary notation. Thus, <span class="math inline">\((0.10)_2\)</span> means <strong>one half</strong>, whereas decimal <span class="math inline">\(0.10\)</span> means one tenth. More generally, a binary fraction with digits <span class="math inline">\(b_1,b_2,\ldots\)</span> has the value</p>
+<p><span class="math display">\[
+(0.b_1b_2b_3\ldots)_2=\sum_{k=1}^{\infty}b_k\,2^{-k}.
+\]</span></p>
+</div>
+</div>
+</div>
+<p>The index encoding for the first four points is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Sample index <span class="math inline">\(n\)</span></th>
+<th style="text-align: center;">Binary representation</th>
+<th style="text-align: center;">Gray code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">00</td>
+<td style="text-align: center;">00</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">01</td>
+<td style="text-align: center;">01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">11</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">11</td>
+<td style="text-align: center;">10</td>
+</tr>
+</tbody>
+</table>
+<p>For the first sample, <span class="math inline">\(n=0\)</span>, both the binary representation and the Gray code are <span class="math inline">\(00\)</span>. No direction numbers are selected, so both coordinates are zero: <span class="math inline">\((X_1,X_2)=(0,0)\)</span>. This is the point at the lower-left corner of each grid in the sketch. It belongs to the <strong>unscrambled</strong> sequence shown here; scrambling generally moves the first point away from the origin.</p>
+<p>For example, the index <span class="math inline">\(n=2\)</span> has Gray code <span class="math inline">\(11\)</span>, so both of the first two direction numbers contribute to each coordinate. For the two-dimensional sequence shown here, this gives</p>
+<p><span class="math display">\[
+X_1=(0.10)_2\oplus(0.01)_2=(0.11)_2=0.75,
+\]</span></p>
+<p><span class="math display">\[
+X_2=(0.10)_2\oplus(0.11)_2=(0.01)_2=0.25.
+\]</span></p>
+<p>The subscript <span class="math inline">\(2\)</span> denotes a binary fraction, and <span class="math inline">\(\oplus\)</span> denotes bitwise exclusive OR (XOR): equal bits give zero, and different bits give one. Each coordinate uses its own direction numbers. The resulting third point, counting from <span class="math inline">\(n=0\)</span>, is <span class="math inline">\((X_1,X_2)=(0.75,0.25)\)</span>.</p>
+<p>The following sketch shows how the point set grows. Previously sampled points are retained, and the newly added points are highlighted.</p>
+<p><img src="media/doe-sobol-light.png" class="light-content img-fluid" style="width:100.0%" alt="An unscrambled Sobol sequence extended from four to eight to sixteen points. Previously sampled points are retained and newly added points are highlighted."> <img src="media/doe-sobol-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="An unscrambled Sobol sequence extended from four to eight to sixteen points. Previously sampled points are retained and newly added points are highlighted."></p>
+<p>Unlike LHS, which enforces one sample per interval along each coordinate for a chosen sample count, Sobol sequences use a structured construction to balance coverage across multiple dimensions. An existing sequence can be extended; complete sets of <span class="math inline">\(N=2^m\)</span> points preserve its standard balance properties.</p>
+<p>An unscrambled Sobol sequence is deterministic. <strong>Scrambling</strong> randomizes the binary digits used to construct its coordinates while preserving the sequence’s structured coverage. It changes the sample locations, rather than merely their order. Different random seeds produce different point sets with similar space-filling properties. For example, the first point of the unscrambled sequence is <span class="math inline">\((0,0)\)</span>, whereas scrambling generally moves it elsewhere in the domain.</p>
+<p>Randomized scrambling gives each point a uniform distribution over the domain, although the points remain dependent, as in randomized LHS. Repeating a calculation with independently scrambled sequences can help estimate uncertainty in a computed average or integral. Sobol designs can use a sampling budget efficiently, but neither they nor LHS eliminate the difficulty of covering a high-dimensional domain.</p>
+</section>
+<section id="adaptive-sampling" class="level3">
+<h3 class="anchored" data-anchor-id="adaptive-sampling">Adaptive sampling</h3>
+<p><strong>Adaptive sampling</strong> uses the outputs of completed experiments to select later inputs. This can be particularly efficient when experiments are expensive and some regions are more informative than others. It is a powerful approach rather than a universal gold standard: its benefit depends on the task, the quality of the uncertainty model, and the cost of selecting new samples.</p>
+<p>A typical uncertainty-driven workflow is:</p>
+<ol type="1">
+<li>An initial design is generated, for example using randomized LHS or a scrambled Sobol sequence, and the corresponding experiments are performed.</li>
+<li>A surrogate model approximates the input–output relationship and estimates predictive uncertainty across the parameter domain.</li>
+<li>The next experiment is selected where its observation is expected to reduce uncertainty most effectively, for example by reducing uncertainty integrated over the domain.</li>
+<li>The new observation is added to the dataset, the surrogate and its uncertainty estimate are updated, and sample selection is repeated until the budget or an acceptance criterion is reached.</li>
+</ol>
+<p>The aim is to reduce uncertainty <strong>after observing the new output</strong>. Sampling where current uncertainty is already smallest would usually add little information. Adaptive designs deliberately concentrate samples according to their objective, so they generally do not preserve uniform, unbiased sampling of the domain.</p>
+<p><strong>Bayesian optimization</strong> is a related example of adaptive sampling. A probabilistic surrogate and an acquisition function guide the search for a good objective value, balancing exploration of uncertain regions with exploitation of promising regions. For broad parameter-space exploration, uncertainty reduction is more directly associated with <strong>active learning</strong> or <strong>Bayesian experimental design</strong>. The distinction is the selection objective: learning the response throughout the domain versus finding an optimum.</p>
+</section>
+</section>
+<section id="data-normalization" class="level2">
+<h2 class="anchored" data-anchor-id="data-normalization">Data normalization</h2>
+<section id="why-is-data-normalization-important" class="level3">
+<h3 class="anchored" data-anchor-id="why-is-data-normalization-important">Why is data normalization important?</h3>
+<p>Features and targets often have very different numerical scales. <strong>Data normalization</strong> rescales these quantities so that typical values, variations, or both are of <strong>order one</strong>. Depending on the method, this may also involve centering the data. The aim is a useful numerical representation, rather than forcing every individual value to be close to one.</p>
+<p>Normalization can support several aspects of a learning problem:</p>
+<ul>
+<li><strong>Numerical stability:</strong> suitable scaling can reduce the impact of round-off errors and improve the condition number of matrices involved in fitting a model. A lower condition number means that a problem is less sensitive to small perturbations in its inputs. Scaling does not cure every source of ill-conditioning, such as nearly redundant features.</li>
+<li><strong>Less hyperparameter tuning:</strong> comparable feature and target scales can make settings such as the learning rate easier to choose and reuse across problems. Normalization reduces sensitivity to scale; it does not eliminate the need for tuning.</li>
+<li><strong>Comparable contributions of features:</strong> in distance-based methods such as clustering, scaling prevents a feature from dominating solely because its numerical values are larger. The choice of scaling still expresses a choice about what constitutes similarity.</li>
+<li><strong>Comparable numerical experiments:</strong> loss values are easier to compare when the same target normalization, loss definition, and evaluation data are used. A change in target scale changes a squared-error loss quadratically, so a smaller loss alone need not mean a better physical prediction.</li>
+</ul>
+</section>
+<section id="common-normalization-methods" class="level3">
+<h3 class="anchored" data-anchor-id="common-normalization-methods">Common normalization methods</h3>
+<p>The following transformations can be applied separately to each feature and, where appropriate, each target. For transformations based on dataset statistics, these statistics are computed from the <strong>training data only</strong> and then reused unchanged for validation, test, and deployment data. Predictions are transformed back to physical units for application-level evaluation.</p>
+<section id="minmax-normalization" class="level4">
+<h4 class="anchored" data-anchor-id="minmax-normalization">Min–max normalization</h4>
+<p>For a variable <span class="math inline">\(x\)</span>, min–max normalization maps its observed training range to <span class="math inline">\([0,1]\)</span>:</p>
+<p><span class="math display">\[
+\widetilde{x}=\frac{x-x_{\min}}{x_{\max}-x_{\min}}.
+\]</span></p>
+<p>An alternative maps the same range to <span class="math inline">\([-1,1]\)</span>:</p>
+<p><span class="math display">\[
+\widetilde{x}=2\frac{x-x_{\min}}{x_{\max}-x_{\min}}-1.
+\]</span></p>
+<p>The choice depends on the problem and model. Both transformations are <strong>sensitive to outliers</strong>: a single extreme value can compress most observations into a small part of the normalized range. New observations outside the training range can produce normalized values outside the chosen interval.</p>
+</section>
+<section id="zero-mean-and-unit-standard-deviation" class="level4">
+<h4 class="anchored" data-anchor-id="zero-mean-and-unit-standard-deviation">Zero mean and unit standard deviation</h4>
+<p><strong>Standardization</strong> centers a variable using its training mean <span class="math inline">\(\mu_x\)</span> and scales it by its training standard deviation <span class="math inline">\(\sigma_x\)</span>:</p>
+<p><span class="math display">\[
+\widetilde{x}=\frac{x-\mu_x}{\sigma_x}.
+\]</span></p>
+<p>The transformed training variable has zero mean and unit standard deviation. Values are not restricted to a fixed interval, and standardization does not make an arbitrary distribution Gaussian. Unlike min–max scaling, standardization uses statistics of the entire training dataset rather than its two extreme values. With a small fraction of outliers, it can therefore preserve more of the spread of the main data cloud instead of compressing it into a narrow part of a fixed interval. However, sufficiently extreme outliers can still shift the mean and inflate the standard deviation, compressing the remaining observations. Standardization is thus often less affected in practice, but is not outlier-robust in the statistical sense.</p>
+</section>
+<section id="scaling-with-physical-relations" class="level4">
+<h4 class="anchored" data-anchor-id="scaling-with-physical-relations">Scaling with physical relations</h4>
+<p>Physical knowledge can provide characteristic scales for both features and targets. For spatial position <span class="math inline">\(\mathbf{r}\)</span>, characteristic length <span class="math inline">\(L\)</span>, velocity <span class="math inline">\(U\)</span>, density <span class="math inline">\(\rho\)</span>, and time scale <span class="math inline">\(T=L/U\)</span>, examples are</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{r}}=\frac{\mathbf{r}}{L},\qquad
+\widetilde{t}=\frac{t}{T},\qquad
+\widetilde{\mathbf{u}}=\frac{\mathbf{u}}{U},\qquad
+\widetilde{p}=\frac{p-p_{\mathrm{ref}}}{\rho U^2}.
+\]</span></p>
+<p>Such <strong>non-dimensionalization</strong> connects numerical scaling to physical similarity. A force target can likewise be represented by a force coefficient. Characteristic scales are chosen to reflect the relevant flow, so that typical dimensionless quantities are of order one; this is not guaranteed by removing units alone. Physical scaling and statistical normalization can also be combined when useful.</p>
+</section>
+</section>
+<section id="optional-detour-floating-point-representation" class="level3">
+<h3 class="anchored" data-anchor-id="optional-detour-floating-point-representation">Optional detour: floating-point representation</h3>
+<div class="callout callout-style-default callout-note callout-titled" title="Additional reading: IEEE 754, precision, and machine tolerance">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Additional reading: IEEE 754, precision, and machine tolerance
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Computers represent real numbers with finite precision. The IEEE 754 binary floating-point formats encode a sign bit <span class="math inline">\(s\)</span>, an exponent field <span class="math inline">\(e\)</span>, and fraction bits <span class="math inline">\(b_1,\ldots,b_p\)</span>. A normal finite number has the form</p>
+<p><span class="math display">\[
+x=(-1)^s\left(1+\sum_{k=1}^{p}b_k2^{-k}\right)2^{e-B},
+\]</span></p>
+<p>where <span class="math inline">\(B\)</span> is the exponent bias. The leading one is implicit. The exponent provides the range of magnitudes, while the significand provides the significant digits. Special encodings represent zero, subnormal numbers near zero, infinities, and NaN (not a number).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 44%">
+<col style="width: 44%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">Single precision (<code>float32</code>, binary32)</th>
+<th style="text-align: left;">Double precision (<code>float64</code>, binary64)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Total bits</td>
+<td style="text-align: left;">32</td>
+<td style="text-align: left;">64</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sign / exponent / stored fraction bits</td>
+<td style="text-align: left;">1 / 8 / 23</td>
+<td style="text-align: left;">1 / 11 / 52</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Exponent bias <span class="math inline">\(B\)</span></td>
+<td style="text-align: left;">127</td>
+<td style="text-align: left;">1023</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Significand precision, including the leading bit</td>
+<td style="text-align: left;">24 binary digits</td>
+<td style="text-align: left;">53 binary digits</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Approximate decimal precision</td>
+<td style="text-align: left;">7 significant digits</td>
+<td style="text-align: left;">16 significant digits</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Machine epsilon <span class="math inline">\(\epsilon\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(2^{-23}\approx1.19\times10^{-7}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(2^{-52}\approx2.22\times10^{-16}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Here, <strong>machine tolerance</strong> refers to <em>machine epsilon</em>: the gap between <span class="math inline">\(1\)</span> and the next larger representable number, <span class="math inline">\(1+\epsilon\)</span>. It describes the resolution near one, rather than a universal error bound or a guarantee of an exact result. Under rounding to nearest, sufficiently small increments are lost: in single precision, for example, <span class="math inline">\(1+10^{-8}\)</span> rounds to <span class="math inline">\(1\)</span>. The spacing between representable values changes with magnitude.</p>
+<p>Most decimal fractions also require rounding when represented in binary. Arithmetic operations can therefore introduce <strong>round-off errors</strong>, and adding a small quantity to a much larger one can lose the small contribution.</p>
+<p>The data type is chosen consciously for the problem. CFD calculations may need double precision to resolve small residuals, accumulated updates, or differences between large terms. Many ML and post-processing tasks can use single precision with lower storage and potentially faster arithmetic, depending on the hardware. Neither application category alone determines the necessary precision: the relevant scales, algorithm, and accuracy requirements matter. NumPy’s <code>finfo</code> reports these format properties.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="example-1-fitting-a-fourth-order-polynomial" class="level3">
+<h3 class="anchored" data-anchor-id="example-1-fitting-a-fourth-order-polynomial">Example 1: fitting a fourth-order polynomial</h3>
+<p>A polynomial regression problem illustrates how scaling and finite precision interact. The input lies in <span class="math inline">\(-10^{-2}\leq x\leq10^{-2}\)</span>, the target lies in <span class="math inline">\(1\leq y\leq10\)</span>, and the model is</p>
+<p><span class="math display">\[
+y_{\theta}(x)=ax^4+bx^3+cx^2+dx+e,\qquad \theta=(a,b,c,d,e).
+\]</span></p>
+<p>For the sake of this argument, the coefficients are fitted by <strong>gradient descent in single precision</strong>, minimizing the mean squared error below. This is one possible fitting method: because the polynomial is linear in its coefficients, they can also be determined by solving a linear least-squares problem using matrix methods, such as QR factorization or singular value decomposition. An inverse-based expression is possible when the relevant matrix is nonsingular, although explicitly forming the inverse is generally unnecessary. The training objective is</p>
+<p><span class="math display">\[
+\mathcal{L}(\theta)=\frac{1}{N}\sum_{i=1}^{N}\bigl(y_{\theta}(x_i)-y_i\bigr)^2.
+\]</span></p>
+<p>Suppose the initial coefficients are of order one, as can occur with a random initialization. <strong>What problems can arise when the polynomial features have very different scales?</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Polynomial feature</th>
+<th style="text-align: center;">Maximum magnitude over the input range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(x\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10^{-2}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(x^2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10^{-4}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(x^3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10^{-6}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(x^4\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10^{-8}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The fourth-order contribution <span class="math inline">\(ax^4\)</span> is then of order <span class="math inline">\(10^{-8}\)</span> or smaller, while the constant term <span class="math inline">\(e\)</span> is of order one. Near one, the spacing of single-precision numbers is approximately <span class="math inline">\(1.19\times10^{-7}\)</span>. For example, with <span class="math inline">\(a=e=1\)</span> and <span class="math inline">\(x=10^{-2}\)</span>,</p>
+<p><span class="math display">\[
+e+ax^4=1+10^{-8}
+\]</span></p>
+<p>rounds to <span class="math inline">\(1\)</span> in single precision. The fourth-order contribution is lost when added to the constant term, even though <span class="math inline">\(10^{-8}\)</span> itself is representable. This is a <strong>round-off effect caused by combining different scales</strong>, rather than an inability to store a small number.</p>
+<p>The gradients also inherit the feature scales. With residual <span class="math inline">\(r_i=y_{\theta}(x_i)-y_i\)</span>,</p>
+<p><span class="math display">\[
+\frac{\partial\mathcal{L}}{\partial a}=\frac{2}{N}\sum_i r_i x_i^4,
+\qquad
+\frac{\partial\mathcal{L}}{\partial e}=\frac{2}{N}\sum_i r_i.
+\]</span></p>
+<p>Updates to the fourth-order coefficient can therefore be much smaller than updates to the constant term. A single learning rate may produce very uneven progress, and sufficiently small coefficient updates can themselves be rounded away. Poor scaling also affects the conditioning of the polynomial regression matrix. These optimization and conditioning issues exist even before finite-precision effects are considered; loss of a small contribution in the forward calculation does not imply that its analytically computed gradient is necessarily zero.</p>
+<p>A centered min–max transformation gives</p>
+<p><span class="math display">\[
+\widetilde{x}=\frac{x}{0.01},\qquad
+\widetilde{y}=\frac{y-5.5}{4.5}.
+\]</span></p>
+<p>Both variables now lie in <span class="math inline">\([-1,1]\)</span> over the stated ranges. Constructing the polynomial features <strong>after normalizing the input</strong> gives the model</p>
+<p><span class="math display">\[
+\widetilde{y}_{\widetilde{\theta}}(\widetilde{x})=\widetilde{a}\widetilde{x}^4+\widetilde{b}\widetilde{x}^3+\widetilde{c}\widetilde{x}^2+\widetilde{d}\widetilde{x}+\widetilde{e}.
+\]</span></p>
+<p>Here</p>
+<p><span class="math display">\[
+\widetilde{\theta}=(\widetilde{a},\widetilde{b},\widetilde{c},\widetilde{d},\widetilde{e}).
+\]</span></p>
+<p>All feature columns can now reach magnitudes of order one, reducing their scale disparity and making a common learning rate more practical. Powers still become small near zero, and polynomial features can remain correlated. Normalization improves the numerical representation; it does not eliminate round-off errors or guarantee good conditioning.</p>
+</section>
+<section id="example-2-comparable-features-in-clustering" class="level3">
+<h3 class="anchored" data-anchor-id="example-2-comparable-features-in-clustering">Example 2: comparable features in clustering</h3>
+<p>We consider lift measurements of an airfoil section at varying Reynolds numbers. The aim is to group the measurements according to characteristic flow states, using similarities in the measured lift response as an indication of potentially similar flow behavior. Such groups could help identify candidate flow states for further physical investigation.</p>
+<p>Each of the following three measurements contains a Reynolds number and a section lift coefficient:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Measurement <span class="math inline">\(i\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\mathrm{Re}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(c_L\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;"><span class="math inline">\(10\times10^6\)</span></td>
+<td style="text-align: center;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;"><span class="math inline">\(12\times10^6\)</span></td>
+<td style="text-align: center;">0.20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;"><span class="math inline">\(15\times10^6\)</span></td>
+<td style="text-align: center;">0.10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How might these measurements be grouped into two clusters?</strong> The similar, smaller lift coefficients suggest grouping measurements 2 and 3, separately from measurement 1. This is a plausible interpretation of the observed response, rather than proof that the two measurements share the same flow regime.</p>
+<p>An algorithm requires a quantitative definition of similarity. For feature vectors <span class="math inline">\(\mathbf{z}_i=(\mathrm{Re}_i,c_{L,i})\)</span>, the Euclidean distance is</p>
+<p><span class="math display">\[
+d_{ij}=\lVert\mathbf{z}_i-\mathbf{z}_j\rVert_2
+=\sqrt{(\mathrm{Re}_i-\mathrm{Re}_j)^2+(c_{L,i}-c_{L,j})^2}.
+\]</span></p>
+<p>The raw distances are approximately</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Pair</th>
+<th style="text-align: center;">Euclidean distance before normalization</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1–2</td>
+<td style="text-align: center;"><span class="math inline">\(2\times10^6\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1–3</td>
+<td style="text-align: center;"><span class="math inline">\(5\times10^6\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2–3</td>
+<td style="text-align: center;"><span class="math inline">\(3\times10^6\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Thus, measurements <strong>1 and 2</strong> form the closest pair, contrary to the intuitive grouping of measurements <strong>2 and 3</strong> based on their similar lift coefficients. The Reynolds-number differences dominate the distance almost entirely, despite both features already being dimensionless.</p>
+<p>With min–max scaling of each column to <span class="math inline">\([0,1]\)</span>, the values become</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Measurement <span class="math inline">\(i\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\widetilde{\mathrm{Re}}\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\widetilde{c}_L\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0.4</td>
+<td style="text-align: center;">0.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table>
+<p>For this small illustrative dataset, all three observations define the scaling range; a predictive workflow would instead obtain scaling statistics from its training subset. The resulting distances are</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Pair</th>
+<th style="text-align: center;">Euclidean distance after normalization</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1–2</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{0.4^2+0.75^2}=0.85\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1–3</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{2}\approx1.414\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2–3</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{0.6^2+0.25^2}=0.65\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Measurements <strong>2 and 3</strong> now form the closest pair, consistent with the initial interpretation based on their lift coefficients. Normalization gives the observed ranges of both features comparable influence. It does not establish a uniquely correct clustering: the meaningful weighting of Reynolds number and lift coefficient still depends on the physical question.</p>
+</section>
+</section>
+<section id="feature-design-and-selection" class="level2">
+<h2 class="anchored" data-anchor-id="feature-design-and-selection">Feature design and selection</h2>
+<p>Some features are naturally given by a problem, such as a Reynolds number, a wall-normal coordinate, or a measured velocity. <strong>Feature design</strong>, also called <em>feature engineering</em>, derives new variables from these quantities. A suitable representation can make a relationship easier to learn, allowing a more accurate model or a simpler model that requires less data and computation. The benefit depends on the task and is assessed through validation.</p>
+<section id="goals-of-feature-design" class="level3">
+<h3 class="anchored" data-anchor-id="goals-of-feature-design">Goals of feature design</h3>
+<section id="embedding-mathematical-constraints" class="level4">
+<h4 class="anchored" data-anchor-id="embedding-mathematical-constraints">Embedding mathematical constraints</h4>
+<p>A transformation can enforce a mathematical property of a feature. For example, the <strong>sigmoid function</strong> maps any finite real input <span class="math inline">\(z\)</span> into the interval <span class="math inline">\((0,1)\)</span>:</p>
+<p><span class="math display">\[
+\sigma(z)=\frac{1}{1+\exp(-z)}.
+\]</span></p>
+<p>For a positive maximum scale <span class="math inline">\(M\)</span>, the feature <span class="math inline">\(M\sigma(z)\)</span> lies between zero and <span class="math inline">\(M\)</span>. This provides a bounded input representation. The bounds are approached asymptotically; finite-precision calculations may round to an endpoint.</p>
+<p><img src="media/doe-sigmoid-light.png" class="light-content img-fluid" style="width:100.0%" alt="The sigmoid function maps real inputs to values between zero and one, approaching both bounds asymptotically."> <img src="media/doe-sigmoid-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="The sigmoid function maps real inputs to values between zero and one, approaching both bounds asymptotically."></p>
+<p>Bounding an input feature does not automatically bound the model output. If the required constraint concerns an output, it can instead be imposed through an output transformation, for example <span class="math inline">\(y_\theta(\mathbf{x})=M\sigma(g_\theta(\mathbf{x}))\)</span>, where <span class="math inline">\(g_\theta\)</span> is an otherwise unconstrained model. Saturation near the sigmoid’s bounds also reduces sensitivity to input changes, so the transformation is chosen with the relevant range in mind.</p>
+</section>
+<section id="embedding-known-physical-relationships" class="level4">
+<h4 class="anchored" data-anchor-id="embedding-known-physical-relationships">Embedding known physical relationships</h4>
+<p>Physical knowledge can provide a baseline relationship, leaving the model to learn a correction. For a turbulent boundary layer, the logarithmic law of the wall provides a familiar starting point within an appropriate logarithmic region:</p>
+<p><span class="math display">\[
+u^+=\frac{1}{\kappa_0}\ln y^+ + B_0,
+\qquad u^+=\frac{\overline{u}}{u_\tau},
+\qquad y^+=\frac{y u_\tau}{\nu}.
+\]</span></p>
+<p>Here <span class="math inline">\(u_\tau\)</span> is the friction velocity, <span class="math inline">\(\nu\)</span> is the kinematic viscosity, and <span class="math inline">\(\kappa_0\)</span> and <span class="math inline">\(B_0\)</span> are reference constants. A candidate model for pressure-gradient effects could make the effective coefficients functions of a dimensionless pressure-gradient descriptor <span class="math inline">\(\beta\)</span>:</p>
+<p><span class="math display">\[
+u^+_\theta(y^+,\beta)=\frac{1}{\kappa_\theta(\beta)}\ln y^+ + B_\theta(\beta).
+\]</span></p>
+<p>For example, in an attached boundary layer, a commonly used descriptor is <span class="math inline">\(\beta=(\delta^*/\tau_w)\,\mathrm{d}p_e/\mathrm{d}x\)</span>, with displacement thickness <span class="math inline">\(\delta^*\)</span>, wall shear stress <span class="math inline">\(\tau_w\)</span>, and edge pressure <span class="math inline">\(p_e\)</span>. A baseline-plus-correction form makes the learning task explicit:</p>
+<p><span class="math display">\[
+u^+_\theta=\frac{1}{\kappa_0}\ln y^+ + B_0
++\Delta A_\theta(\beta)\ln y^+ +\Delta B_\theta(\beta).
+\]</span></p>
+<p>The model learns deviations from the reference profile rather than a velocity profile from scratch. The quantities <span class="math inline">\(\ln y^+\)</span> and <span class="math inline">\(\beta\)</span> are physically motivated features. This is a modeling Ansatz, not a general law stating that pressure-gradient effects can always be absorbed into two coefficients. Its validity depends on the flow regime and region considered; near separation, wall-based scales and this pressure-gradient descriptor can become unsuitable. Other effects, including flow history, may require additional information.</p>
+</section>
+<section id="improving-the-distribution-of-samples-in-feature-space" class="level4">
+<h4 class="anchored" data-anchor-id="improving-the-distribution-of-samples-in-feature-space">Improving the distribution of samples in feature space</h4>
+<p>A feature can span several orders of magnitude. For example,</p>
+<p><span class="math display">\[
+\mathrm{Re}=1,\ 10,\ 100,\ 1000
+\quad\longrightarrow\quad
+\log_{10}(\mathrm{Re})=0,\ 1,\ 2,\ 3.
+\]</span></p>
+<p>The samples are equally spaced in the logarithmic coordinate. This transformation changes the representation of the existing samples; it does not collect new data or make an arbitrary sample distribution uniform. It is useful when relative changes or multiplicative relationships matter. A logarithm requires positive values, and its argument is dimensionless.</p>
+</section>
+<section id="simplifying-variation-and-nonlinear-relationships" class="level4">
+<h4 class="anchored" data-anchor-id="simplifying-variation-and-nonlinear-relationships">Simplifying variation and nonlinear relationships</h4>
+<p>Other transformations can reduce unnecessary variation or make relationships easier to represent:</p>
+<ul>
+<li><strong>Polynomial features:</strong> replacing a scalar input <span class="math inline">\(x\)</span> by features such as <span class="math inline">\((x,x^2,x^3)\)</span> allows a relationship nonlinear in <span class="math inline">\(x\)</span> to be represented by a model linear in its coefficients. Feature scaling remains important, as the preceding example shows.</li>
+<li><strong>Ratios and dimensionless groups:</strong> quantities such as <span class="math inline">\(u/U\)</span> or <span class="math inline">\(\mathrm{Re}=UL/\nu\)</span> can combine naturally given variables into features relevant to physical similarity. Denominators need to remain meaningful over the application range.</li>
+<li><strong>Trigonometric features:</strong> <span class="math inline">\((\sin\alpha,\cos\alpha)\)</span> can represent a periodic angle without an artificial discontinuity between zero and <span class="math inline">\(2\pi\)</span>.</li>
+<li><strong>Other nonlinear transformations:</strong> logarithms or physically motivated baseline corrections can simplify a response’s variation. A reduction in variance or nonlinearity is a possible benefit, rather than a property guaranteed by every transformation.</li>
+</ul>
+</section>
+</section>
+<section id="guidelines-for-designing-features" class="level3">
+<h3 class="anchored" data-anchor-id="guidelines-for-designing-features">Guidelines for designing features</h3>
+<p><strong>Units and physical meaning matter.</strong> Dimensionless quantities often provide a useful starting point and facilitate comparisons across scales. Physical dimensions must still be consistent when quantities are combined: adding a velocity directly to a pressure has no physical meaning. Non-dimensionalization removes units but does not by itself determine the appropriate weighting of features.</p>
+<p><strong>Features must be available in the target application.</strong> A useful training feature cannot support deployment if it requires information unavailable when the model is evaluated. This concerns both the mathematical definition of a quantity and the process used to extract it.</p>
+<p>For example, DNS provides a velocity field resolved in space and time, whereas a RANS calculation provides a Reynolds-averaged velocity field. These quantities are not directly interchangeable merely because both are called velocity. A model intended for RANS requires training features consistent with the quantities available in RANS. This may involve averaging the DNS data first and then extracting the corresponding mean-flow features; for LES, an appropriate spatial filtering operation is needed instead. For nonlinear feature transformations, averaging and feature construction generally do not commute, so the extraction order follows the intended definition of the feature.</p>
+<p>Spatial representation also matters. A feature construction that depends on a structured Cartesian array of DNS values may not transfer directly to an unstructured mesh in the target solver. Suitable features reflect the information and geometry available during deployment. Statistical transformations and feature-selection decisions are fitted using training and validation data, with the test set reserved for final evaluation.</p>
+</section>
+<section id="selecting-useful-feature-combinations" class="level3">
+<h3 class="anchored" data-anchor-id="selecting-useful-feature-combinations">Selecting useful feature combinations</h3>
+<p>Feature design may produce a large set of plausible candidates. <strong>Feature selection</strong> seeks a useful subset, balancing predictive performance, model complexity, computational cost, and availability in the target application. Selection is part of model development, rather than a decision based on the final test results.</p>
+<section id="correlation-heatmaps" class="level4">
+<h4 class="anchored" data-anchor-id="correlation-heatmaps">Correlation heatmaps</h4>
+<p>A correlation heatmap summarizes pairwise correlations between features and, in supervised learning, targets. It can reveal redundant variables and strong linear associations. Weak linear correlation does not rule out a useful nonlinear relationship, and pairwise correlations do not describe all interactions between features. The heatmap provides an initial screening tool rather than a complete selection rule.</p>
+</section>
+<section id="sequential-forward-and-backward-selection" class="level4">
+<h4 class="anchored" data-anchor-id="sequential-forward-and-backward-selection">Sequential forward and backward selection</h4>
+<p><strong>Forward selection</strong> starts with no features and adds the candidate that gives the greatest improvement in validation performance at each step. <strong>Backward selection</strong> starts with a candidate set and removes the feature whose exclusion is least harmful, or most beneficial. Both approaches compare models fitted with different subsets.</p>
+<p>These searches can be expensive because they require repeated fitting. They are also greedy: a locally preferred choice need not identify the best overall combination, particularly when features interact.</p>
+</section>
+<section id="permutation-importance" class="level4">
+<h4 class="anchored" data-anchor-id="permutation-importance">Permutation importance</h4>
+<p><strong>Permutation importance</strong> assesses how much a fitted model relies on a feature. Its values are randomly shuffled across observations in a validation dataset, breaking their association with the other measurements. The decrease in predictive performance indicates the feature’s importance to that particular model. Repeated shuffles help assess variation in the result.</p>
+<p>This provides a performance-based check beyond pairwise correlation, but it is not universally more robust than other selection methods. Correlated features can substitute for one another and appear individually unimportant; shuffling can also create unrealistic feature combinations. Importance scores can guide subset selection, followed by refitting and validation of the reduced model.</p>
+</section>
+<section id="feature-weighting-learned-during-optimization" class="level4">
+<h4 class="anchored" data-anchor-id="feature-weighting-learned-during-optimization">Feature weighting learned during optimization</h4>
+<p>Some models learn how strongly different inputs contribute during training. For example, an <strong>attention mechanism</strong> can assign input-dependent weights to feature representations, allowing their contributions to vary with the sample. This integrates feature weighting into optimization, but does not necessarily remove features or produce a smaller input set.</p>
+<p>Explicit selection can instead be encouraged through sparse coefficients or learned feature gates. Attention weights alone are not a reliable ranking of physical importance or evidence of a causal relationship. The resulting representation and any proposed reduction in features still require validation.</p>
+</section>
+</section>
+</section>
+<section id="deep-learning" class="level2">
+<h2 class="anchored" data-anchor-id="deep-learning">Deep learning</h2>
+<p>Neural networks are a flexible class of <strong>Ansatz functions</strong> that can be used in many different modeling contexts. Their ability to represent complex, nonlinear relationships between inputs and outputs makes them a useful starting point when simpler model forms are too restrictive. They are not a universal solution: their suitability depends on the task, the available data, and requirements such as computational cost and interpretability.</p>
+<section id="models-datasets-and-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="models-datasets-and-predictions">Models, datasets, and predictions</h3>
+<p>A <strong>neural network</strong> is a parameterized mapping from a feature space to a target, or label, space:</p>
+<p><span class="math display">\[
+\mathbf{y}_\theta:\mathbb{R}^{n_x}\longrightarrow\mathbb{R}^{n_y},
+\qquad \mathbf{x}\longmapsto\mathbf{y}_\theta(\mathbf{x}).
+\]</span></p>
+<p>Both features and targets can be <strong>vector-valued</strong>. For example, several flow descriptors might be mapped to several force coefficients. The parameter vector <span class="math inline">\(\theta\)</span> collects the network’s trainable weights and biases. Its architecture determines how these parameters enter the mapping. Deep learning uses networks with multiple successive layers of learned representations.</p>
+<p>In supervised learning, a <strong>dataset</strong> consists of paired observations:</p>
+<p><span class="math display">\[
+\mathcal{D}=\{(\mathbf{x}_i,\mathbf{y}_i)\}_{i=1}^{N},
+\qquad \mathbf{x}_i\in\mathbb{R}^{n_x},\quad
+\mathbf{y}_i\in\mathbb{R}^{n_y}.
+\]</span></p>
+<p>Each pair is one sample. The <strong>prediction</strong> is the Ansatz function evaluated at the sample’s features:</p>
+<p><span class="math display">\[
+\widehat{\mathbf{y}}_i=\mathbf{y}_\theta(\mathbf{x}_i).
+\]</span></p>
+<p>Thus, <span class="math inline">\(\mathbf{y}_\theta\)</span> denotes the model, <span class="math inline">\(\widehat{\mathbf{y}}_i\)</span> its prediction at <span class="math inline">\(\mathbf{x}_i\)</span>, and <span class="math inline">\(\mathbf{y}_i\)</span> the observed target. A prediction can also be made at a new input <span class="math inline">\(\mathbf{x}_*\)</span> for which the target is unknown.</p>
+</section>
+<section id="training-as-an-optimization-problem" class="level3">
+<h3 class="anchored" data-anchor-id="training-as-an-optimization-problem">Training as an optimization problem</h3>
+<p>Training determines parameter values that reduce the discrepancy between predictions and observed targets. For a training dataset <span class="math inline">\(\mathcal{D}_{\mathrm{train}}\)</span> with <span class="math inline">\(N_{\mathrm{train}}\)</span> samples, a common regression objective is the <strong>mean squared Euclidean error</strong>:</p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{train}}(\theta)
+=\frac{1}{N_{\mathrm{train}}}\sum_{i=1}^{N_{\mathrm{train}}}
+\left\|\mathbf{y}_\theta(\mathbf{x}_i)-\mathbf{y}_i\right\|_2^2,
+\qquad
+\theta^*\in\operatorname*{arg\,min}_{\theta}\mathcal{L}_{\mathrm{train}}(\theta).
+\]</span></p>
+<p>The squared <span class="math inline">\(L_2\)</span> norm sums squared errors across target components. Here the averaging is over samples; a further division by <span class="math inline">\(n_y\)</span> would average over components as well. The mathematical optimum <span class="math inline">\(\theta^*\)</span> states the goal; a numerical training algorithm usually returns an approximate solution. Validation data guide model selection and stopping, while test data evaluate the final model.</p>
+</section>
+<section id="the-multilayer-perceptron" class="level3">
+<h3 class="anchored" data-anchor-id="the-multilayer-perceptron">The multilayer perceptron</h3>
+<p>A <strong>multilayer perceptron (MLP)</strong> is a feed-forward network that composes affine transformations with nonlinear activation functions. For <span class="math inline">\(L\)</span> layers with trainable parameters, a common regression form is</p>
+<p><span class="math display">\[
+\mathbf{h}^{(0)}=\mathbf{x},
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{h}^{(\ell)}=
+\phi_\ell\!\left(W^{(\ell)}\mathbf{h}^{(\ell-1)}+\mathbf{b}^{(\ell)}\right),
+\qquad \ell=1,\ldots,L-1,
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{y}_\theta(\mathbf{x})=
+W^{(L)}\mathbf{h}^{(L-1)}+\mathbf{b}^{(L)}.
+\]</span></p>
+<p>With <span class="math inline">\(n_0=n_x\)</span> and <span class="math inline">\(n_L=n_y\)</span>, the matrix <span class="math inline">\(W^{(\ell)}\)</span> contains connection weights, <span class="math inline">\(\mathbf{b}^{(\ell)}\)</span> contains biases, and <span class="math inline">\(\phi_\ell\)</span> acts componentwise. A layer with <span class="math inline">\(n_{\ell-1}\)</span> inputs and <span class="math inline">\(n_\ell\)</span> outputs has <span class="math inline">\(W^{(\ell)}\in\mathbb{R}^{n_\ell\times n_{\ell-1}}\)</span> and <span class="math inline">\(\mathbf{b}^{(\ell)}\in\mathbb{R}^{n_\ell}\)</span>. All these weights and biases belong to <span class="math inline">\(\theta\)</span>. Common activations include the sigmoid and <span class="math inline">\(\operatorname{ReLU}(z)=\max(0,z)\)</span>. Without nonlinear activations, successive affine layers collapse to a single affine mapping.</p>
+<p><img src="media/doe-mlp-light.png" class="light-content img-fluid" style="width:100.0%" alt="A fully connected multilayer perceptron maps three input features through two hidden layers to a two-component prediction. Connections carry weights; each trainable layer also has biases."> <img src="media/doe-mlp-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="A fully connected multilayer perceptron maps three input features through two hidden layers to a two-component prediction. Connections carry weights; each trainable layer also has biases."></p>
+<p>The sketch is illustrative: its layer sizes are not a recommended architecture. The output layer above is affine, suitable for unconstrained regression; other tasks may require an output transformation. The MLP illustrates the repeated combination of trainable transformations and nonlinearities found throughout neural-network modeling, although not every architecture is fully connected.</p>
+</section>
+<section id="gradient-descent" class="level3">
+<h3 class="anchored" data-anchor-id="gradient-descent">Gradient descent</h3>
+<p>Starting from initialized parameters <span class="math inline">\(\theta^{(0)}\)</span>, <strong>gradient descent</strong> uses the negative loss gradient as a local descent direction:</p>
+<p><span class="math display">\[
+\theta^{(k+1)}=\theta^{(k)}
+-\eta\,\nabla_\theta\mathcal{L}_{\mathrm{train}}(\theta^{(k)}),
+\qquad \eta&gt;0.
+\]</span></p>
+<p>The learning rate <span class="math inline">\(\eta\)</span> controls the step size; an excessively large step can increase the loss rather than decrease it. Each iteration evaluates predictions and the loss, computes its parameter gradient, and updates the parameters. <strong>Backpropagation</strong> computes these gradients efficiently using the chain rule; it is the gradient calculation, rather than the update rule itself. At activation points that are not differentiable, such as the ReLU at zero, implementations use a specified derivative convention.</p>
+<p>The formula uses the complete training dataset. <strong>Mini-batch</strong> methods approximate the gradient using a subset of samples at each update, reducing the cost per update and introducing variation through batch selection. Training usually involves repeated passes through the dataset, called <strong>epochs</strong>.</p>
+</section>
+<section id="training-variability-and-repeatable-comparisons" class="level3">
+<h3 class="anchored" data-anchor-id="training-variability-and-repeatable-comparisons">Training variability and repeatable comparisons</h3>
+<p>Neural-network training is generally a <strong>nonlinear, non-convex optimization problem</strong>. Different initial parameters can lead to different optimization trajectories and outcomes, even on the same dataset. Random batch ordering and changes in the training data can introduce further variability. Non-convexity alone does not make an algorithm random, but it can make its outcome sensitive to these choices.</p>
+<p>A <strong>seed</strong> initializes a pseudo-random number generator. With the same generator, seed, and sequence of calls, the same random-number sequence is obtained. This helps reproduce initialization, shuffling, and data splits. A seed is a reproducibility setting, not a measure of model quality; numerical nondeterminism or changes in software and hardware can still affect results.</p>
+<p>Model training is therefore treated like a numerical experiment with sources of stochastic variation. A meaningful comparison of two architectures uses <strong>multiple training runs with different seeds</strong>, comparable training budgets and tuning procedures, and a common evaluation protocol. Results include a typical performance measure, such as the mean or median, together with its spread. If sensitivity to the available data is also of interest, repeated data splits or resampling provide a separate assessment. A single favorable run is insufficient evidence that an architecture is better.</p>
+<p>Variation between training runs is distinct from the predictive uncertainty described by a probabilistic model. A network with randomized training can still produce a deterministic prediction once its parameters are fixed.</p>
+<p>More complex building blocks include <strong>normalization layers</strong>, which transform intermediate representations, and <strong>residual connections</strong>, which add a bypassed representation to a learned transformation. These and other architectural components are outside the scope of this introductory section.</p>
+</section>
+</section>
+<section id="visualizing-prediction-errors-and-model-uncertainties" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-prediction-errors-and-model-uncertainties">Visualizing prediction errors and model uncertainties</h2>
+<p>A single performance score rarely reveals all strengths and weaknesses of a model. Visualizations can show how results vary between training runs, how prediction errors are distributed, and where errors occur in feature space. These are complementary views: <strong>training variability</strong>, <strong>observed prediction errors</strong>, and a probabilistic model’s <strong>predictive uncertainty</strong> describe different quantities.</p>
+<p>The following sketches use <strong>synthetic data</strong>, not results from trained networks. The box plots contain 24 illustrative evaluation losses per architecture. The residual plot, histogram, and heat map describe the same 1200 artificial test samples, with a deliberately positive mean error and larger error variation near the lower bound of <span class="math inline">\(X_1\)</span>. Targets are dimensionless. For a scalar target, the signed error is defined as</p>
+<p><span class="math display">\[
+e_i=\widehat{y}_i-y_i=y_\theta(\mathbf{x}_i)-y_i.
+\]</span></p>
+<section id="box-plots-variation-between-training-runs" class="level3">
+<h3 class="anchored" data-anchor-id="box-plots-variation-between-training-runs">Box plots: variation between training runs</h3>
+<p><img src="media/doe-errors-box-light.png" class="light-content img-fluid" style="width:100.0%" alt="Synthetic evaluation losses across 24 illustrative runs for each of three architectures."> <img src="media/doe-errors-box-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="Synthetic evaluation losses across 24 illustrative runs for each of three architectures."></p>
+<p>When training is repeated with different seeds, a <strong>box plot</strong> summarizes the distribution of a chosen performance measure, such as evaluation mean squared error. Comparing architectures then involves both typical performance and variability, rather than only the best run.</p>
+<p>In the conventional box plot used here:</p>
+<ul>
+<li>The <strong>median line</strong> marks the 50th percentile: half the observations lie on either side, allowing for ties.</li>
+<li>The <strong>box</strong> extends from the first quartile <span class="math inline">\(Q_1\)</span> (25th percentile) to the third quartile <span class="math inline">\(Q_3\)</span> (75th percentile). Its height is the <strong>interquartile range</strong>, <span class="math inline">\(\mathrm{IQR}=Q_3-Q_1\)</span>.</li>
+<li>The <strong>whiskers</strong> extend to the most extreme observed values within <span class="math inline">\(1.5\,\mathrm{IQR}\)</span> below <span class="math inline">\(Q_1\)</span> and above <span class="math inline">\(Q_3\)</span>.</li>
+<li>Points beyond the whiskers are plotted individually as <strong>potential outliers</strong>. This convention does not establish that a run is invalid.</li>
+</ul>
+<p>A box plot does not automatically show the mean or a confidence interval. Here its spread describes variation in evaluation loss across runs, rather than uncertainty in an individual prediction.</p>
+</section>
+<section id="direct-comparison-of-predictions-and-test-data" class="level3">
+<h3 class="anchored" data-anchor-id="direct-comparison-of-predictions-and-test-data">Direct comparison of predictions and test data</h3>
+<p><img src="media/doe-errors-residual-light.png" class="light-content img-fluid" style="width:100.0%" alt="Signed prediction errors plotted against observed test targets for 1200 synthetic samples."> <img src="media/doe-errors-residual-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="Signed prediction errors plotted against observed test targets for 1200 synthetic samples."></p>
+<p>For a small, low-dimensional problem, observations and predictions can be plotted against an input coordinate, or their difference can be shown directly. The plot above shows the signed error against the observed test target, with zero indicating agreement. Trends or changing spread can reveal systematic errors or regions of poor performance. Under the stated sign convention, positive errors mean overprediction.</p>
+<p>Direct plots become harder to interpret when inputs and outputs are high-dimensional. Componentwise errors, aggregate measures, or selected projections can help, although a projection may conceal structure in other directions.</p>
+</section>
+<section id="histograms-the-distribution-of-prediction-errors" class="level3">
+<h3 class="anchored" data-anchor-id="histograms-the-distribution-of-prediction-errors">Histograms: the distribution of prediction errors</h3>
+<p><img src="media/doe-errors-hist-light.png" class="light-content img-fluid" style="width:100.0%" alt="Histogram of signed prediction errors for the same 1200 synthetic test samples."> <img src="media/doe-errors-hist-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="Histogram of signed prediction errors for the same 1200 synthetic test samples."></p>
+<p>An <strong>error histogram</strong> shows how often different error ranges occur. A concentration near zero suggests many accurate predictions; long tails or isolated extreme values indicate occasional large errors. A distribution shifted away from zero can indicate systematic overprediction or underprediction. The signed errors in the histogram above retain this information; a histogram of absolute errors would conceal the sign.</p>
+<p>Histogram appearance depends on bin width and sample count. A near-zero mean error also does not rule out systematic errors in different parts of the domain, because positive and negative errors can cancel.</p>
+</section>
+<section id="heat-maps-errors-in-subsets-of-feature-space" class="level3">
+<h3 class="anchored" data-anchor-id="heat-maps-errors-in-subsets-of-feature-space">Heat maps: errors in subsets of feature space</h3>
+<p><img src="media/doe-errors-map-light.png" class="light-content img-fluid" style="width:100.0%" alt="Maximum absolute prediction error in bins of the two-dimensional synthetic feature space."> <img src="media/doe-errors-map-dark.png" class="dark-content img-fluid" style="width:100.0%" alt="Maximum absolute prediction error in bins of the two-dimensional synthetic feature space."></p>
+<p>A <strong>heat map</strong> can divide two selected feature coordinates into bins and show a statistic of the prediction errors in each bin. In the heat map above, the color represents</p>
+<p><span class="math display">\[
+E_{jk}=\max_{i:\,\mathbf{x}_i\in B_{jk}}|e_i|,
+\]</span></p>
+<p>where <span class="math inline">\(B_{jk}\)</span> is a bin in the <span class="math inline">\(X_1\)</span>–<span class="math inline">\(X_2\)</span> plane. The elevated errors near small <span class="math inline">\(X_1\)</span> reveal a weakness that a single average score could hide. Such a pattern may motivate additional data, a revised representation, or closer examination of the model in that region.</p>
+<p>Maximum errors depend on individual extreme observations and on how many samples fall in a bin. Sample counts and coverage therefore matter; empty bins represent missing evidence and are left uncolored or explicitly marked, rather than assigned zero error. In a higher-dimensional feature space, a two-dimensional map groups over the remaining coordinates and can hide additional dependencies.</p>
+<p>Observed errors require reference targets. A probabilistic model can additionally provide predictive intervals or uncertainty maps at new inputs, but their reliability is evaluated separately, for example by checking how often held-out targets lie within the stated intervals. A large error and a large predicted uncertainty are not interchangeable.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
