@@ -419,7 +419,7 @@
 #
 # With WSL, install **Visual Studio Code on Windows**, add the **WSL** extension, and open the course from an Ubuntu terminal with `code .`. Install the Python extension in the WSL environment and select `ml-cfd/bin/python` as the interpreter. On native Ubuntu or inside the VirtualBox guest, install the Linux edition of VS Code using its [Ubuntu instructions](https://code.visualstudio.com/docs/setup/linux), open `~/Development/ml-cfd-lecture`, and select that same course interpreter. See [VS Code's WSL guide](https://code.visualstudio.com/docs/remote/wsl).
 #
-# ### Step 10 — Optional: OpenCode with ScaDS.AI models (TUD:AI)
+# ### Step 10 — Optional: OpenCode with free models or TUD:AI
 #
 # This step is **optional**. You can complete the practical lab without a coding agent.
 #
@@ -434,16 +434,29 @@
 #
 # Open your `ml-cfd-lecture` repository folder as the project in OpenCode. Keep your own exercise scripts and generated results in `exercises`.
 #
-# #### Create a TU Dresden API key
+# #### Recommended: start with a free OpenCode model
+#
+# Use one of the free models available in OpenCode to get started. This route does not require access to TUD:AI. As of October 2026, our recommended starting point is **GLM-5.3-Flash Free** (GLM 5.3 Flash), or a newer version of the **GLM Flash** model if offered for free. Choose the entry explicitly marked **Free**; similarly named entries may be paid. See the [OpenCode model list](https://opencode.ai/docs/zen/).
+#
+# - **Desktop app:** Start a session in your course project. Click the model name in the prompt area to open the model picker, search for `GLM`, and select **GLM-5.3-Flash Free**. If necessary, open the model-management settings from the picker and enable the free model so that it appears in the list. Check the selected model name before sending your first prompt.
+# - **Command line:** If you use the [OpenCode CLI](https://opencode.ai/docs/cli/), open a terminal in your course repository and start `opencode`. Enter `/models`, search for `GLM`, select the free entry, and confirm with Enter. You can reopen `/models` whenever you want to switch models. See the [model-selection documentation](https://opencode.ai/docs/models/).
+#
+# Free offerings and usage limits can change. If the recommended model is missing or unavailable, update OpenCode and check the picker for a newer free GLM Flash version or another model explicitly marked **Free**. You can continue the exercise without a coding agent if no free model is available. The free-model route does not require the `opencode.json` configuration or TU Dresden API key below.
+#
+# #### Alternative: TUD:AI (if you have access)
+#
+# Participants with TUD:AI API access can use the TU Dresden service instead. Complete the following key and provider setup only if you choose this alternative.
+#
+# ##### Create a TU Dresden API key
 #
 # 1. Open the [TUD:AI LLM service in the TU Dresden Self-Service Portal](https://selfservice.tu-dresden.de/services/scads-llm-api/).
 # 2. Sign in with your TU Dresden account and select **Manage API access** (German: **API-Zugang verwalten**).
 # 3. Follow the portal's prompts to create a key and accept the service's usage terms.
 # 4. Keep the key private. Enter it only in the agent's provider connection; do not put it in exercise scripts, shared screenshots, or a Git repository.
 #
-# The public service description currently lists **employees** as the eligible group, while the TUD:AI documentation describes access for TU Dresden affiliates more broadly. If API access is unavailable for your student account, ask the lecturer or tutor about course access and continue without the optional agent. See the [TUD:AI documentation](https://llm.scads.ai/docs/) for service details.
+# The public service description currently lists **employees** as the eligible group, while the TUD:AI documentation describes access for TU Dresden affiliates more broadly. If API access is unavailable for your student account, use the free-model route above. Ask the lecturer or tutor if you specifically need course access to TUD:AI. See the [TUD:AI documentation](https://llm.scads.ai/docs/) for service details.
 #
-# #### Connect OpenCode to ScaDS.AI models
+# ##### Connect OpenCode to TUD:AI
 #
 # Create `opencode.json` in the repository root. This local configuration is excluded from Git tracking. It sets **GLM 5.3 Flash** as the default and includes GLM 5.3 and Qwen3.8 27B as alternatives for course work.
 #
