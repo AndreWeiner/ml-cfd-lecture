@@ -7,10 +7,25 @@ project:
   - notebooks/ml_cfd_intro.py
   - notebooks/system_setup.py
   - notebooks/ml_intro.py
+  - notebooks/ml_intro_exercise.py
+  - notebooks/python_intro.py
+  - notebooks/neural_network_training.py
   resources:
   - notebooks/ml_cfd_intro.py
   - notebooks/system_setup.py
   - notebooks/ml_intro.py
+  - notebooks/ml_intro_exercise.py
+  - notebooks/python_intro.py
+  - notebooks/neural_network_training.py
+  - notebooks/training_tools.py
+  - notebooks/training_strategies_experiments.py
+  - notebooks/training_strategies_plots.py
+  - notebooks/training_final_experiment.py
+  - notebooks/training_data_scaling.py
+  - notebooks/training_data_scaling_plots.py
+  - notebooks/figure_style.py
+  - notebooks/figure_utils.py
+  - notebooks/media/training-strategies-*
   - containers/of_pytorch/**
   - logo_stiftung_hochschullehre.png
   - requirements.txt
@@ -59,6 +74,15 @@ website:
         contents:
         - href: notebooks/ml_intro.py
           text: Lecture
+        - href: notebooks/ml_intro_exercise.py
+          text: Practice
+
+    - section: Optional material
+      contents:
+      - href: notebooks/python_intro.py
+        text: Getting started with Python
+      - href: notebooks/neural_network_training.py
+        text: Training neural networks
 
 format:
   html:

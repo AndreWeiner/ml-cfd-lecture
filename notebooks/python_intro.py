@@ -15,15 +15,11 @@
 # %% [markdown]
 # ---
 # title: "A brief introduction to Python programming"
+# subtitle: "Optional reading and runnable examples"
 # jupyter: python3
 # ---
 
 # %% [markdown]
-# [Download Python source](python_intro.py){.btn .btn-outline-primary .btn-sm data-noresolveinput="true" download="python_intro.py"}
-
-# %% [markdown]
-# ![CC](https://i.creativecommons.org/l/by/4.0/88x31.png)
-#
 # This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
 #
 # Author(s): Janis Geise, Andre Weiner
@@ -31,18 +27,33 @@
 # %% [markdown]
 # ## Overview
 #
-# Note that this notebook does not provide a comprehensive introduction to Python programming. It aims to explain Python functionality frequently used throughout lecture and exercise notebooks that students typically struggle with at the beginning. If you are already an experienced Python programmer, feel free to quickly skim through the notebook or to skip it entirely. If you consider yourself as a beginner both in Python and programming in general, we provide a list of resources for self-study at the end of this notebook. The following topics will be covered in this notebook:
+# This optional refresher introduces Python patterns used in the ML course; it is not a complete programming course. Experienced Python users can skim it or return to individual sections when needed. Beginners should work through the examples and use the references for further practice.
+#
+# ### How to use this material
+#
+# Complete the Python environment steps in [Exercise 1 — System setup](system_setup.py) before running the examples. From the repository root, activate the course environment and run this chapter:
+#
+# ```bash
+# source ml-cfd/bin/activate
+# python notebooks/python_intro.py
+# ```
+#
+# Alternatively, open `notebooks/python_intro.py` and run its `# %%` cells in VS Code or another compatible editor. Run cells in order: later examples reuse earlier definitions. Plot windows may pause script execution until you close them. JupyterLab is optional. The examples use NumPy, Matplotlib, PyTorch, and Pandas from the course environment; no CFD case or GPU is required.
+#
+# Predict the output before running each example, change one input, and explain what changed. You have to struggle a little bit to learn something. If you use an AI assistant, review its suggestions and recreate a small example independently to check your understanding; see [How to learn with generative AI](lecture_00.qmd).
+#
+# Start with containers, loops, and functions, then plotting and tensors. Classes, inheritance, and decorators can be revisited when you encounter them in later code. The final sections cover tabular data and error messages.
 #
 # - Built-in functions and data types
 # - Functions and lambda functions
 # - Object-oriented programming
-# - Plotting with Matplotlib  
-#   - Line plots  
-#   - Scatter plots  
+# - Plotting with Matplotlib
+#   - Line plots
+#   - Scatter plots
 #   - Contour lines and filled contours
-#   - sub-plots  
-# - PyTorch tensors  
-#   - Working with tensors  
+#   - sub-plots
+# - PyTorch tensors
+#   - Working with tensors
 #   - Common tensor operations
 # - Handling column-like data with Pandas
 # - Understanding error messages
@@ -55,7 +66,7 @@
 #
 # ### Lists, tuples, and dictionaries
 #
-# Lists in Python are iterable containers in which objects of different types can be stored. Common attributes of lists are that we can iterate through them, append or delete list items, or merge them. In contrast to lists, tuples have a fixed length, which is defined when creating the tuple. Dictionaries are containers for data that come as key-value-pairs. The key might be the name of a person and the value might be the person's email address.
+# Lists in Python are iterable containers in which objects of different types can be stored. Common attributes of lists are that we can iterate through them, append or delete list items, or merge them. Tuples are immutable: their entries cannot be replaced, added, or removed after creation. A tuple can still contain mutable objects, such as a list. Dictionaries are containers for data that come as key-value-pairs. The key might be the name of a person and the value might be the person's email address.
 
 # %%
 # create a list of strings
@@ -129,7 +140,7 @@ for i, (label, unit) in enumerate(zip(labels, units)):
     print(f"Label {i}: {label} in {unit}")
 
 # %% [markdown]
-# Both `zip()` and `enumerate()` return iterators. In contrast to lists or tuples, the content of iterators is only retrieved or created when it is really needed. For example, if we want to load and process large files stored on the hard drive, an iterator allows loading and processing one file after the other in order to reduce the memory consumption. However, in most cases considered here, we can simply convert the iterator into a list or tuple.
+# Both `zip()` and `enumerate()` return iterators. An iterator is consumed as you traverse it: converting the same iterator to a list a second time produces an empty list. In contrast to lists or tuples, the content of iterators is only retrieved or created when it is really needed. For example, if we want to load and process large files stored on the hard drive, an iterator allows loading and processing one file after the other in order to reduce the memory consumption. However, in most cases considered here, we can simply convert the iterator into a list or tuple.
 
 # %%
 # This example intentionally raises an exception.
@@ -149,7 +160,7 @@ except Exception as error:
     print(f"{type(error).__name__}: {error}")
 
 # %% [markdown]
-# A common error source when working with `zip()` is the handling of iterables with varying lengths. The iteration stops when the length of the shorted iterable passed to `zip()` is reached.
+# A common error source when working with `zip()` is the handling of iterables with varying lengths. The iteration stops when the length of the shortest iterable passed to `zip()` is reached.
 
 # %%
 labels.append("x")
@@ -157,7 +168,7 @@ labels.append("x")
 print(*zip(labels, units))
 
 # %% [markdown]
-# Looping over the keys and values of a dictionary works in a similar way as described for list and tuples. The methods `keys()`, `values()`, and `items()` provide us with iterators for the dictionary's keys, values, or key-value-pairs, respectively. Similar to the index-based access to the content of lists and tuples, we can access the value associated with a key using the `[]` operator.
+# Looping over the keys and values of a dictionary works in a similar way as described for list and tuples. The methods `keys()`, `values()`, and `items()` return iterable views of the dictionary's keys, values, or key-value pairs, respectively. Similar to the index-based access to the content of lists and tuples, we can access the value associated with a key using the `[]` operator.
 
 # %%
 labels_and_units = {}
@@ -179,7 +190,7 @@ for key, value in labels_and_units.items():
 # %% [markdown]
 # ### List and dictionary comprehensions
 #
-# Comprehensions are an efficient way of creating new lists or dictionaries without for-loops. Especially, if a task needs to be repeated multiple times, comprehensions are short, clear and efficient. The general syntax is:
+# Comprehensions express a loop that builds a list or dictionary in a compact form. Use them when they are easy to read; an ordinary loop is often clearer for complex logic. The general syntax is:
 #
 # ```
 # # list comprehension
@@ -223,7 +234,7 @@ print(even_odd)
 # It is also possible to nest multiple comprehensions and conditionals. However, the resulting statements are often hard to read and error-prone. As a rule of thumb, there should be never more than two `for` statements inside the square or curly brackets.
 
 # %% [markdown]
-# ## Functions and Lambda functions
+# ## Functions and lambda expressions
 #
 # Functions are the simplest and most common way to avoid code duplication and to improve the program's modularity and readability. In the function header, zero or more function parameters may be defined. Optionally, we can provide default arguments (values) for some of the parameters. The optional parameters always follow at the end of the parameter list. Moreover, functions may or may not return a result.
 
@@ -251,11 +262,13 @@ print(format_arguments(("a", "b"), (1, 2), "; "))
 
 
 # %% [markdown]
-# Even though Python is an interpreted language without strict typing, it is good practice to use so-called type hints in the function definition. However, note that the type hints are not checked or enforced by the interpreter. Their main purpose is improved code readability and improved documentation, e.g., when using automatic documentation generators like [Sphinx](https://www.sphinx-doc.org/en/master/).
+# Python is dynamically typed: objects have types, while variable names can be bound to objects of different types. To document expected inputs and outputs, it is good practice to use so-called type hints in the function definition. However, note that the type hints are not checked or enforced by the interpreter. Their main purpose is improved code readability and improved documentation, e.g., when using automatic documentation generators like [Sphinx](https://www.sphinx-doc.org/en/master/).
 
 # %%
 # same as the last function above but with type hints
-def format_arguments(parameters: list, arguments: list, separator: str = ", ") -> str:
+from collections.abc import Sequence
+
+def format_arguments(parameters: Sequence[str], arguments: Sequence[object], separator: str = ", ") -> str:
     formatted_arguments = separator.join(
         [f"{param}={arg}" for param, arg in zip(parameters, arguments)]
     )
@@ -268,9 +281,7 @@ print(format_arguments(("a", "b"), (1, 2), "; "))
 
 # %%
 # more specific type hinting
-from typing import Tuple
-
-def format_labels(x_label: str, y_label: str, x_unit: str, y_unit: str) -> Tuple[str, str]:
+def format_labels(x_label: str, y_label: str, x_unit: str, y_unit: str) -> tuple[str, str]:
     label_with_unit_x = f"{x_label} in {x_unit}"
     label_with_unit_y = f"{y_label} in {y_unit}"
     return label_with_unit_x, label_with_unit_y
@@ -291,11 +302,12 @@ print("The figure shows {:s} plotted against {:s}".format(*format_labels("x", "y
 # ```
 # lambda argument_1, argument_2, ..., argument_N: what_to_do
 # ```
-# If the same lambda-functions ais employed repeatedly, we can also assign it to a variable.
+# For a reusable operation, prefer a named function defined with `def`. A lambda is useful for a short expression passed directly to another function.
 
 # %%
 # use lambda function to extract name suffix
-get_suffix = lambda name, separator: name.split(separator)[-1]
+def get_suffix(name, separator):
+    return name.split(separator)[-1]
 folders = [f"case_{i}" for i in range(0, 21, 5)]
 suffixes = [get_suffix(folder, "_") for folder in folders]
 for folder, suffix in zip(folders, suffixes):
@@ -315,13 +327,13 @@ print("Correct sorting: ", sorted(folders, key=lambda case: int(case.split("_")[
 
 
 # %% [markdown]
-# ## Object-orientated programming in python
+# ## Object-oriented programming in Python
 #
-# As many other programming languages, Python supports object-orientated programming. The following section provides a brief overview of object-orientated programming in python.
+# As many other programming languages, Python supports object-oriented programming. The following section provides a brief overview of object-oriented programming in python.
 #
 # ### General structure and initialization
 #
-# In Python, user-defined data types are defined with the keyword `class`. The class itself needs to have an `.__init__()` method in order to initialize attributes and methods.
+# In Python, user-defined data types are defined with the keyword `class`. A class may define an `__init__()` method to initialize instance attributes. It is optional; methods are defined in the class body.
 
 # %%
 # let's define a simple class
@@ -329,7 +341,7 @@ class SimpleClass():
     # currently the __init__() method is empty, so the class won't do anything
     def __init__(self):
         pass
-    
+
 # the class can now be instantiated
 new_class = SimpleClass()
 
@@ -340,7 +352,7 @@ print("new class attribute:", new_class.new_attribute)
 
 
 # %% [markdown]
-# The keyword `self` represents the instance of the class and is required for accessing any attributes or methods of the class.
+# The conventional parameter name `self` refers to the instance on which a method is called. It is not a Python keyword. Use `self.attribute` or `self.method()` to access that instance from a method.
 
 # %%
 # we can initialize a class directly with attributes and methods as well:
@@ -349,12 +361,12 @@ class AddNumbers():
     def __init__(self, x, y = 2):
         self.x = x
         self.y = y
-    
+
     # method for adding two numbers
     def add_two_numbers(self):
         return self.x + self.y
-    
-# since the value for y is given by default we can instanciate the class only ba passing in x as argument
+
+# since the value for y is given by default we can instantiate the class only ba passing in x as argument
 add = AddNumbers(x=1)
 print(f"x, y = {add.x}, {add.y}")
 print(f"{add.x} + {add.y} = {add.add_two_numbers()}")
@@ -370,32 +382,32 @@ print(f"{add_2.x} + {add_2.y} = {add_2.add_two_numbers()}")
 # Python supports inheritance, which allows to inherit methods and properties from other classes. This is quite convenient, because methods which are already implemented can be used and extended without the necessity to write everything from scratch. Considering the previous example, imagine we now want to add two numbers and then compute the mean of it:
 
 # %%
-# we could implement a completly new class from scratch...
+# we could implement a completely new class from scratch...
 class ComputeMean():
     def __init__(self, x, y):
         self.x = x
         self.y = y
-    
+
     # method for adding two numbers
     def mean_of_two_numbers(self):
         return (self.x + self.y) / 2
-    
+
 # now compute the mean of two numbers
 comp_mean = ComputeMean(5, 3)
 print("mean of 5 and 3 = ", comp_mean.mean_of_two_numbers())
 
 
 # %%
-# ... but a more efficient way is inheriting the properties of our previously implemented class 'AddNumbers':
+# ... or we can reuse the addition method by inheriting the properties of our previously implemented class 'AddNumbers':
 class ComputeMean(AddNumbers):
     def __init__(self, x, y):
         # we need to initialize the parent class with the method 'super()' and also the attributes we want to access
         super().__init__(x, y)
-        
+
     def mean_of_two_numbers(self):
         # now we can use the method 'add_two_numbers()' we already implemented in the parent class
-        return AddNumbers.add_two_numbers(self) / 2
-    
+        return self.add_two_numbers() / 2
+
 # compute the mean of 8 and 4
 comp_mean = ComputeMean(8, 4)
 print("mean of 8 and 4 = ", comp_mean.mean_of_two_numbers())
@@ -404,7 +416,7 @@ print("mean of 8 and 4 = ", comp_mean.mean_of_two_numbers())
 print("8 + 4 = ", comp_mean.add_two_numbers())
 
 # %% [markdown]
-# The parent class from which we want to inherit the properties needs to be passed into our child class as argument, as can be seen in the above examples. Further, we need to initilize the parent class by calling the built-in `super()` method. This allows us to access methods and other properties of the parent class without the need to implement them again in the child class. When calling the `super()` method, the attributes we want to initialize need to be passed into the `__init()__` method as well, e.g. the following would not work, since we didn't initialize the attribute `y`:
+# The parent class from which we want to inherit the properties needs to be passed into our child class as argument, as can be seen in the above examples. Further, we need to initialize the parent class using `super()`. This allows us to access methods and other properties of the parent class without the need to implement them again in the child class. When calling the `super()` method, the attributes we want to initialize need to be passed into the `__init__()` method as well, e.g. the following fails because the required `x` argument is missing from the parent initializer:
 
 # %%
 # This example intentionally raises an exception.
@@ -413,10 +425,10 @@ try:
         def __init__(self, x, y):
             # if we forget to initialize the attributes, then we won't have access to it
             super().__init__()
-            
+
         def mean_of_two_numbers(self):
-            return AddNumbers.add_two_numbers(self) / 2
-        
+            return self.add_two_numbers() / 2
+
     # compute the mean of 8 and 4
     comp_mean = ComputeMean(x=4, y=8)
     print("mean of 8 and 4 = ", comp_mean.mean_of_two_numbers())
@@ -429,10 +441,10 @@ class ComputeMean(AddNumbers):
     def __init__(self, x, y):
         # let's just initialize y and see what happens
         super().__init__(y)
-        
+
     def mean_of_two_numbers(self):
-        return AddNumbers.add_two_numbers(self) / 2
-    
+        return self.add_two_numbers() / 2
+
 # compute the mean of 8 and 4
 comp_mean = ComputeMean(x=4, y=8)
 print("mean of 8 and 4 = ", comp_mean.mean_of_two_numbers())
@@ -445,12 +457,12 @@ print("mean of 8 and 4 = ", comp_mean.mean_of_two_numbers())
 try:
     class ComputeMean(AddNumbers):
         def __init__(self, x, y):
-            # this time we specificly initialize the parameter y as y
+            # this time we specifically initialize the parameter y as y
             super().__init__(y=y)
-            
+
         def mean_of_two_numbers(self):
-            return AddNumbers.add_two_numbers(self) / 2
-        
+            return self.add_two_numbers() / 2
+
     # compute the mean of 8 and 4
     comp_mean = ComputeMean(x=4, y=8)
     print("mean of 8 and 4 = ", comp_mean.mean_of_two_numbers())
@@ -469,11 +481,11 @@ except Exception as error:
 # let's define a function which only prints its name
 def function1():
     print("function 1")
-    
-# now we define a function taking another function as argument and then calling this function    
+
+# now we define a function taking another function as argument and then calling this function
 def function2(f):
     f()
-    
+
 # now we can execute function1...
 function1()
 
@@ -514,14 +526,14 @@ x()
 
 
 # %% [markdown]
-# Instead of assigning the function object to a variable and then execute this object, Python provides a short hand notation called decorators:
+# Instead of assigning the function object to a variable and then execute this object, Python provides decorator syntax: `@function3` applies `function3` to the function defined immediately below it and binds the returned wrapper to the same name. It does not execute the wrapper until that function is called:
 
 # %%
-# a decorator is a short notation of executing the function object
+# a decorator replaces the function with the result of applying the decorator
 @function3       # this is equivalent to: x = function3(x)
 def x():
     print("executing function x using a decorator")
-    
+
 # since x is an object, we need to add parenthesis to execute it
 x()
 
@@ -537,6 +549,8 @@ x()
 # %%
 import matplotlib.pyplot as plt
 import torch as pt
+
+pt.manual_seed(7)
 
 # create some data
 x = pt.linspace(0, 6, 100)
@@ -582,11 +596,11 @@ plt.show()
 # %% [markdown]
 # ### Contour and filled contour plots
 #
-# Further, contour plots can be created in order to visualize $3D-$data with the `contour()` method:
+# Further, contour plots can be created in order to display a scalar field on a two-dimensional grid with the `contour()` method:
 
 # %%
 from numpy import meshgrid
-# create 3D-data
+# create coordinates for a two-dimensional scalar field
 x = pt.linspace(0, 1, 100)
 y = pt.linspace(10, 20, 100)
 
@@ -607,7 +621,7 @@ plt.show()
 
 
 # %%
-# alternatively, we can use the contourf() method for making 3D-plots:
+# alternatively, contourf() fills the intervals between contour levels:
 plt.contourf(x, y, z)
 plt.xlabel("x")
 plt.ylabel("y")
@@ -634,14 +648,14 @@ fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(20, 4), sharey=True)
 
 # let's plot the data ax referes to the axis on which we want to plot the data (counting from left -> right)
 ax[0].plot(x, y, color="black", label="$sin(x)$")
-ax[1].plot(x, y, color="red", label="$cos(x)$")
+ax[1].plot(x, y_2, color="red", label="$cos(x)$")
 
 # when adding labels, the method is now called with a 'set_...' in front of the methods
-ax[0].set_ylabel("$y$", usetex=True, fontsize=16)
+ax[0].set_ylabel("$y$", fontsize=16)
 
 # we can increase the space between the x-ticks and the axis label using the keyword 'labelpad' as well
-ax[0].set_xlabel("$x$", usetex=True, fontsize=16, labelpad=25)
-ax[1].set_xlabel("$x$", usetex=True, fontsize=16, labelpad=10)
+ax[0].set_xlabel("$x$", fontsize=16, labelpad=25)
+ax[1].set_xlabel("$x$", fontsize=16, labelpad=10)
 
 # we can set different subtitles as well
 ax[0].set_title("$sin(x)$")
@@ -662,7 +676,7 @@ plt.show()
 #
 # ### Working with tensors
 #
-# The [PyTorch](https://pytorch.org/docs/stable/index.html) library provides efficient data structures for operating with large amounts of data, e.g. tensors as well as tools for deep learning and neural networks. The following section gives a brief overview on what tensors are and how to how to operate with them. [Tensors](https://pytorch.org/docs/stable/tensors.html) store elements of a certain type, e.g., floating point numbers in a multi-dimensional matrix. In general, tensors need to be initialized for example with zeros before operating with them, similar to [numpy arrays](https://numpy.org/doc/stable/reference/generated/numpy.array.html). The size of a tensor is defined when initializing the tensor using the keyword argument `size`.
+# The [PyTorch](https://pytorch.org/docs/stable/index.html) library provides efficient data structures for operating with large amounts of data, e.g. tensors as well as tools for deep learning and neural networks. The following section gives a brief overview on what tensors are and how to operate with them. [Tensors](https://pytorch.org/docs/stable/tensors.html) store elements of a certain type, e.g., floating point numbers in a multi-dimensional matrix. Create a tensor from existing values with `pt.tensor(...)`, or use a factory such as `pt.zeros`, `pt.ones`, or `pt.rand`. Zero initialization is not required. Factory functions take a shape; tensors can also be reshaped without changing their number of elements.
 
 # %%
 import torch as pt
@@ -680,7 +694,7 @@ t = pt.ones(size=(3, 3))
 print("\n3x3 matrix:\n", t)
 
 # %% [markdown]
-# Alternatively, other data types such as lists can be converted to tensors. It is important that the list elements have to be of the same data type.
+# Alternatively, other data types such as lists can be converted to tensors. All elements of the resulting tensor share one dtype. Compatible numeric types are promoted to a common dtype; strings are not valid numeric tensor elements.
 
 # %%
 # creating a list and converting it to a tensor
@@ -701,7 +715,7 @@ print("\nconverted to tensor:\n", b_tensor)
 # %%
 # This example intentionally raises an exception.
 try:
-    # all list elements have to be of the same data type, otherwise an error occurs:
+    # strings cannot be converted into a numeric tensor:
     a = [1, 2, "a"]
     b = pt.tensor(a)
 except Exception as error:
@@ -719,10 +733,10 @@ except Exception as error:
     print(f"{type(error).__name__}: {error}")
 
 # %% [markdown]
-# When initializing a tensor, the size of the tensor needs to be defined. The general syntax for the `size` argument is `size=(dim=0, dim=1, dim=2, ...)`, the first dimension `dim=0` refers to the number of rows and `dim=1` to the number of columns. The $3^{rd}$ dimension denotes the number of elements within each element of the (dim=0 * dim=1) sized matrix and so on. When operating with tensors, single elements can be accessed as well as complete columns, rows or matrices within the tensor, which will be illustrated by the following examples. A more comprehensive introduction can be found in the [PyTorch docs](https://pytorch.org/tutorials/beginner/introyt/tensors_deeper_tutorial.html) for tensors.
+# A tensor's shape is a tuple of dimension sizes. For a matrix, shape `(rows, columns)` has two dimensions; a vector with shape `(n,)` has one. Higher dimensions can represent batches, channels, or spatial coordinates depending on the application. Indices start at zero, and slice stop indices are excluded. Check `.shape` or `.size()` rather than guessing what an axis represents. See the [PyTorch tensor introduction](https://pytorch.org/tutorials/beginner/introyt/tensors_deeper_tutorial.html).
 
 # %%
-# create a 2x3 tensor filled with random numbers
+# create a 3x3 tensor filled with random numbers
 random_tensor = pt.randn(size=(3, 3))
 
 # this tensor has 3 rows and 3 columns
@@ -737,9 +751,9 @@ print("last element of 1st row:", random_tensor[0, -1])
 
 # complete rows or columns can be accessed by using [:]
 print("\nall columns of 1st row:", random_tensor[0, :])
-print("all rows of 2nd colunm:", random_tensor[:, 1])
+print("all rows of 2nd column:", random_tensor[:, 1])
 
-# now lets get the a 2x2 submatrix of the tensoor containing the rows 1, 2 and columns 1, 2:
+# now lets get the a 2x2 submatrix of the tensor containing the rows 1, 2 and columns 1, 2:
 print("\n2x2 matrix of tensor:\n", random_tensor[:2, :2])
 
 # similarily, we can get the elements of the last two rows and columns:
@@ -749,9 +763,9 @@ print("\n2x2 matrix of tensor:\n", random_tensor[1:, 1:])
 # further, we can specify ranges which we want to access
 random_tensor = pt.rand(size=(4, 4))
 print("original tensor:\n", random_tensor)
-      
-# get columns 1-3 and rows 2-4
-print("\nrows 1-3 & columns 2-4:\n", random_tensor[1:3, 2:4])
+
+# get rows at indices 1, 2 and columns at indices 2, 3
+print("\nrows [1:3] & columns [2:4]:\n", random_tensor[1:3, 2:4])
 
 # %% [markdown]
 # As can be seen in this example, when using the range `[1:3, 2:4]`, the stop indices `3, 4` are excluded resulting in a 2x2 tensor as output. In general, the size of a tensor can be determined by using the `size()` method:
@@ -796,7 +810,7 @@ print("\nx * y = \n", x @ y)
 
 # %% [markdown]
 # #### flatten()
-#  
+#
 # The `flatten()` method reshapes an arbitrary $n$-dimensional tensor to a one-dimensional tensor:
 
 # %%
@@ -846,7 +860,7 @@ except Exception as error:
 # %% [markdown]
 # #### squeeze() and unsqueeze()
 #
-# The `squeeze()` method removes dimensions with the size of $1$ from a tensor. If we have for example a $3x2x1$-dimensional tensor, using the `squeeze()` method would lead to a tensor with the dimensions of $3x2$ by removing the $3^{rd}$ dimension (since the $3^{rd}$ dimension is $1$). If there exist multiple dimensions with the size of $1$, using `squeeze()` removes all of them. A specific dimension which shall be removed can be specified by the keyword argument `dim`, in case this is unwanted. The `squeeze()` method is frequently used, e.g. when passing features into a neural network, as shown in [lecture 3](ml_intro.html). Consequently, the `unsqueeze()` method inserts a dimension of the size $1$ at a specified dimension of the input tensor.
+# The `squeeze()` method removes dimensions with the size of $1$ from a tensor. If we have for example a $3x2x1$-dimensional tensor, using the `squeeze()` method would lead to a tensor with the dimensions of $3x2$ by removing the $3^{rd}$ dimension (since the $3^{rd}$ dimension is $1$). If there exist multiple dimensions with the size of $1$, using `squeeze()` removes all of them. A specific dimension which shall be removed can be specified by the keyword argument `dim`, in case this is unwanted. The `squeeze()` method is frequently used, e.g. when passing features into a neural network, as shown in [Introduction to machine learning](ml_intro.py). Consequently, the `unsqueeze()` method inserts a dimension of the size $1$ at a specified dimension of the input tensor.
 
 # %%
 # create tensor
@@ -869,13 +883,13 @@ print("\nunsqueezed tensor (dim=1):\n", z_2)
 print("\nsize of original tensor:", x.size())
 print("size of squeezed tensor:", y.size())
 print("size of unsqueezed tensor (dim=0):", z.size())
-print("size of unsqueezed tensor (dim=0):", z_2.size())
+print("size of unsqueezed tensor (dim=1):", z_2.size())
 
 # %%
 # by using the keyword argument 'dim', the dimension to be removed can be specified in case there exist multiple dimensions with the size of 1
 x = pt.rand(size=(1, 3, 1, 2))
 
-# remove all dimesions with the size of 1
+# remove all dimensions with the size of 1
 y = x.squeeze()
 
 # only remove the last dimension
@@ -892,7 +906,7 @@ print("size of squeezed tensor for 3rd dim:", z.size())
 # %% [markdown]
 # #### zeros() vs. zeros_like()
 #
-# In the previous examples, tensors were always initialized with zeros using the `zeros()` method. The `zeros_like()` method, however, is an efficient way to generate a tensor filled with zeros by using another tensor. For example, consider having a tensor $x$ filled with some values and we want to create a tensor $y$, which has the same size of $x$ but is filled with zeros. Instead of using `y = pt.zeros(size=x.size())` we can create $y$ as `y = pt.zeros_like(x)`.
+# Use `zeros()` when you know the desired shape directly. The `zeros_like()` method, however, is an efficient way to generate a tensor filled with zeros by using another tensor. For example, consider having a tensor $x$ filled with some values and we want to create a tensor $y$, which has the same size of $x$ but is filled with zeros. Instead of using `y = pt.zeros(size=x.size())` we can create $y$ as `y = pt.zeros_like(x)`.
 
 # %%
 # creating a tensor filled with zeros
@@ -909,7 +923,7 @@ print("\ntensor initialized with random numbers:\n", y)
 print("\nusing zeros_like() method:\n", z)
 
 # %% [markdown]
-# #### min() vs. argmin() 
+# #### min() vs. argmin()
 # The `min()` method in torch returns the minimum of a $n-$dimensional tensor. In a lot of cases, additionally the position of the minimum element is required. To get the index of the minimum element, we can use the `argmin()` method of torch. The maximum element and it's position can analogously be determined by using `max()` and `argmax()` respectively.
 
 # %%
@@ -922,41 +936,39 @@ print(f"min(x) = {'{:.4f}'.format(pt.min(x).item())} at position {pt.argmin(x).i
 # %% [markdown]
 # #### Combining tensor operations
 #
-# We only looked at single tensor operations so far. When programming in Python, however, we can combine these methods in order shorten the code while at the same time making it more efficient. The following example illustrates a possible implementation for calculating the $L_2-$norm of a vector:
+# Combining operations can make a calculation easier to follow. Keep the mathematical quantity explicit: for a residual vector $r=x-y$, the mean squared error is $\mathrm{MSE}=\frac{1}{n}\sum_i r_i^2$, whereas its Euclidean norm is $\lVert r\rVert_2=\sqrt{\sum_i r_i^2}$. They have different scaling and units. The [PyTorch vector norm](https://docs.pytorch.org/docs/stable/generated/torch.linalg.vector_norm.html) computes the latter.
 
 # %%
-# let's define two vectors
-x = pt.rand(size=(3, 1))
-y = pt.rand(size=(3, 1))
-
-# now we want to calculate the L2-norm between the vector elements without combining methods
-l2 = x-y
-l2 = l2.square()
-l2 = l2.mean()
-print("L2(x, y) = ", l2.item())
-
-# a more clear and efficient way:
-print("L2(x, y) = ", (x-y).square().mean().item())
+# Use known values so we can check the result independently.
+x = pt.tensor([3.0, 4.0])
+y = pt.tensor([0.0, 0.0])
+residual = x - y
+mse = residual.square().mean()
+l2_norm = pt.linalg.vector_norm(residual)
+print("Mean squared error:", mse.item())  # (9 + 16) / 2 = 12.5
+print("Euclidean norm:", l2_norm.item())  # sqrt(9 + 16) = 5
+assert pt.isclose(mse, pt.tensor(12.5))
+assert pt.isclose(l2_norm, pt.tensor(5.0))
 
 # %% [markdown]
-# ## 5. Handling column-like data with Pandas
+# ## Handling tabular data with Pandas
 #
 # [Pandas](https://pandas.pydata.org/) is a library providing many tools for data analysis. In Pandas so called `DataFrame`s are largely used, which is a similar way of structuring data as in the built-in `dict()`. Since Pandas provides a vast amount of tools, within this section only the `read_csv()` method, which is frequently used throughout the lecture and exercise, shall be presented.
 #
-# The `read_csv()` method can be used to read in $.csv$ files column-like data. Although the method is named `read_csv()`, other file types can be read in as well, while the data within the files can be separated by any arbitrary separator. This separator has to be specified as keyword argument when calling the function. The following example illustrates a possible use of the `read_csv()` method. 
+# The `read_csv()` method can be used to read in $.csv$ files column-like data. Although the method is named `read_csv()`, other file types can be read in as well, while the data within the files can be separated by any arbitrary separator. This separator has to be specified as keyword argument when calling the function. The following example illustrates a possible use of the `read_csv()` method.
 
 # %%
 dummy_str = """
        XFOIL         Version 6.93
-  
- Calculated polar for: NACA 67-414                                     
-  
- 1 1 Reynolds number fixed          Mach number fixed         
-  
- xtrf =   1.000 (top)        1.000 (bottom)  
+
+ Calculated polar for: NACA 67-414
+
+ 1 1 Reynolds number fixed          Mach number fixed
+
+ xtrf =   1.000 (top)        1.000 (bottom)
  Mach =   0.500     Re =     5.000 e 6     Ncrit =  13.000 13.000
-  
-  alpha     CL        CD       CDp       CM    Top_Xtr Bot_Xtr    CQ       CDq  
+
+  alpha     CL        CD       CDp       CM    Top_Xtr Bot_Xtr    CQ       CDq
  ------- -------- --------- --------- -------- ------- ------- -------- --------
    0.000   0.4239 0.0032031 0.0010239  -0.1011  0.7862  0.7914  0.00000  0.00000
    0.250   0.4581 0.0032021 0.0010260  -0.1015  0.7833  0.7957  0.00000  0.00000
@@ -975,24 +987,26 @@ from io import StringIO
 dummy_csv = StringIO(dummy_str)
 
 # %% [markdown]
-# Now, we want to read in this data using the `read_csv()` method. Firstly, we need to get rid of the header since it contains no relevant data. This can be achieved by using the keyword `skiprow=9`, meaning we want to ignore whatever data is in rows $0-9$. Secondly, we have to define the separator as white space `sep=r"\s+"`, because our data is not separated by commas, which is the default value for the `read_csv()` method. Lastly, we want the names of the columns in the file to be the names in the dataframe in order to access them later by name. This can be done using the keyword `header=0`, meaning we want the strings in the $1^{st}$ row to be set as column names (we neglect the rows $0...9$, therefore pandas starts to read in at row $10$ of the original data file).
+# `read_csv` also reads whitespace-separated tables. Here, `skiprows=[*range(10), 11]` skips the first ten lines and the dashed separator on line index 11 (counting from zero). The column-name line at index 10 remains, so `header=0` uses it as the header. `sep=r"\s+"` treats runs of whitespace as separators. These line numbers are specific to this string, including its leading blank line. Inspect the actual file before choosing them. See the [Pandas API reference](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html).
 
 # %%
 from pandas import read_csv
 
 # let's import this file
 # for a real .csv file, replace dummy_csv with the file path
-data = read_csv(dummy_csv, sep=r"\s+", skiprows=9, header=0)
+data = read_csv(dummy_csv, sep=r"\s+", skiprows=[*range(10), 11], header=0)
 
 # we can print out the first few lines to see if we did everything correcly using data.head():
 print(data.head())
+assert data.shape == (9, 9)
+assert abs(data["CL"].iloc[0] - 0.4239) < 1e-12
 
 # %% [markdown]
 # Alternatively, we can specify which columns we want to read in using the keyword `usecols` and change the names of these columns as well with the keyword `names`:
 
 # %%
 # only read in the 1st two columns and give them a different name
-data = read_csv(StringIO(dummy_str), sep=r"\s+", skiprows=9, header=0, usecols=[0, 1], names=["aoa", "cl"])
+data = read_csv(StringIO(dummy_str), sep=r"\s+", skiprows=[*range(10), 11], header=0, usecols=[0, 1], names=["aoa", "cl"])
 print(data.head())
 
 # %% [markdown]
@@ -1001,13 +1015,9 @@ print(data.head())
 # %% [markdown]
 # ## Dealing with error messages and debugging code
 #
-# When writing code, making mistakes is envidable. The following section deals with common mistakes when writing code and how to interpret and solve error messages. However, the here presented suggestions and examples should be understand just as guidance, since everybody follows a slighty different approach when it comes to dealing with bugs.
+# Errors are part of programming. Read the exception type and message first, locate the relevant line in your code, and inspect the input values, types, and shapes. Reduce the problem to a small example, form a hypothesis, and test one change at a time. VS Code's debugger can pause execution and show local variables.
 #
-# In general, the usage of an integrated development environment (IDE) such as [Visual Studio Code](https://code.visualstudio.com/) or [PyCharm](https://www.jetbrains.com/pycharm/) is highly recommended. IDE's provide useful tools for software development, e.g. a debugger, in which the written code can be debugged. The code can here be executed line-by-line while all relevant information is displayed and directly accessible. Further, IDE's provide useful functionality such as autocomplete and automatically enclosing any open brackets, which makes writing code faster and less prone to errors.
-#
-# When encountering an error, the python interpreter displays an error message, as already shown in some of the previous examples. The error message itself consists of the position of the error (line where the error was encountered) and what the error actually is (error message). In more complex code, Python additionally provides a so called $traceback$ of the error, which represents the complete "path" from the main script (or function) to the line of code where the error was encountered.
-#
-# Let's have a look at some common errors and possible way how to fix them.
+# A traceback lists the calls leading to an exception. The demonstrations below catch intentional errors so the rest of this chapter can still run. `traceback.print_exc()` displays the traceback within the handler; ordinarily, an uncaught exception prints it and stops the script.
 
 # %%
 # This example intentionally raises an exception.
@@ -1033,19 +1043,21 @@ try:
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         plt.show()
-        
+
     # 'if __name__=="__main__":' means that the following code is only executed when this script is executed as 'main',
     # but if we call the 'plot_data' function from another script, this won't be executed
     if __name__=="__main__":
         x = [1, 2, 3]
         y = [0.5, 0.8, 1.5]
         plot_data(x, y)
-        
-except Exception as error:
-    print(f"{type(error).__name__}: {error}")
+
+except Exception:
+    import traceback
+    traceback.print_exc()
+
 
 # %% [markdown]
-# In this example, the error message looks quite complicated. Note that the exact message depends on the installed version of matplotlib. The last line of the error message tells us that we encountered a `TypeError` due to invalid arguments for the method `plt.subplot()`. Whenever getting an error caused by libraries, it is likely that we made a mistake in our code rather than that the library has a bug, since in general libraries are tested and regularly updated. So in this case it makes sense to start at the top of the error message. The first entry tells us that the error has something to do with calling out `plot_data()` function in the main script. Within this function, the statement `fig, ax = plt.subplot(1, 1)` is listed as next in the error message. Something in this line caused matplotlib to raise a `TypeError` as shown by the $3^{rd}$ entry of the error message. By looking again into our `plot_data()` function, we can see that we typed `plt.subplot()` instead of `plt.subplots()` which then lead to this error because we our arguemnts where meant for the latter function.
+# The plotting example deliberately calls `plt.subplot(1, 1)` with invalid arguments. The traceback identifies the call to `plot_data` and the failing line inside it. The intended call is `fig, ax = plt.subplots(1, 1)`: `subplots` returns a figure and axes. Inspect the API and the arguments before changing code; library bugs are possible, but the traceback alone does not establish one.
 #
 # In a lot of cases the cause of an error is rather simple as shown in the previous examples. Some commonly made mistakes may be:
 #
@@ -1060,13 +1072,13 @@ except Exception as error:
 #
 # ### Python documentation:
 #
-# - [python docs](https://docs.python.org/3.3/library/functions.html) for built-in functions
+# - [python docs](https://docs.python.org/3/library/functions.html) for built-in functions
 # - [python docs](https://docs.python.org/3/tutorial/controlflow.html) for flow control statements
 # - [python docs](https://docs.python.org/3/tutorial/datastructures.html#looping-techniques) for lists
 # - [python docs](https://docs.python.org/3/tutorial/classes.html) for classes (especially section 9.3, 9.5)
 # - [python docs](https://docs.python.org/3/glossary.html#term-decorator) for decorators
-# - [python docs](https://docs.python.org/3.3/library/functions.html#property) for the @property decorator
-# - [flowTorch](https://flowmodelingcontrol.github.io/flowtorch-docs/1.1/index.html) library
+# - [python docs](https://docs.python.org/3/library/functions.html#property) for the @property decorator
+# - [NumPy](https://numpy.org/doc/stable/user/absolute_beginners.html) beginner guide
 # - [Matplotlib](https://matplotlib.org/stable/index.html) library
 # - [read_csv](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html) method in pandas
 # - [Pandas](https://pandas.pydata.org/docs/user_guide/index.html#user-guide) user guide

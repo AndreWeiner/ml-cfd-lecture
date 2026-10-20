@@ -19,6 +19,9 @@ class Links(HTMLParser):
 
 def main():
     manifest = json.loads((ROOT / 'quarto-migration.json').read_text())
+    existing = {item['slug'] for item in manifest}
+    manifest.extend({'slug': slug} for slug in ('ml_intro_exercise', 'python_intro', 'neural_network_training')
+                    if slug not in existing)
     code_count = 0
     image_count = 0
     for item in manifest:

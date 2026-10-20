@@ -10,7 +10,7 @@ Lecture notes and exercises from the Institute of Fluid Mechanics at TU Dresden.
 |--:|:------|:--------|:---------|:-------|
 | 0 | How to learn with generative AI | [Read](notebooks/lecture_00.qmd) | — | — |
 | 1 | Course overview and motivation | [Read](notebooks/ml_cfd_intro.py) | [Exercises](notebooks/system_setup.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
-| 2 | Introduction to machine learning | [Read](notebooks/ml_intro.py) | | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
+| 2 | Introduction to machine learning | [Read](notebooks/ml_intro.py) | [Exercises](notebooks/ml_intro_exercise.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
 | 3 | Surrogate models for discrete predictions | | | |
 | 4 | Surrogate models for continuous predictions | | | |
 | 5 | Analysis of coherent structures | | | |
@@ -18,3 +18,12 @@ Lecture notes and exercises from the Institute of Fluid Mechanics at TU Dresden.
 | 7 | Bayesian optimization and exploration | | | |
 | 8 | Data assimilation | | | |
 | 9 | Active flow control | | | |
+
+## Optional material
+
+Use these readings to refresh background knowledge as needed. They are separate from the numbered lectures and exercises.
+
+| Topic | Material |
+|:------|:---------|
+| Getting started with Python | [Read](notebooks/python_intro.py) |
+| Training neural networks | [Read](notebooks/neural_network_training.py) |

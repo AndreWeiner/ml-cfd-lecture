@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Training neural networks – Machine Learning in Fluid Mechanics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bef53a435fa9deb9018fac7b5c06cf9f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-b164dce217d8d0b484465d0fb8432922.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../quarto.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/TUD_Logo_RGB_horizontal_schwarz_en.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo light-content">
+    <img src="../images/TUD-white.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Machine Learning in Fluid Mechanics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Course overview</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/python_intro.html">Optional material</a></li><li class="breadcrumb-item"><a href="../notebooks/neural_network_training.html">Training neural networks</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures and exercises</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/lecture_00.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to learn with generative AI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Course overview and motivation</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_cfd_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/system_setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introduction to machine learning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro_exercise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Optional material</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/python_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting started with Python</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/neural_network_training.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Training neural networks</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-this-reading-is-for" id="toc-what-this-reading-is-for" class="nav-link active" data-scroll-target="#what-this-reading-is-for">What this reading is for</a></li>
+  <li><a href="#one-prototype-channel-like-velocity-profiles" id="toc-one-prototype-channel-like-velocity-profiles" class="nav-link" data-scroll-target="#one-prototype-channel-like-velocity-profiles">One prototype: channel-like velocity profiles</a></li>
+  <li><a href="#what-one-update-actually-means" id="toc-what-one-update-actually-means" class="nav-link" data-scroll-target="#what-one-update-actually-means">What one update actually means</a></li>
+  <li><a href="#a-reusable-supervised-training-loop" id="toc-a-reusable-supervised-training-loop" class="nav-link" data-scroll-target="#a-reusable-supervised-training-loop">A reusable supervised training loop</a>
+  <ul class="collapse">
+  <li><a href="#minimal-use-on-the-prototype" id="toc-minimal-use-on-the-prototype" class="nav-link" data-scroll-target="#minimal-use-on-the-prototype">Minimal use on the prototype</a></li>
+  </ul></li>
+  <li><a href="#controlled-comparisons-and-how-to-read-them" id="toc-controlled-comparisons-and-how-to-read-them" class="nav-link" data-scroll-target="#controlled-comparisons-and-how-to-read-them">Controlled comparisons and how to read them</a>
+  <ul class="collapse">
+  <li><a href="#batch-size-compare-epochs-and-updates" id="toc-batch-size-compare-epochs-and-updates" class="nav-link" data-scroll-target="#batch-size-compare-epochs-and-updates">Batch size: compare epochs and updates</a></li>
+  <li><a href="#learning-rate-step-length-matters" id="toc-learning-rate-step-length-matters" class="nav-link" data-scroll-target="#learning-rate-step-length-matters">Learning rate: step length matters</a></li>
+  <li><a href="#learning-rate-schedules" id="toc-learning-rate-schedules" class="nav-link" data-scroll-target="#learning-rate-schedules">Learning-rate schedules</a></li>
+  <li><a href="#architecture-variants" id="toc-architecture-variants" class="nav-link" data-scroll-target="#architecture-variants">Architecture variants</a></li>
+  <li><a href="#loss-functions-what-errors-should-the-model-emphasize" id="toc-loss-functions-what-errors-should-the-model-emphasize" class="nav-link" data-scroll-target="#loss-functions-what-errors-should-the-model-emphasize">Loss functions: what errors should the model emphasize?</a></li>
+  </ul></li>
+  <li><a href="#combining-training-strategies" id="toc-combining-training-strategies" class="nav-link" data-scroll-target="#combining-training-strategies">Combining training strategies</a></li>
+  <li><a href="#recorded-results-and-final-evaluation" id="toc-recorded-results-and-final-evaluation" class="nav-link" data-scroll-target="#recorded-results-and-final-evaluation">Recorded results and final evaluation</a></li>
+  <li><a href="#final-run-let-early-stopping-decide" id="toc-final-run-let-early-stopping-decide" class="nav-link" data-scroll-target="#final-run-let-early-stopping-decide">Final run: let early stopping decide</a>
+  <ul class="collapse">
+  <li><a href="#how-much-do-additional-training-profiles-help" id="toc-how-much-do-additional-training-profiles-help" class="nav-link" data-scroll-target="#how-much-do-additional-training-profiles-help">How much do additional training profiles help?</a></li>
+  </ul></li>
+  <li><a href="#apply-the-loop-to-exercise-2" id="toc-apply-the-loop-to-exercise-2" class="nav-link" data-scroll-target="#apply-the-loop-to-exercise-2">Apply the loop to Exercise 2</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/python_intro.html">Optional material</a></li><li class="breadcrumb-item"><a href="../notebooks/neural_network_training.html">Training neural networks</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Training neural networks</h1>
+<p class="subtitle lead">Optional reading — a reusable loop and controlled comparisons</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
+<section id="what-this-reading-is-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-reading-is-for">What this reading is for</h2>
+<p>A network architecture is only one part of a learning algorithm. Batch size, learning rate, learning-rate schedule, loss function, preprocessing, and model selection all affect the result. This reading uses <strong>one channel-like velocity-profile problem</strong> to make those choices concrete. It complements <a href="../notebooks/ml_intro_exercise.html">Exercise 2</a>, especially its comparisons of normalization, activations, and physical features.</p>
+<p>The examples use PyTorch in the <a href="../notebooks/system_setup.html">course Python environment</a>. No CFD container, additional dataset, or GPU is needed. The supporting files are <a href="training_tools.py">training_tools.py</a> and <a href="training_strategies_experiments.py">training_strategies_experiments.py</a>. They contain the reusable loop and the experiment definitions. The full, recorded comparisons below were executed on a CPU; they are measurements on this prototype, not claims that one strategy is best for every flow problem.</p>
+<p>Before inspecting a comparison, predict what might change and why. Then check the prediction against the curves. A more complicated model or training procedure is useful only if the evidence supports it.</p>
+</section>
+<section id="one-prototype-channel-like-velocity-profiles" class="level2">
+<h2 class="anchored" data-anchor-id="one-prototype-channel-like-velocity-profiles">One prototype: channel-like velocity profiles</h2>
+<p>Let <span class="math inline">\(\eta=y/\delta\)</span> range from the wall to the channel centerline, with <span class="math inline">\(\delta=0.5\,\mathrm{m}\)</span>, <span class="math inline">\(\nu=10^{-5}\,\mathrm{m^2\,s^{-1}}\)</span>, and <span class="math inline">\(Re_b=2\delta\bar U/\nu\)</span>. We generate 12 profiles for <span class="math inline">\(0.1\leq\bar U\leq1.0\,\mathrm{m\,s^{-1}}\)</span> on 128 wall-normal cells, graded toward the wall. Define</p>
+<p><span class="math display">\[
+a=\frac{Re_b^{0.8}}{30},\qquad
+g(\eta)=\log\!\left[1+a(2\eta-\eta^2)\right],\qquad
+u_x(\eta_i)=\bar U\frac{g(\eta_i)}{\sum_j w_jg(\eta_j)},
+\]</span></p>
+<p>where <span class="math inline">\(w_j\)</span> are normalized cell-width weights and <span class="math inline">\(\sum_jw_j=1\)</span>. The velocity is zero at the wall, its wall-normal derivative vanishes at the centerline, and its discrete volume-weighted mean is <span class="math inline">\(\bar U\)</span>. <strong>This is an explicitly constructed smooth profile family, not an OpenFOAM solution, Spalding’s relation, or a validated turbulence model.</strong> It supplies a reproducible training problem with a steep near-wall gradient and a Reynolds-number dependence.</p>
+<p>We learn <span class="math inline">\((\eta,Re_b)\mapsto u_x\)</span>. Unlike the dimensionless target in Exercise 2, this prototype uses <strong>dimensional velocity as the target</strong>, so the common evaluation metric is directly an RMSE in m/s. The same loop also works with a dimensionless target if the evaluation metric correctly reverses all its transformations.</p>
+<p><img src="media/training-strategies-prototype-light.png" class="light-content img-fluid" alt="The twelve clean synthetic velocity profiles."> <img src="media/training-strategies-prototype-dark.png" class="dark-content img-fluid" alt="The twelve clean synthetic velocity profiles."></p>
+<p>Eight complete profiles are used for training, two for validation, and two interior profiles for testing. The split is fixed before fitting input and target standardizers. Training targets receive small, fixed Gaussian perturbations with standard deviation <span class="math inline">\(0.002\bar U\)</span>; validation and test targets remain clean. This lets us distinguish a training observation from the known synthetic reference.</p>
+<p>The robust-loss comparison later adds approximately 5% deliberately corrupted training targets. The underlying problem, scalers, and validation profiles remain unchanged; the corrupted experiment is identified separately from the main comparisons.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> training_tools <span class="im">import</span> ProfileMLP, Standardizer, evaluate, fit, make_profile_problem</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>torch.set_num_threads(<span class="dv">1</span>)  <span class="co"># Fixed CPU setting for these small examples.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>problem <span class="op">=</span> make_profile_problem()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>train_data <span class="op">=</span> problem[<span class="st">"datasets"</span>][<span class="st">"train"</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>validation_data <span class="op">=</span> problem[<span class="st">"datasets"</span>][<span class="st">"validation"</span>]</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>test_data <span class="op">=</span> problem[<span class="st">"datasets"</span>][<span class="st">"test"</span>]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(train_data), <span class="bu">len</span>(validation_data), <span class="bu">len</span>(test_data))  <span class="co"># 1024, 256, 256</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The standardizer stores training means and standard deviations. A constant feature is assigned scale one, rather than divided by zero. Save the scalers, feature definitions, and split identifiers with a trained model. Applying BatchNorm or LayerNorm inside a network does <strong>not</strong> replace this data preparation.</p>
+</section>
+<section id="what-one-update-actually-means" class="level2">
+<h2 class="anchored" data-anchor-id="what-one-update-actually-means">What one update actually means</h2>
+<p>For a batch <span class="math inline">\(\mathcal B\)</span> of size <span class="math inline">\(B\)</span>, the mean squared error for a scalar output is</p>
+<p><span class="math display">\[
+\mathcal L_{\mathcal B}(\theta)=\frac{1}{B}\sum_{i\in\mathcal B}
+\left[f_\theta(x_i)-y_i\right]^2.
+\]</span></p>
+<p>One optimizer update uses the gradient of this batch loss. An <strong>epoch</strong> visits the training dataset once. With <span class="math inline">\(N\)</span> training samples, an epoch normally contains <span class="math inline">\(\lceil N/B\rceil\)</span> updates if the final smaller batch is retained.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 52%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Strategy</th>
+<th style="text-align: left;">Samples used per update</th>
+<th style="text-align: left;">Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Full batch</td>
+<td style="text-align: left;">All training samples</td>
+<td style="text-align: left;">One update per epoch; the gradient uses the entire current dataset.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mini-batch</td>
+<td style="text-align: left;">A subset, for example 64</td>
+<td style="text-align: left;">More updates per epoch; gradients depend on which samples are grouped together.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Single-sample stochastic updates</td>
+<td style="text-align: left;">One</td>
+<td style="text-align: left;">High update frequency and substantial sampling variability; incompatible with ordinary training-mode BatchNorm1d on these feature vectors.</td>
+</tr>
+</tbody>
+</table>
+<p>An equal-epoch comparison without early stopping holds <strong>data exposure</strong> approximately fixed but gives smaller batches more optimizer updates. An equal-update comparison without early stopping holds the number of updates fixed but exposes larger batches to more samples. Neither also fixes runtime. For this reason, we record epochs, actual updates, samples seen, and elapsed time. Sampling noise, parameter initialization, and dropout are different sources of variability.</p>
+<p>The displayed experiments use equal weight per cell sample; Exercise 2 asks you to state and justify your weighting choice. A graded mesh therefore puts more loss terms near the wall. Cell-volume weighting would define a different objective and must be applied consistently, rather than introduced only when a result looks unfavorable.</p>
+</section>
+<section id="a-reusable-supervised-training-loop" class="level2">
+<h2 class="anchored" data-anchor-id="a-reusable-supervised-training-loop">A reusable supervised training loop</h2>
+<p>The loop accepts a model, data loaders, a loss, an optimizer, and optionally a scheduler and common evaluation metric. It does not know the CFD case structure: split profiles and build features before creating loaders. It never receives a test loader.</p>
+<p>The essential sequence is:</p>
+<ol type="1">
+<li>Set <code>model.train()</code> and iterate over shuffled training batches.</li>
+<li>Clear gradients, compute predictions and loss, backpropagate, and update the parameters.</li>
+<li>Evaluate the current model with <code>model.eval()</code> and disabled gradient recording.</li>
+<li>Record a common validation metric, update the schedule at its specified frequency, and retain a <strong>copy</strong> of the best model state, including normalization buffers.</li>
+<li>Restore the validation-selected state after the training budget or optional early-stopping criterion is reached.</li>
+</ol>
+<p>The actual implementation used for the comparisons is shown below. The complete supporting file also defines <code>evaluate</code>, the standardizer, and the model components.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> copy <span class="im">import</span> deepcopy</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> perf_counter</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fit(model, train_loader, validation_loader, loss_fn, optimizer, <span class="op">*</span>, epochs<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        metric_fn<span class="op">=</span><span class="va">None</span>, scheduler<span class="op">=</span><span class="va">None</span>, scheduler_interval<span class="op">=</span><span class="st">'epoch'</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        max_updates<span class="op">=</span><span class="va">None</span>, patience<span class="op">=</span><span class="dv">20</span>, device<span class="op">=</span><span class="st">'cpu'</span>):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Return validation-selected state and history; never access test data."""</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> patience <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> patience <span class="op">&lt;</span> <span class="dv">1</span>:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'patience must be positive'</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epochs <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">or</span> (max_updates <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> max_updates <span class="op">&lt;</span> <span class="dv">1</span>):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'Training budgets must be positive'</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> scheduler_interval <span class="kw">not</span> <span class="kw">in</span> (<span class="st">'epoch'</span>, <span class="st">'update'</span>, <span class="st">'validation'</span>):</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'Unknown scheduler interval'</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    plateau <span class="op">=</span> <span class="bu">isinstance</span>(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> scheduler <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> plateau <span class="op">!=</span> (scheduler_interval <span class="op">==</span> <span class="st">'validation'</span>):</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'ReduceLROnPlateau requires validation stepping'</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    model.to(device)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    history, best, best_value, stale, updates, samples <span class="op">=</span> [], <span class="va">None</span>, <span class="bu">float</span>(<span class="st">'inf'</span>), <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> perf_counter()</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, epochs <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        model.train()</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        online_sum, online_n, lr_first, lr_last <span class="op">=</span> <span class="fl">0.</span>, <span class="dv">0</span>, <span class="va">None</span>, <span class="va">None</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> x, y <span class="kw">in</span> train_loader:</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            x, y <span class="op">=</span> x.to(device), y.to(device)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">len</span>(x) <span class="op">&lt;</span> <span class="dv">2</span> <span class="kw">and</span> <span class="bu">any</span>(<span class="bu">isinstance</span>(m, nn.BatchNorm1d) <span class="cf">for</span> m <span class="kw">in</span> model.modules()):</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'BatchNorm training requires at least two samples per batch'</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>            optimizer.zero_grad(set_to_none<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>            pred <span class="op">=</span> model(x)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> loss_fn(pred, y)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> loss.ndim <span class="kw">or</span> <span class="kw">not</span> torch.isfinite(loss):</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">FloatingPointError</span>(<span class="st">'Loss must be a finite scalar mean'</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">any</span>(p.grad <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> <span class="kw">not</span> torch.isfinite(p.grad).<span class="bu">all</span>() <span class="cf">for</span> p <span class="kw">in</span> model.parameters()):</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">FloatingPointError</span>(<span class="st">'Non-finite gradient'</span>)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>            lr_last <span class="op">=</span> optimizer.param_groups[<span class="dv">0</span>][<span class="st">'lr'</span>]</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            lr_first <span class="op">=</span> lr_last <span class="cf">if</span> lr_first <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> lr_first</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>            updates <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>            samples <span class="op">+=</span> <span class="bu">len</span>(x)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            online_sum <span class="op">+=</span> <span class="bu">len</span>(x) <span class="op">*</span> loss.item()</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            online_n <span class="op">+=</span> <span class="bu">len</span>(x)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> scheduler <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> scheduler_interval <span class="op">==</span> <span class="st">'update'</span>:</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                scheduler.step()</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> max_updates <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> updates <span class="op">&gt;=</span> max_updates:</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> online_n:</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'Empty training loader'</span>)</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>        validation <span class="op">=</span> evaluate(model, validation_loader, loss_fn, metric_fn, device)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Fixed-order evaluation makes training and validation curves comparable.</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        training <span class="op">=</span> evaluate(model, DataLoader(train_loader.dataset, batch_size<span class="op">=</span><span class="dv">1024</span>),</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>                            loss_fn, metric_fn, device)</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> scheduler <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> scheduler_interval <span class="op">==</span> <span class="st">'validation'</span>:</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>                scheduler.step(validation[<span class="st">'metric'</span>])</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> scheduler_interval <span class="op">==</span> <span class="st">'epoch'</span>:</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>                scheduler.step()</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>        improved <span class="op">=</span> validation[<span class="st">'metric'</span>] <span class="op">&lt;</span> best_value</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> improved:</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>            best_value, stale <span class="op">=</span> validation[<span class="st">'metric'</span>], <span class="dv">0</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>            best <span class="op">=</span> {<span class="st">'model'</span>: deepcopy(model.state_dict()),</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'optimizer'</span>: deepcopy(optimizer.state_dict()),</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'scheduler'</span>: <span class="va">None</span> <span class="cf">if</span> scheduler <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> deepcopy(scheduler.state_dict()),</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'epoch'</span>: epoch, <span class="st">'updates'</span>: updates}</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>            stale <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>        history.append({<span class="st">'epoch'</span>: epoch, <span class="st">'updates'</span>: updates, <span class="st">'samples_seen'</span>: samples,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'online_loss'</span>: online_sum <span class="op">/</span> online_n,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'train_loss'</span>: training[<span class="st">'loss'</span>], <span class="st">'validation_loss'</span>: validation[<span class="st">'loss'</span>],</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'train_metric'</span>: training[<span class="st">'metric'</span>], <span class="st">'validation_metric'</span>: validation[<span class="st">'metric'</span>],</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'lr_first'</span>: lr_first, <span class="st">'lr_last'</span>: lr_last,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'seconds'</span>: perf_counter() <span class="op">-</span> start})</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (max_updates <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> updates <span class="op">&gt;=</span> max_updates) <span class="kw">or</span> (patience <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> stale <span class="op">&gt;=</span> patience):</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    model.load_state_dict(best[<span class="st">'model'</span>])</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    model.<span class="bu">eval</span>()</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'history'</span>: history, <span class="st">'best'</span>: best, <span class="st">'best_validation_metric'</span>: best_value}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>loss_fn</code> must return a scalar <strong>mean over equally weighted samples</strong>, with a fixed number of target components for regression. The code aggregates evaluation batches using their sample counts. Averaging the means of unequal-sized batches without those counts would give the small final batch too much weight. The online loss is accumulated while parameters change; the separately recorded training metric is evaluated with the final state of that epoch, in evaluation mode, like the validation metric.</p>
+<p>The generic interface handles regression tensors <code>(N, n_features)</code> and <code>(N, n_targets)</code>. It also handles classification if the network returns class logits and the caller uses <code>CrossEntropyLoss</code> with integer targets <code>(N,)</code> and a suitable common metric. It is not a complete PINN or reinforcement-learning trainer: those require additional residuals, sampling, or trajectory handling. If you introduce sample or class weights, use aggregation matching that weighted objective rather than assuming the present sample-count average is sufficient.</p>
+<section id="minimal-use-on-the-prototype" class="level3">
+<h3 class="anchored" data-anchor-id="minimal-use-on-the-prototype">Minimal use on the prototype</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">11</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>train_loader <span class="op">=</span> DataLoader(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    train_data, batch_size<span class="op">=</span><span class="dv">64</span>, shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    generator<span class="op">=</span>torch.Generator().manual_seed(<span class="dv">1011</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>validation_loader <span class="op">=</span> DataLoader(validation_data, batch_size<span class="op">=</span><span class="dv">1024</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ProfileMLP(width<span class="op">=</span><span class="dv">32</span>, depth<span class="op">=</span><span class="dv">3</span>, activation<span class="op">=</span><span class="st">"silu"</span>).to(device)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.003</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>velocity_scale <span class="op">=</span> problem[<span class="st">"y_scaler"</span>].scale.to(device)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dimensional_mse(prediction, target):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ((prediction <span class="op">-</span> target) <span class="op">*</span> velocity_scale).square().mean()</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> fit(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    model, train_loader, validation_loader, nn.MSELoss(), optimizer,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    epochs<span class="op">=</span><span class="dv">240</span>, metric_fn<span class="op">=</span>dimensional_mse, device<span class="op">=</span>device,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>validation_rmse <span class="op">=</span> result[<span class="st">"best_validation_metric"</span>] <span class="op">**</span> <span class="fl">0.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This selects a CUDA GPU when available and otherwise uses the CPU. The model is moved <strong>before constructing its optimizer</strong>, and the metric scale is placed on the same device. The datasets stay in CPU memory; <code>fit</code> transfers each training and validation batch to <code>device</code>. The recorded comparisons here were executed on CPU.</p>
+<p><code>result["best"]</code> includes model, optimizer, and scheduler states at the selected epoch. For inference, save the model state, architecture settings, and scalers. Exact continuation of a shuffled stochastic run additionally requires random-generator/sampler state and a defined continuation point; the example does not implement an exact restart facility. A checkpoint selected by validation error is also distinct from the last training checkpoint.</p>
+</section>
+</section>
+<section id="controlled-comparisons-and-how-to-read-them" class="level2">
+<h2 class="anchored" data-anchor-id="controlled-comparisons-and-how-to-read-them">Controlled comparisons and how to read them</h2>
+<p>The main reference model has three hidden layers of width 32 with SiLU activations, an affine output, batch size 64, Adam with learning rate 0.003, and MSE loss. There is no weight decay. The maximum budget is 240 epochs, with early-stopping patience 20. Each setting is repeated with seeds 11, 22, and 33. Data generation and the profile split are fixed; seed changes affect initialization, shuffling, and stochastic layers.</p>
+<p>A shared seed controls a random-number stream; it does not make networks with different parameter layouts start from identical functions. Parameter counts are recorded with the results. These are modest, controlled comparisons with fixed settings, not equally exhaustive tuning of every method.</p>
+<p>Curves show <strong>clean-validation dimensional RMSE</strong>: the solid line is the mean over seeds with recorded evaluations at that point, and the shading spans their minimum and maximum. Curves end when all seeds have stopped; stopped histories are not extended. Values are linearly interpolated between recorded evaluations where needed. It is training-run variation, not a predictive confidence interval. Checkpoints are selected by the common validation metric, not by whichever training loss happens to be numerically smallest. The test profiles are used only after selecting a clean-data configuration by its mean best validation MSE across seeds.</p>
+<section id="batch-size-compare-epochs-and-updates" class="level3">
+<h3 class="anchored" data-anchor-id="batch-size-compare-epochs-and-updates">Batch size: compare epochs and updates</h3>
+<p><img src="media/training-strategies-batch-light.png" class="light-content img-fluid" alt="Validation error for different batch sizes under the same epoch budget."> <img src="media/training-strategies-batch-dark.png" class="dark-content img-fluid" alt="Validation error for different batch sizes under the same epoch budget."></p>
+<p>The two axes tell different stories: one counts optimizer updates, the other counts cumulative data exposure in epoch equivalents. Before early stopping, the maximum is 240 updates for full-batch training and 15,360 for batch size 16. If it learns more slowly per epoch, first separate the number of updates from the quality of each gradient estimate. Small batches can make the path noisier; they do not guarantee better generalization or faster execution.</p>
+<p>Validation is recorded at epoch boundaries (including a final partial epoch), so runs have different evaluation spacing on the update axis. Under a fixed-update budget, the number of checkpoint-selection opportunities also differs. Early stopping can also change the realized budget. The results table records actual update ranges and final validation errors separately from the best-checkpoint errors; this is a common maximum-budget comparison, not a guarantee of equal work.</p>
+<p>A second comparison allows each run <strong>up to 1,600 optimizer updates</strong>, subject to the same early-stopping rule. Larger batches then see more training samples, and the number of completed epochs differs:</p>
+<p><img src="media/training-strategies-update_budget-light.png" class="light-content img-fluid" alt="Batch-size comparison with 1,600 optimizer updates per run."> <img src="media/training-strategies-update_budget-dark.png" class="dark-content img-fluid" alt="Batch-size comparison with 1,600 optimizer updates per run."></p>
+<p>The best-checkpoint ranking changes between the epoch-capped and update-capped comparisons. Early stopping also means that actual update counts can differ within each group. The latter also sees more samples per update. The change in ranking shows why the comparison budget must be stated.</p>
+</section>
+<section id="learning-rate-step-length-matters" class="level3">
+<h3 class="anchored" data-anchor-id="learning-rate-step-length-matters">Learning rate: step length matters</h3>
+<p>The learning rate controls the scale of a parameter update. Too small a rate may leave a model under-trained within the available budget; too large a rate can cause oscillations or divergence. Adam adapts updates per parameter but still needs a sensible global learning rate. A larger network, a different activation, target scaling, and batch size can all change which rate works well.</p>
+<p><img src="media/training-strategies-learning_rate-light.png" class="light-content img-fluid" alt="The same architecture trained at three learning rates."> <img src="media/training-strategies-learning_rate-dark.png" class="dark-content img-fluid" alt="The same architecture trained at three learning rates."></p>
+<p>All three rates use the same architecture and 240-epoch budget. A finite but poor curve is a valid outcome, not a reason to remove that run. The helper explicitly raises on non-finite losses or gradients. If a setting diverges, record the failure and change it as a new experiment.</p>
+</section>
+<section id="learning-rate-schedules" class="level3">
+<h3 class="anchored" data-anchor-id="learning-rate-schedules">Learning-rate schedules</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 47%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Schedule</th>
+<th style="text-align: left;">Change rule in this example</th>
+<th style="text-align: left;">When <code>step</code> is called</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Constant</td>
+<td style="text-align: left;">Keep 0.003</td>
+<td style="text-align: left;">No scheduler</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Step decay</td>
+<td style="text-align: left;">Multiply by 0.3 after every 80 epochs</td>
+<td style="text-align: left;">After each epoch</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cosine decay</td>
+<td style="text-align: left;">Smoothly decrease toward <span class="math inline">\(10^{-5}\)</span> over the planned update budget</td>
+<td style="text-align: left;">After each optimizer update</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Validation plateau</td>
+<td style="text-align: left;">Halve the rate after the monitored validation MSE stops improving for the configured patience</td>
+<td style="text-align: left;">After validation, with the metric</td>
+</tr>
+</tbody>
+</table>
+<p>Schedulers are stepped <strong>after the corresponding optimizer work</strong>, not before the first optimizer update. <code>ReduceLROnPlateau</code> consumes the validation metric; <code>StepLR</code> and <code>CosineAnnealingLR</code> do not. A per-epoch schedule cannot be compared with a per-update schedule merely by giving their counters the same integer. The <a href="https://docs.pytorch.org/docs/2.14/optim.html">PyTorch optimizer documentation</a> describes these interfaces and ordering.</p>
+<p><img src="media/training-strategies-schedule-light.png" class="light-content img-fluid" alt="Validation histories for constant and scheduled learning rates."> <img src="media/training-strategies-schedule-dark.png" class="dark-content img-fluid" alt="Validation histories for constant and scheduled learning rates."></p>
+<p><img src="media/training-strategies-rates-light.png" class="light-content img-fluid" alt="Learning rates actually used by the scheduled runs."> <img src="media/training-strategies-rates-dark.png" class="dark-content img-fluid" alt="Learning rates actually used by the scheduled runs."></p>
+<p>With these budgets and stopping rules, plateau decay has lower mean best validation error than the constant-rate reference; step and cosine decay give different outcomes. These observations concern the stated rates and budgets; they do not establish a general ranking of schedules.</p>
+<p>A decreasing rate can help refine a fit, but reducing it before useful progress has been made can also freeze a poor solution. Plateau scheduling and early stopping serve different purposes: one changes update sizes, while the other terminates training. The default is <code>patience=20</code>: training stops after 20 consecutive validation evaluations without a new best metric. Set <code>patience=None</code> to disable early stopping. Each run has a maximum of 240 epochs (or 1,600 updates in the update-budget comparison), and restores its best validation checkpoint. Scheduler patience is separate and controls learning-rate reductions.</p>
+<p><strong>When the epoch cap is reached:</strong> if early stopping has not triggered, optimization may still benefit from more epochs, especially if validation error continues to decrease. This is a reason to try a larger budget, not a guarantee of improved generalization. The maximum epoch budget is deliberately kept modest in this educational notebook so the comparisons remain practical to run.</p>
+</section>
+<section id="architecture-variants" class="level3">
+<h3 class="anchored" data-anchor-id="architecture-variants">Architecture variants</h3>
+<p>The model factory makes the modifications explicit. <code>depth=3</code> means one input-to-hidden layer followed by two hidden blocks, then the affine output.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HiddenBlock(nn.Module):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, width, normalization, activation, dropout, residual):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        norm <span class="op">=</span> {<span class="st">'none'</span>: nn.Identity, <span class="st">'layer'</span>: <span class="kw">lambda</span>: nn.LayerNorm(width),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">'batch'</span>: <span class="kw">lambda</span>: nn.BatchNorm1d(width)}[normalization]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.branch <span class="op">=</span> nn.Sequential(nn.Linear(width, width), norm(), activation(),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                                    nn.Dropout(dropout))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.residual <span class="op">=</span> residual</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="va">self</span>.branch(x)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="op">+</span> out <span class="cf">if</span> <span class="va">self</span>.residual <span class="cf">else</span> out</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ProfileMLP(nn.Module):</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_in<span class="op">=</span><span class="dv">2</span>, n_out<span class="op">=</span><span class="dv">1</span>, width<span class="op">=</span><span class="dv">32</span>, depth<span class="op">=</span><span class="dv">3</span>, normalization<span class="op">=</span><span class="st">'none'</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                 residual<span class="op">=</span><span class="va">False</span>, concatenate<span class="op">=</span><span class="va">False</span>, dropout<span class="op">=</span><span class="fl">0.</span>, activation<span class="op">=</span><span class="st">'silu'</span>):</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> depth <span class="op">&lt;</span> <span class="dv">1</span>:</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'depth must be positive'</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        act <span class="op">=</span> {<span class="st">'tanh'</span>: nn.Tanh, <span class="st">'relu'</span>: nn.ReLU, <span class="st">'silu'</span>: nn.SiLU}[activation]</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.<span class="bu">input</span> <span class="op">=</span> nn.Sequential(nn.Linear(n_in, width), act())</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.blocks <span class="op">=</span> nn.ModuleList([</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>            HiddenBlock(width, normalization, act, dropout, residual)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(depth <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        ])</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.concatenate <span class="op">=</span> concatenate</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.output <span class="op">=</span> nn.Linear(width <span class="op">+</span> (n_in <span class="cf">if</span> concatenate <span class="cf">else</span> <span class="dv">0</span>), n_out)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> <span class="va">self</span>.<span class="bu">input</span>(x)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> block <span class="kw">in</span> <span class="va">self</span>.blocks:</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>            h <span class="op">=</span> block(h)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.concatenate:</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            h <span class="op">=</span> torch.cat((h, x), dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.output(h)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 36%">
+<col style="width: 39%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variant</th>
+<th style="text-align: left;">What changes</th>
+<th style="text-align: left;">What to watch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Plain MLP</td>
+<td style="text-align: left;">Repeated affine maps and activations</td>
+<td style="text-align: left;">A useful reference before adding components.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LayerNorm</td>
+<td style="text-align: left;">Normalize hidden features within each sample, with learned scale and offset</td>
+<td style="text-align: left;">No batch statistics; can still change how scalar information is represented.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BatchNorm</td>
+<td style="text-align: left;">Normalize hidden features using training-batch statistics and retain running statistics for evaluation</td>
+<td style="text-align: left;">Batch composition, small batches, and training/evaluation modes matter.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Additive residual connection</td>
+<td style="text-align: left;">Pass <span class="math inline">\(h+F(h)\)</span> to the next block</td>
+<td style="text-align: left;">Shapes must match; the implemented width is constant.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Concatenated skip connection</td>
+<td style="text-align: left;">Pass the original input to the output layer alongside the final hidden representation</td>
+<td style="text-align: left;">Unlike addition, concatenation increases the next layer’s input dimension.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dropout</td>
+<td style="text-align: left;">Randomly zero hidden activations during training, with the module’s scale compensation</td>
+<td style="text-align: left;">Evaluation disables dropout; regularization can underfit a small smooth dataset.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://docs.pytorch.org/docs/2.14/generated/torch.nn.BatchNorm1d.html">BatchNorm1d</a> uses batch statistics during training and, with the default configuration used here, running statistics in evaluation. <a href="https://docs.pytorch.org/docs/2.14/generated/torch.nn.LayerNorm.html">LayerNorm</a> uses statistics within each input in both modes. Their behavior is therefore not interchangeable. The helper rejects a singleton training batch when BatchNorm is present; choose a compatible batch partition instead of silently losing samples.</p>
+<p><img src="media/training-strategies-architecture-light.png" class="light-content img-fluid" alt="Architecture variants under the same epoch and learning-rate settings."> <img src="media/training-strategies-architecture-dark.png" class="dark-content img-fluid" alt="Architecture variants under the same epoch and learning-rate settings."></p>
+<p>The residual variant has the same trainable parameter count as the plain model in this implementation; normalization and concatenated-input variants add parameters. Dropout adds no trainable parameters but changes the training process. None is guaranteed to improve this small regression problem. A fair follow-up would give each architecture a comparable validation-based tuning budget.</p>
+<p>Activation functions also matter. The following holds width, depth, normalization, optimizer, and budget fixed while replacing SiLU with tanh or ReLU:</p>
+<p><img src="media/training-strategies-activation-light.png" class="light-content img-fluid" alt="Activation-function comparison."> <img src="media/training-strategies-activation-dark.png" class="dark-content img-fluid" alt="Activation-function comparison."></p>
+</section>
+<section id="loss-functions-what-errors-should-the-model-emphasize" class="level3">
+<h3 class="anchored" data-anchor-id="loss-functions-what-errors-should-the-model-emphasize">Loss functions: what errors should the model emphasize?</h3>
+<p>For a scalar residual <span class="math inline">\(r=\hat y-y\)</span>, MSE uses <span class="math inline">\(r^2\)</span>, MAE uses <span class="math inline">\(|r|\)</span>, and Huber loss uses</p>
+<p><span class="math display">\[
+\ell_\delta(r)=
+\begin{cases}
+\frac12r^2,&amp; |r|\leq\delta,\\
+\delta\left(|r|-\frac12\delta\right),&amp; |r|&gt;\delta.
+\end{cases}
+\]</span></p>
+<p>MSE gives a growing gradient to large residuals. MAE gives a gradient with constant magnitude away from zero. Huber combines a quadratic center with linear tails; it can reduce the influence of large corrupted targets while retaining a smooth central region. These objectives can favor different conditional statistics and should be chosen to match the problem, rather than only to obtain a smaller displayed training number. <a href="https://docs.pytorch.org/docs/2.14/generated/torch.nn.HuberLoss.html">PyTorch HuberLoss</a> defines the threshold convention used here.</p>
+<p>For this comparison, all three losses see the <strong>same corrupted training targets</strong>: every twentieth scaled target receives an offset of 3. The Huber threshold is 0.2 in standardized target units, corresponding to <span class="math inline">\(0.2s_y\)</span> m/s, where <span class="math inline">\(s_y\)</span> is the training target standard deviation. Scalers remain fixed across this controlled corruption experiment. A reference MSE run without outliers appears as a separate clean-data control in the figure.</p>
+<p><img src="media/training-strategies-loss-light.png" class="light-content img-fluid" alt="Loss comparison with fixed training-target corruption and clean validation data."> <img src="media/training-strategies-loss-dark.png" class="dark-content img-fluid" alt="Loss comparison with fixed training-target corruption and clean validation data."></p>
+<p>The corrupted-target MSE runs have substantially higher validation error than the MAE and Huber runs here. The clean MSE control separates the effect of target corruption from changing the loss.</p>
+<p>The vertical axis is the <strong>same clean-validation RMSE in m/s for every loss</strong>. Comparing raw MAE, MSE, and Huber values would mix different objectives and scales. Robust losses do not repair physically inconsistent labels, poor mesh resolution, or an unrepresentative dataset. Here the corruption is known because we introduced it; real data require independent quality checks.</p>
+</section>
+</section>
+<section id="combining-training-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="combining-training-strategies">Combining training strategies</h2>
+<p>A strategy that helps on its own need not help in combination: normalization changes the activations seen by later layers, and the schedule changes the optimization path. This comparison tests a small factorial set: <strong>LayerNorm with SiLU, tanh, or ReLU</strong>, each with <strong>constant learning rate 0.003 or validation-based plateau decay</strong>. LayerNorm was the strongest individual architecture in the preceding comparison; all three activations are retained rather than assuming the individually best activation remains best with normalization.</p>
+<p>All six combinations use the same training-only scalers, profile split, MSE objective, batch size 64, width 32, three hidden layers, a maximum of 240 epochs, and seeds 11, 22, and 33. Plateau decay uses factor 0.5, patience 10, and minimum learning rate 0.00001. The LayerNorm–SiLU–constant configuration reuses the architecture reference. Each run restores its best validation checkpoint. Selection across configurations uses mean best validation <strong>MSE</strong> over the three seeds.</p>
+<p><img src="media/training-strategies-combined-light.png" class="light-content img-fluid" alt="Combined effects of LayerNorm, activation, and learning-rate schedule."> <img src="media/training-strategies-combined-dark.png" class="dark-content img-fluid" alt="Combined effects of LayerNorm, activation, and learning-rate schedule."></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Activation</th>
+<th style="text-align: left;">Schedule</th>
+<th style="text-align: right;">Best validation RMSE (m/s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">SiLU</td>
+<td style="text-align: left;">constant</td>
+<td style="text-align: right;">0.0111 ± 0.0025</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SiLU</td>
+<td style="text-align: left;">plateau</td>
+<td style="text-align: right;">0.0047 ± 0.0011</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tanh</td>
+<td style="text-align: left;">constant</td>
+<td style="text-align: right;">0.0116 ± 0.0043</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">tanh</td>
+<td style="text-align: left;">plateau</td>
+<td style="text-align: right;">0.0057 ± 0.0011</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ReLU</td>
+<td style="text-align: left;">constant</td>
+<td style="text-align: right;">0.0166 ± 0.0068</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ReLU</td>
+<td style="text-align: left;">plateau</td>
+<td style="text-align: right;">0.0136 ± 0.0050</td>
+</tr>
+</tbody>
+</table>
+<p>The SiLU and tanh variants achieve lower mean best validation errors with plateau decay here; the ReLU result also changes with the schedule. The strongest combination remains <strong>LayerNorm + SiLU + plateau decay</strong>. These effects depend on the combination and the stopping rule, rather than simply adding gains from individual comparisons.</p>
+</section>
+<section id="recorded-results-and-final-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="recorded-results-and-final-evaluation">Recorded results and final evaluation</h2>
+<p>The compact table below records parameter counts, actual update ranges across seeds, and validation RMSE variation for every comparison. The same reference run is reused between groups rather than retrained under a different random state. The detailed <a href="media/training-strategies-results.json">result record</a> contains complete histories, seeds, configurations, timings, and source fingerprints.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 21%">
+<col style="width: 25%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Comparison</th>
+<th style="text-align: left;">Setting</th>
+<th style="text-align: right;">Parameters</th>
+<th style="text-align: right;">Actual updates (range)</th>
+<th style="text-align: right;">Best validation RMSE (m/s)</th>
+<th style="text-align: right;">Final validation RMSE (m/s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">Batch 16</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">8000–8576</td>
+<td style="text-align: right;">0.0113 ± 0.0008</td>
+<td style="text-align: right;">0.0208 ± 0.0091</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">Batch 64</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1984–3728</td>
+<td style="text-align: right;">0.0121 ± 0.0042</td>
+<td style="text-align: right;">0.0167 ± 0.0050</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">Batch 256</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">960</td>
+<td style="text-align: right;">0.0178 ± 0.0023</td>
+<td style="text-align: right;">0.0188 ± 0.0020</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">Full batch</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">240</td>
+<td style="text-align: right;">0.0340 ± 0.0007</td>
+<td style="text-align: right;">0.0340 ± 0.0007</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">update budget</td>
+<td style="text-align: left;">Batch 16</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1600</td>
+<td style="text-align: right;">0.0230 ± 0.0019</td>
+<td style="text-align: right;">0.0255 ± 0.0017</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">update budget</td>
+<td style="text-align: left;">Batch 64</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1600</td>
+<td style="text-align: right;">0.0174 ± 0.0004</td>
+<td style="text-align: right;">0.0215 ± 0.0009</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">update budget</td>
+<td style="text-align: left;">Full batch</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1222–1600</td>
+<td style="text-align: right;">0.0066 ± 0.0010</td>
+<td style="text-align: right;">0.0068 ± 0.0009</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">learning rate</td>
+<td style="text-align: left;">LR 0.0001</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">3840</td>
+<td style="text-align: right;">0.0572 ± 0.0035</td>
+<td style="text-align: right;">0.0572 ± 0.0035</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">learning rate</td>
+<td style="text-align: left;">LR 0.003</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1984–3728</td>
+<td style="text-align: right;">0.0121 ± 0.0042</td>
+<td style="text-align: right;">0.0167 ± 0.0050</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">learning rate</td>
+<td style="text-align: left;">LR 0.03</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">832–2096</td>
+<td style="text-align: right;">0.0164 ± 0.0051</td>
+<td style="text-align: right;">0.0294 ± 0.0071</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">schedule</td>
+<td style="text-align: left;">Constant LR 0.003</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1984–3728</td>
+<td style="text-align: right;">0.0121 ± 0.0042</td>
+<td style="text-align: right;">0.0167 ± 0.0050</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">schedule</td>
+<td style="text-align: left;">Step decay</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">3840</td>
+<td style="text-align: right;">0.0137 ± 0.0018</td>
+<td style="text-align: right;">0.0152 ± 0.0009</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">schedule</td>
+<td style="text-align: left;">Cosine decay</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">3712–3840</td>
+<td style="text-align: right;">0.0133 ± 0.0016</td>
+<td style="text-align: right;">0.0134 ± 0.0017</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">schedule</td>
+<td style="text-align: left;">Validation plateau</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">3440–3840</td>
+<td style="text-align: right;">0.0108 ± 0.0026</td>
+<td style="text-align: right;">0.0111 ± 0.0031</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">architecture</td>
+<td style="text-align: left;">Plain MLP (batch 64)</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1984–3728</td>
+<td style="text-align: right;">0.0121 ± 0.0042</td>
+<td style="text-align: right;">0.0167 ± 0.0050</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">architecture</td>
+<td style="text-align: left;">LayerNorm</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">1216–1712</td>
+<td style="text-align: right;">0.0111 ± 0.0025</td>
+<td style="text-align: right;">0.0269 ± 0.0115</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">architecture</td>
+<td style="text-align: left;">BatchNorm</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">880–1392</td>
+<td style="text-align: right;">0.0253 ± 0.0029</td>
+<td style="text-align: right;">0.0334 ± 0.0028</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">architecture</td>
+<td style="text-align: left;">Residual</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">2416–3840</td>
+<td style="text-align: right;">0.0102 ± 0.0005</td>
+<td style="text-align: right;">0.0145 ± 0.0042</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">architecture</td>
+<td style="text-align: left;">Concatenated skip</td>
+<td style="text-align: right;">2243</td>
+<td style="text-align: right;">3296–3728</td>
+<td style="text-align: right;">0.0113 ± 0.0010</td>
+<td style="text-align: right;">0.0165 ± 0.0056</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">architecture</td>
+<td style="text-align: left;">Dropout 0.1</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">2048–3744</td>
+<td style="text-align: right;">0.0157 ± 0.0031</td>
+<td style="text-align: right;">0.0187 ± 0.0018</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">activation</td>
+<td style="text-align: left;">SiLU</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1984–3728</td>
+<td style="text-align: right;">0.0121 ± 0.0042</td>
+<td style="text-align: right;">0.0167 ± 0.0050</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">activation</td>
+<td style="text-align: left;">Tanh</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">2208–3408</td>
+<td style="text-align: right;">0.0098 ± 0.0025</td>
+<td style="text-align: right;">0.0137 ± 0.0042</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">activation</td>
+<td style="text-align: left;">ReLU</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">2256–2400</td>
+<td style="text-align: right;">0.0108 ± 0.0003</td>
+<td style="text-align: right;">0.0236 ± 0.0054</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">combined</td>
+<td style="text-align: left;">LayerNorm + silu + constant LR</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">1216–1712</td>
+<td style="text-align: right;">0.0111 ± 0.0025</td>
+<td style="text-align: right;">0.0269 ± 0.0115</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">combined</td>
+<td style="text-align: left;">LayerNorm + silu + plateau LR</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">3344–3840</td>
+<td style="text-align: right;">0.0047 ± 0.0011</td>
+<td style="text-align: right;">0.0052 ± 0.0015</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">combined</td>
+<td style="text-align: left;">LayerNorm + tanh + constant LR</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">832–1776</td>
+<td style="text-align: right;">0.0116 ± 0.0043</td>
+<td style="text-align: right;">0.0144 ± 0.0031</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">combined</td>
+<td style="text-align: left;">LayerNorm + tanh + plateau LR</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">2912–3840</td>
+<td style="text-align: right;">0.0057 ± 0.0011</td>
+<td style="text-align: right;">0.0064 ± 0.0017</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">combined</td>
+<td style="text-align: left;">LayerNorm + relu + constant LR</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">640–1392</td>
+<td style="text-align: right;">0.0166 ± 0.0068</td>
+<td style="text-align: right;">0.0281 ± 0.0143</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">combined</td>
+<td style="text-align: left;">LayerNorm + relu + plateau LR</td>
+<td style="text-align: right;">2369</td>
+<td style="text-align: right;">1088–1760</td>
+<td style="text-align: right;">0.0136 ± 0.0050</td>
+<td style="text-align: right;">0.0253 ± 0.0129</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">loss</td>
+<td style="text-align: left;">MSE + outliers</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">1360–1888</td>
+<td style="text-align: right;">0.0401 ± 0.0043</td>
+<td style="text-align: right;">0.0521 ± 0.0074</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">loss</td>
+<td style="text-align: left;">MAE + outliers</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">3408–3840</td>
+<td style="text-align: right;">0.0098 ± 0.0003</td>
+<td style="text-align: right;">0.0143 ± 0.0075</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">loss</td>
+<td style="text-align: left;">Huber + outliers</td>
+<td style="text-align: right;">2241</td>
+<td style="text-align: right;">2352–3200</td>
+<td style="text-align: right;">0.0122 ± 0.0016</td>
+<td style="text-align: right;">0.0170 ± 0.0032</td>
+</tr>
+</tbody>
+</table>
+<p>Across the individual and combined clean-data comparisons, <strong>LayerNorm + SiLU + validation-based plateau decay</strong> has the lowest mean best validation MSE. Its held-out test RMSE is <strong>0.0055 ± 0.0014 m/s</strong> (mean ± sample standard deviation over three seeds). Batch size is 64 and the initial learning rate is 0.003. Each seed uses its own validation-selected checkpoint. The suite executed 81 distinct runs in 23.5 seconds with PyTorch 2.14.1+cpu, using 16 parallel CPU workers with one thread per worker. This elapsed time includes evaluation and saving but excludes figure generation; it is not a portable runtime estimate.</p>
+<p><img src="media/training-strategies-test-light.png" class="light-content img-fluid" alt="The selected combined model on two test profiles, shown separately with profile identifiers and bulk velocities; shading spans the three seed predictions."> <img src="media/training-strategies-test-dark.png" class="dark-content img-fluid" alt="The selected combined model on two test profiles, shown separately with profile identifiers and bulk velocities; shading spans the three seed predictions."></p>
+<p>Both complete test profiles (indices 5 and 9, 128 points each) contribute to the reported test RMSE. Test data are excluded from training, checkpoint selection, and configuration selection. However, this reading was extended after the earlier model’s test results had been inspected, so this is an exploratory extended comparison rather than a fresh blind test. A new untouched dataset would be needed for an independent confirmation.</p>
+<p>These are two interior profiles of a synthetic family. The result does not establish CFD accuracy, extrapolation, or performance on a new physical regime. As in Exercise 2, a simple physical or interpolation baseline can be a strong competitor; the purpose here is to understand training behavior.</p>
+</section>
+<section id="final-run-let-early-stopping-decide" class="level2">
+<h2 class="anchored" data-anchor-id="final-run-let-early-stopping-decide">Final run: let early stopping decide</h2>
+<p>The selected <strong>LayerNorm + SiLU + validation-based plateau schedule</strong> is trained with a generous <strong>50,000-epoch maximum</strong> and <strong>early-stopping patience 20</strong>. The architecture, data, scalers, Adam settings, batch size 64, seeds, and plateau scheduler are unchanged. This run asks when the stopping rule terminates training; it does not select a new configuration using test errors. The three independent seeds run concurrently, using one CPU thread each.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Seed</th>
+<th style="text-align: right;">Stopped at epoch</th>
+<th style="text-align: right;">Best checkpoint epoch</th>
+<th style="text-align: right;">Validation RMSE (m/s)</th>
+<th style="text-align: right;">Test RMSE (m/s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">631</td>
+<td style="text-align: right;">611</td>
+<td style="text-align: right;">0.00442</td>
+<td style="text-align: right;">0.00460</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">1076</td>
+<td style="text-align: right;">1056</td>
+<td style="text-align: right;">0.00244</td>
+<td style="text-align: right;">0.00286</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">209</td>
+<td style="text-align: right;">189</td>
+<td style="text-align: right;">0.00563</td>
+<td style="text-align: right;">0.00683</td>
+</tr>
+</tbody>
+</table>
+<p><strong>All three runs triggered early stopping</strong>, exactly 20 epochs after their last best validation checkpoint; none reached the cap. The restored checkpoints give a test RMSE of <strong>0.0048 ± 0.0020 m/s</strong> across seeds. Seed 33 stops at the same checkpoint as in the capped benchmark, so a larger maximum does not automatically produce a different model.</p>
+<p><img src="media/training-strategies-final-light.png" class="light-content img-fluid" alt="Validation histories for the final patience-controlled run."> <img src="media/training-strategies-final-dark.png" class="dark-content img-fluid" alt="Validation histories for the final patience-controlled run."></p>
+<p><img src="media/training-strategies-final-test-light.png" class="light-content img-fluid" alt="The final validation-selected model on both test profiles; shading spans the seed predictions."> <img src="media/training-strategies-final-test-dark.png" class="dark-content img-fluid" alt="The final validation-selected model on both test profiles; shading spans the seed predictions."></p>
+<p>Patience 20 is a practical stopping choice, not evidence that optimization has converged. In the separate 5,000-epoch check with early stopping disabled, the same model achieved mean test RMSE 0.00170 m/s. Here the stopping rule terminates earlier and the error is higher. A temporary validation plateau can therefore stop training before later improvements; a larger patience is a separate training choice to assess using validation data. The previously inspected test results make this an exploratory comparison.</p>
+<p>Reproduce this final run using <a href="training_final_experiment.py">training_final_experiment.py</a>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> notebooks/training_final_experiment.py notebooks/media/training-strategies-results.json <span class="at">--epochs</span> 50000 <span class="at">--output</span> exercises/my_final_training</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The runner checks that patience actually triggered and reports an error if the cap is reached. The <a href="media/training-strategies-final-results.json">final result record</a> contains the full histories and source fingerprints.</p>
+<section id="how-much-do-additional-training-profiles-help" class="level3">
+<h3 class="anchored" data-anchor-id="how-much-do-additional-training-profiles-help">How much do additional training profiles help?</h3>
+<p>The best architecture and schedule are held fixed while the number of complete training profiles increases. The nested profile-index sets are <code>[0, 11]</code>, <code>[0, 4, 7, 11]</code>, <code>[0, 1, 4, 6, 7, 11]</code>, and <code>[0, 1, 3, 4, 6, 7, 10, 11]</code>. All sets cover the same bulk-velocity interval; additional profiles fill its interior. Each profile contributes the same 128 wall-normal samples. This changes the number and placement of training profiles, rather than refining their spatial grid.</p>
+<p>Validation profiles <strong>2 and 8 remain fixed</strong>, with 256 clean samples in total. Test profiles 5 and 9 are excluded from training and are not evaluated in this comparison. The same noisy training observations are used wherever subsets overlap. Input and target standardizers are refitted using only each subset. LayerNorm, SiLU, Adam, batch size 64, initial learning rate 0.003, plateau scheduling, and seeds 11, 22, and 33 stay unchanged. The maximum is 50,000 epochs, with early-stopping patience 20; all runs stop through patience.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 25%">
+<col style="width: 20%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Training profiles</th>
+<th style="text-align: right;">Training samples</th>
+<th style="text-align: right;">Best validation RMSE (m/s)</th>
+<th style="text-align: right;">Actual epochs (range)</th>
+<th style="text-align: right;">Actual updates (range)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">0.1371 ± 0.0274</td>
+<td style="text-align: right;">21–28</td>
+<td style="text-align: right;">84–112</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">0.0207 ± 0.0032</td>
+<td style="text-align: right;">74–104</td>
+<td style="text-align: right;">592–832</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">768</td>
+<td style="text-align: right;">0.0101 ± 0.0034</td>
+<td style="text-align: right;">141–170</td>
+<td style="text-align: right;">1692–2040</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">0.0042 ± 0.0016</td>
+<td style="text-align: right;">209–1076</td>
+<td style="text-align: right;">3344–17216</td>
+</tr>
+</tbody>
+</table>
+<p><img src="media/training-strategies-data-scaling-light.png" class="light-content img-fluid" alt="Validation error as more complete profiles are added to training; points show individual seeds and bars show their range."> <img src="media/training-strategies-data-scaling-dark.png" class="dark-content img-fluid" alt="Validation error as more complete profiles are added to training; points show individual seeds and bars show their range."></p>
+<p>Validation error decreases substantially as interior training profiles are added in this example. The range reflects three training seeds, not uncertainty across alternative dataset selections. This is the behavior of the complete training procedure: larger datasets also give more updates per epoch, and early stopping changes the realized optimization budget. It therefore does not isolate data quantity from optimization effort or establish a universal scaling law. Two validation profiles provide limited coverage of generalization behavior.</p>
+<p>Reproduce with <a href="training_data_scaling.py">training_data_scaling.py</a>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> notebooks/training_data_scaling.py notebooks/media/training-strategies-results.json <span class="at">--output</span> exercises/my_data_scaling</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> notebooks/training_data_scaling_plots.py exercises/my_data_scaling/results.json</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <a href="media/training-strategies-data-scaling-results.json">data-size result record</a> includes subset identifiers, histories, and source fingerprints. <a href="training_data_scaling_plots.py">training_data_scaling_plots.py</a> regenerates the figure.</p>
+</section>
+</section>
+<section id="apply-the-loop-to-exercise-2" class="level2">
+<h2 class="anchored" data-anchor-id="apply-the-loop-to-exercise-2">Apply the loop to Exercise 2</h2>
+<ol type="1">
+<li>Replace the synthetic generator with the quality-checked CFD profiles, preserving whole-profile splits and the chosen sample weighting.</li>
+<li>Define features and targets, fit scalers on training data only, and create <code>TensorDataset</code> objects with matching shapes and dtypes.</li>
+<li>Start with a plain model and one reasonable learning rate. Verify an inverse transformation and one prediction independently.</li>
+<li>Change one strategy at a time and record <strong>both</strong> update count and data exposure. Compare seeds and inspect dimensional profiles as well as aggregate errors.</li>
+<li>Use validation data to choose checkpoints and settings. Freeze everything before evaluating test or extrapolation profiles.</li>
+</ol>
+<p>To reproduce the full suite from the repository root:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ml-cfd/bin/activate</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> notebooks/training_strategies_experiments.py <span class="at">--epochs</span> 240 <span class="at">--seeds</span> 11 22 33 <span class="at">--output</span> exercises/my_training_comparisons</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The experiment script defaults to using all available CPUs for independent configuration/seed jobs, with one CPU thread per job. Use <code>--workers 1 --threads 1</code> for a serial run matching the execution mode of the recorded timings, or set <code>--workers</code> and <code>--threads</code> explicitly to limit resources. The minimal single-model example above uses a CUDA GPU when available; the comparison script runs CPU jobs.</p>
+<p>Use a new output directory for each run. For a small pilot, select a group and fewer epochs, for example <code>--epochs 8 --seeds 11 --groups architecture</code>. A pilot establishes execution behavior, not converged performance. The raw checkpoints stay in your exercise folder; the published reading includes only figures and the result record. The figures can be regenerated with <a href="training_strategies_plots.py">training_strategies_plots.py</a>, using <code>python notebooks/training_strategies_plots.py exercises/my_training_comparisons/results.json</code>. This plotting script uses the course’s <code>figure_style.py</code> and <code>figure_utils.py</code> helpers and defaults to LaTeX text rendering.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
