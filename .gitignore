@@ -26,3 +26,17 @@ notebooks/*_files/
 # Local coding-agent provider configuration
 /opencode.json
 /opencode.jsonc
+
+# Keep the small, audited Tripathi figure digitization; leave other datasets local.
+!/datasets/
+/datasets/*
+!/datasets/path_shape_regimes/
+/datasets/path_shape_regimes/*
+!/datasets/path_shape_regimes/TRIPATHI_SOURCE_SEARCH.md
+!/datasets/path_shape_regimes/tripathi2015_digitization/
+!/docs/datasets/
+/docs/datasets/*
+!/docs/datasets/path_shape_regimes/
+/docs/datasets/path_shape_regimes/*
+!/docs/datasets/path_shape_regimes/TRIPATHI_SOURCE_SEARCH.md
+!/docs/datasets/path_shape_regimes/tripathi2015_digitization/

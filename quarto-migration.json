@@ -10,5 +10,11 @@
     "title": "Course overview and motivation \u2014 Exercise 1",
     "cells": 1,
     "code_cells": 0
+  },
+  {
+    "slug": "bubble_path_classification",
+    "title": "Surrogate models for discrete predictions",
+    "cells": 1,
+    "code_cells": 0
   }
 ]

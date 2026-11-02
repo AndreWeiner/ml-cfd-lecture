@@ -1,0 +1,105 @@
+point_id,regime,pixel_x,pixel_y,Ga,Eo,note
+component43,I,36.0,127.5,7.011862,19.957441,Isolated marker; center measured from connected component.
+component60,I,36.0,155.0,7.011862,9.898438,Isolated marker; center measured from connected component.
+component74,I,36.0,191.0,7.011862,3.952742,Isolated marker; center measured from connected component.
+component87,I,36.0,245.0,7.011862,0.997462,Isolated marker; center measured from connected component.
+component98,I,36.0,272.0,7.011862,0.501066,Isolated marker; center measured from connected component.
+component111,I,36.0,335.0,7.011862,0.100514,Isolated marker; center measured from connected component.
+component44,I,73.0,127.5,10.000000,19.957441,Isolated marker; center measured from connected component.
+component61,I,73.0,155.0,10.000000,9.898438,Isolated marker; center measured from connected component.
+component75,I,73.0,191.0,10.000000,3.952742,Isolated marker; center measured from connected component.
+component88,I,73.0,245.0,10.000000,0.997462,Isolated marker; center measured from connected component.
+component99,I,73.0,272.0,10.000000,0.501066,Isolated marker; center measured from connected component.
+component112,I,73.0,335.0,10.000000,0.100514,Isolated marker; center measured from connected component.
+component62,I,157.0,155.0,22.387211,9.898438,Isolated marker; center measured from connected component.
+component76,I,157.0,191.0,22.387211,3.952742,Isolated marker; center measured from connected component.
+component89,I,157.0,245.0,22.387211,0.997462,Isolated marker; center measured from connected component.
+component100,I,157.0,272.0,22.387211,0.501066,Isolated marker; center measured from connected component.
+component113,I,157.0,335.0,22.387211,0.100514,Isolated marker; center measured from connected component.
+component101,I,194.0,272.0,31.927629,0.501066,Circle joined to boundary; position from visible circular outline.
+component114,I,194.0,335.0,31.927629,0.100514,Isolated marker; center measured from connected component.
+component102,I,203.5,308.0,34.974378,0.200091,Circle joined to boundary; position from visible circular outline.
+component13,II,35.5,64.33333333333333,6.978306,99.912500,Isolated marker; center measured from connected component.
+split23a,II,35.5,91.3,6.978306,50.232853,Upper triangle of touching pair in component 23.
+split23b,II,35.5,100.3,6.978306,39.931976,Lower triangle of touching pair in component 23.
+component2,II,36.0,37.333333333333336,7.011862,198.893664,Isolated marker; center measured from connected component.
+component3,II,73.0,37.333333333333336,10.000000,198.893664,Isolated marker; center measured from connected component.
+component14,II,73.0,64.33333333333333,10.000000,99.912500,Isolated marker; center measured from connected component.
+split24a,II,73.0,91.3,10.000000,50.232853,Upper triangle of touching pair in component 24.
+split24b,II,73.0,100.3,10.000000,39.931976,Lower triangle of touching pair in component 24.
+split25a,II,157.0,91.3,22.387211,50.232853,Upper triangle joined to boundary in component 25.
+split25b,II,157.0,100.3,22.387211,39.931976,Lower triangle joined to boundary in component 25.
+component41,II,157.0,127.33333333333333,22.387211,20.042438,Isolated marker; center measured from connected component.
+component42,II,194.5,127.33333333333333,32.081155,20.042438,Isolated marker; center measured from connected component.
+component70,III,194.5,190.33333333333334,32.081155,4.020511,Isolated marker; center measured from connected component.
+component83,III,194.5,245.3,32.081155,0.989861,Triangle joined to boundary; position from visible triangle outline.
+component56,III,195.0,154.33333333333334,32.235420,10.068144,Isolated marker; center measured from connected component.
+component92,III,217.5,271.6666666666667,40.002150,0.505343,Isolated marker; center measured from connected component.
+component103,III,217.5,308.3333333333333,40.002150,0.198397,Isolated marker; center measured from connected component.
+component57,III,240.5,154.66666666666666,49.878877,9.982930,Isolated marker; center measured from connected component.
+component71,III,240.5,190.33333333333334,49.878877,4.020511,Isolated marker; center measured from connected component.
+component84,III,240.5,245.33333333333334,49.878877,0.989020,Isolated marker; center measured from connected component.
+component93,III,241.0,271.6666666666667,50.118723,0.505343,Isolated marker; center measured from connected component.
+component105,III,241.0,335.3333333333333,50.118723,0.099663,Isolated marker; center measured from connected component.
+component104,III,259.5,308.3333333333333,59.852643,0.198397,Isolated marker; center measured from connected component.
+component106,III,260.0,335.3333333333333,60.140449,0.099663,Isolated marker; center measured from connected component.
+component85,III,276.5,245.33333333333334,70.455786,0.989020,Isolated marker; center measured from connected component.
+component58,III,277.0,154.66666666666666,70.794578,9.982930,Isolated marker; center measured from connected component.
+component72,III,277.0,190.33333333333334,70.794578,4.020511,Isolated marker; center measured from connected component.
+component94,III,277.0,271.6666666666667,70.794578,0.505343,Isolated marker; center measured from connected component.
+component107,III,277.0,335.3333333333333,70.794578,0.099663,Isolated marker; center measured from connected component.
+component59,III,313.0,154.66666666666666,100.000000,9.982930,Isolated marker; center measured from connected component.
+component73,III,313.0,190.33333333333334,100.000000,4.020511,Isolated marker; center measured from connected component.
+component95,III,313.0,271.6666666666667,100.000000,0.505343,Isolated marker; center measured from connected component.
+component108,III,313.0,335.3333333333333,100.000000,0.099663,Isolated marker; center measured from connected component.
+component86,III,313.5,245.33333333333334,100.480858,0.989020,Isolated marker; center measured from connected component.
+component81,III,355.5,217.7,150.343042,2.000873,Triangle joined to boundary; visible apex at y213 and base at y220.
+component96,III,385.0,271.6666666666667,199.526231,0.505343,Isolated marker; center measured from connected component.
+component109,III,385.5,335.3333333333333,200.485669,0.099663,Isolated marker; center measured from connected component.
+component97,III,481.0,271.6666666666667,501.187234,0.505343,Isolated marker; center measured from connected component.
+component110,III,481.0,335.3333333333333,501.187234,0.099663,Isolated marker; center measured from connected component.
+component5,IV,157.0,37.5,22.387211,198.050189,Isolated marker; center measured from connected component.
+component15,IV,157.0,64.5,22.387211,99.488788,Isolated marker; center measured from connected component.
+component6,IV,194.5,37.5,32.081155,198.050189,Isolated marker; center measured from connected component.
+component16,IV,194.5,64.5,32.081155,99.488788,Isolated marker; center measured from connected component.
+component26,IV,194.5,91.5,32.081155,49.977326,Isolated marker; center measured from connected component.
+component32,IV,194.5,100.5,32.081155,39.728848,Square joined to dashed boundary; center from visible square edges.
+component51,IV,276.5,127.5,70.455786,19.957441,Square partly occluded by bubble illustration; visible side/bottom edges.
+component45,IV,313.0,127.5,100.000000,19.957441,Square partly occluded by bubble illustration; visible right/bottom edges.
+component63,IV,355.5,154.5,150.343042,10.025447,Isolated marker; center measured from connected component.
+component77,IV,368.5,190.5,170.313863,4.003461,Isolated marker; center measured from connected component.
+component64,IV,385.5,154.5,200.485669,10.025447,Isolated marker; center measured from connected component.
+component90,IV,385.5,245.0,200.485669,0.997462,Square joined to boundary; position from visible square outline.
+component67,IV,427.5,168.5,299.973806,7.015621,Isolated marker; center measured from connected component.
+component80,IV,427.5,202.0,299.973806,2.985955,Isolated marker; center measured from connected component.
+component79,IV,481.0,190.5,501.187234,4.003461,Isolated marker; center measured from connected component.
+component91,IV,481.0,245.0,501.187234,0.997462,Isolated marker; center measured from connected component.
+component7,V,240.5,37.5,49.878877,198.050189,Isolated marker; center measured from connected component.
+component17,V,240.5,64.5,49.878877,99.488788,Isolated marker; center measured from connected component.
+component27,V,240.5,91.5,49.878877,49.977326,Isolated marker; center measured from connected component.
+component33,V,240.5,100.5,49.878877,39.728848,Isolated marker; center measured from connected component.
+component8,V,276.5,37.5,70.455786,198.050189,Isolated marker; center measured from connected component.
+component18,V,276.5,64.5,70.455786,99.488788,Isolated marker; center measured from connected component.
+component28,V,276.5,91.5,70.455786,49.977326,Isolated marker; center measured from connected component.
+partialV,V,276.5,100.5,70.455786,39.728848,Square partially covered by bubble cap; center from visible top and sides.
+component9,V,313.0,37.5,100.000000,198.050189,Isolated marker; center measured from connected component.
+component19,V,313.0,64.5,100.000000,99.488788,Isolated marker; center measured from connected component.
+component29,V,313.0,91.5,100.000000,49.977326,Isolated marker; center measured from connected component.
+component34,V,313.0,100.5,100.000000,39.728848,Isolated marker; center measured from connected component.
+component46,V,368.5,127.5,170.313863,19.957441,Isolated marker; center measured from connected component.
+component10,V,385.5,37.5,200.485669,198.050189,Isolated marker; center measured from connected component.
+component20,V,385.5,64.5,200.485669,99.488788,Isolated marker; center measured from connected component.
+component30,V,385.5,91.5,200.485669,49.977326,Isolated marker; center measured from connected component.
+component35,V,385.5,100.5,200.485669,39.728848,Isolated marker; center measured from connected component.
+component47,V,385.5,127.5,200.485669,19.957441,Isolated marker; center measured from connected component.
+component53,V,385.5,139.0,200.485669,14.885126,Isolated marker; center measured from connected component.
+component78,V,385.5,190.5,200.485669,4.003461,Isolated marker; center measured from connected component.
+component69,V,418.5,186.0,275.158753,4.490235,Isolated marker; center measured from connected component.
+component48,V,427.5,127.5,299.973806,19.957441,Isolated marker; center measured from connected component.
+component68,V,443.5,182.0,349.743780,4.972394,Isolated marker; center measured from connected component.
+component11,V,481.0,37.5,501.187234,198.050189,Isolated marker; center measured from connected component.
+component21,V,481.0,64.5,501.187234,99.488788,Isolated marker; center measured from connected component.
+component31,V,481.0,91.5,501.187234,49.977326,Isolated marker; center measured from connected component.
+component36,V,481.0,100.5,501.187234,39.728848,Isolated marker; center measured from connected component.
+component49,V,481.0,127.5,501.187234,19.957441,Isolated marker; center measured from connected component.
+component65,V,481.0,154.5,501.187234,10.025447,Isolated marker; center measured from connected component.

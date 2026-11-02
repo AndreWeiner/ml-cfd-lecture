@@ -8,6 +8,7 @@ project:
   - notebooks/system_setup.py
   - notebooks/ml_intro.py
   - notebooks/ml_intro_exercise.py
+  - notebooks/bubble_path_classification.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
   resources:
@@ -15,6 +16,7 @@ project:
   - notebooks/system_setup.py
   - notebooks/ml_intro.py
   - notebooks/ml_intro_exercise.py
+  - notebooks/bubble_path_classification.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
   - notebooks/training_tools.py
@@ -29,6 +31,8 @@ project:
   - containers/of_pytorch/**
   - logo_stiftung_hochschullehre.png
   - requirements.txt
+  - datasets/path_shape_regimes/tripathi2015_digitization/**
+  - datasets/path_shape_regimes/TRIPATHI_SOURCE_SEARCH.md
   - .nojekyll
   - images/TUD*.svg
   - notebooks/media/ml-fluid-mechanics-venn-*
@@ -42,6 +46,23 @@ project:
   - notebooks/media/workflow-stacked-*
   - notebooks/media/workflow-circular-*
   - notebooks/media/doe-*
+  - notebooks/media/reactive-oxygen-taylor-bubble-tuhh*.gif
+  - notebooks/media/bubble-multiscale-*.svg
+  - notebooks/media/bubble-forces-*.svg
+  - notebooks/media/bubble-numerical-methods-*.svg
+  - notebooks/media/bubble-eotvos-trend-*.svg
+  - notebooks/media/bubble-galileo-trend-*.svg
+  - notebooks/media/bubble-regime-map-*.svg
+  - notebooks/media/bubble-regime-linear-*.svg
+  - notebooks/media/bubble-feature-histograms-*.svg
+  - notebooks/media/bubble-perceptron-results-*.svg
+  - figures/bubble-classification/**
+  - notebooks/media/bubble-logistic-landscapes-*.svg
+  - notebooks/media/bubble-logistic-probabilities-*.svg
+  - notebooks/media/bubble-mlp-architecture-*.svg
+  - notebooks/media/bubble-mlp-probabilities-*.svg
+  - notebooks/media/bubble-multiclass-snapshots-*.svg
+  - notebooks/media/bubble-multiclass-early-stopping-*.svg
 website:
   title: Machine Learning in Fluid Mechanics
   navbar:
@@ -76,6 +97,11 @@ website:
           text: Lecture
         - href: notebooks/ml_intro_exercise.py
           text: Practice
+
+      - section: Surrogate models for discrete predictions
+        contents:
+        - href: notebooks/bubble_path_classification.py
+          text: Lecture
 
     - section: Optional material
       contents:

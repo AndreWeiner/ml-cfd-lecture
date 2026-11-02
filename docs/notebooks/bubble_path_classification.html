@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Surrogate models for discrete predictions – Machine Learning in Fluid Mechanics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bef53a435fa9deb9018fac7b5c06cf9f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-b164dce217d8d0b484465d0fb8432922.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../quarto.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/TUD_Logo_RGB_horizontal_schwarz_en.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo light-content">
+    <img src="../images/TUD-white.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Machine Learning in Fluid Mechanics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Course overview</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/lecture_00.html">Lectures and exercises</a></li><li class="breadcrumb-item"><a href="../notebooks/bubble_path_classification.html">Surrogate models for discrete predictions</a></li><li class="breadcrumb-item"><a href="../notebooks/bubble_path_classification.html">Lecture</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures and exercises</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/lecture_00.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to learn with generative AI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Course overview and motivation</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_cfd_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/system_setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introduction to machine learning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro_exercise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Surrogate models for discrete predictions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/bubble_path_classification.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Optional material</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/python_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting started with Python</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/neural_network_training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Training neural networks</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#from-gasliquid-mass-transfer-to-bubble-dynamics" id="toc-from-gasliquid-mass-transfer-to-bubble-dynamics" class="nav-link" data-scroll-target="#from-gasliquid-mass-transfer-to-bubble-dynamics">From gas–liquid mass transfer to bubble dynamics</a>
+  <ul class="collapse">
+  <li><a href="#scale-up-modeling" id="toc-scale-up-modeling" class="nav-link" data-scroll-target="#scale-up-modeling">Scale-up modeling</a></li>
+  </ul></li>
+  <li><a href="#what-controls-a-rising-bubble" id="toc-what-controls-a-rising-bubble" class="nav-link" data-scroll-target="#what-controls-a-rising-bubble">What controls a rising bubble?</a>
+  <ul class="collapse">
+  <li><a href="#eötvös-number-buoyancy-relative-to-surface-tension" id="toc-eötvös-number-buoyancy-relative-to-surface-tension" class="nav-link" data-scroll-target="#eötvös-number-buoyancy-relative-to-surface-tension">Eötvös number: buoyancy relative to surface tension</a></li>
+  <li><a href="#galilei-number-inertia-relative-to-viscosity" id="toc-galilei-number-inertia-relative-to-viscosity" class="nav-link" data-scroll-target="#galilei-number-inertia-relative-to-viscosity">Galilei number: inertia relative to viscosity</a></li>
+  </ul></li>
+  <li><a href="#a-regime-map-as-the-starting-point-for-a-surrogate" id="toc-a-regime-map-as-the-starting-point-for-a-surrogate" class="nav-link" data-scroll-target="#a-regime-map-as-the-starting-point-for-a-surrogate">A regime map as the starting point for a surrogate</a></li>
+  <li><a href="#mathematical-modeling" id="toc-mathematical-modeling" class="nav-link" data-scroll-target="#mathematical-modeling">Mathematical modeling</a>
+  <ul class="collapse">
+  <li><a href="#a-logarithmic-plot-already-transforms-the-features" id="toc-a-logarithmic-plot-already-transforms-the-features" class="nav-link" data-scroll-target="#a-logarithmic-plot-already-transforms-the-features">A logarithmic plot already transforms the features</a></li>
+  <li><a href="#transformed-features-and-a-binary-dataset" id="toc-transformed-features-and-a-binary-dataset" class="nav-link" data-scroll-target="#transformed-features-and-a-binary-dataset">Transformed features and a binary dataset</a></li>
+  <li><a href="#a-linear-score-and-a-hard-decision" id="toc-a-linear-score-and-a-hard-decision" class="nav-link" data-scroll-target="#a-linear-score-and-a-hard-decision">A linear score and a hard decision</a></li>
+  <li><a href="#counting-classification-errors" id="toc-counting-classification-errors" class="nav-link" data-scroll-target="#counting-classification-errors">Counting classification errors</a></li>
+  <li><a href="#the-perceptron-as-an-error-correction-rule" id="toc-the-perceptron-as-an-error-correction-rule" class="nav-link" data-scroll-target="#the-perceptron-as-an-error-correction-rule">The perceptron as an error-correction rule</a></li>
+  <li><a href="#training-the-perceptron" id="toc-training-the-perceptron" class="nav-link" data-scroll-target="#training-the-perceptron">Training the perceptron</a></li>
+  <li><a href="#from-hard-decisions-to-class-probabilities" id="toc-from-hard-decisions-to-class-probabilities" class="nav-link" data-scroll-target="#from-hard-decisions-to-class-probabilities">From hard decisions to class probabilities</a></li>
+  <li><a href="#turning-the-linear-score-into-probabilities" id="toc-turning-the-linear-score-into-probabilities" class="nav-link" data-scroll-target="#turning-the-linear-score-into-probabilities">Turning the linear score into probabilities</a></li>
+  <li><a href="#maximum-likelihood" id="toc-maximum-likelihood" class="nav-link" data-scroll-target="#maximum-likelihood">Maximum likelihood</a></li>
+  <li><a href="#from-products-to-log-likelihood-and-binary-cross-entropy" id="toc-from-products-to-log-likelihood-and-binary-cross-entropy" class="nav-link" data-scroll-target="#from-products-to-log-likelihood-and-binary-cross-entropy">From products to log-likelihood and binary cross entropy</a></li>
+  <li><a href="#the-logistic-regression-update" id="toc-the-logistic-regression-update" class="nav-link" data-scroll-target="#the-logistic-regression-update">The logistic-regression update</a></li>
+  <li><a href="#comparing-likelihood-and-log-likelihood-landscapes" id="toc-comparing-likelihood-and-log-likelihood-landscapes" class="nav-link" data-scroll-target="#comparing-likelihood-and-log-likelihood-landscapes">Comparing likelihood and log-likelihood landscapes</a></li>
+  <li><a href="#predicted-probabilities-and-the-decision-boundary" id="toc-predicted-probabilities-and-the-decision-boundary" class="nav-link" data-scroll-target="#predicted-probabilities-and-the-decision-boundary">Predicted probabilities and the decision boundary</a></li>
+  <li><a href="#regime-i-versus-the-union-of-regimes-ii-and-iii" id="toc-regime-i-versus-the-union-of-regimes-ii-and-iii" class="nav-link" data-scroll-target="#regime-i-versus-the-union-of-regimes-ii-and-iii">Regime I versus the union of regimes II and III</a></li>
+  <li><a href="#two-component-models-and-a-learned-combination" id="toc-two-component-models-and-a-learned-combination" class="nav-link" data-scroll-target="#two-component-models-and-a-learned-combination">Two component models and a learned combination</a></li>
+  <li><a href="#the-same-construction-as-a-multilayer-perceptron" id="toc-the-same-construction-as-a-multilayer-perceptron" class="nav-link" data-scroll-target="#the-same-construction-as-a-multilayer-perceptron">The same construction as a multilayer perceptron</a></li>
+  <li><a href="#training-the-combination-by-gradient-descent" id="toc-training-the-combination-by-gradient-descent" class="nav-link" data-scroll-target="#training-the-combination-by-gradient-descent">Training the combination by gradient descent</a></li>
+  <li><a href="#component-and-combined-probability-maps" id="toc-component-and-combined-probability-maps" class="nav-link" data-scroll-target="#component-and-combined-probability-maps">Component and combined probability maps</a></li>
+  <li><a href="#extension-to-k-classes" id="toc-extension-to-k-classes" class="nav-link" data-scroll-target="#extension-to-k-classes">Extension to <span class="math inline">\(K\)</span> classes</a></li>
+  <li><a href="#one-training-trajectory-several-snapshots" id="toc-one-training-trajectory-several-snapshots" class="nav-link" data-scroll-target="#one-training-trajectory-several-snapshots">One training trajectory, several snapshots</a></li>
+  <li><a href="#validation-based-early-stopping" id="toc-validation-based-early-stopping" class="nav-link" data-scroll-target="#validation-based-early-stopping">Validation-based early stopping</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/lecture_00.html">Lectures and exercises</a></li><li class="breadcrumb-item"><a href="../notebooks/bubble_path_classification.html">Surrogate models for discrete predictions</a></li><li class="breadcrumb-item"><a href="../notebooks/bubble_path_classification.html">Lecture</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Surrogate models for discrete predictions</h1>
+<p class="subtitle lead">Predicting the stability regime of rising bubbles</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This work is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
+<section id="learning-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h2>
+<p>After this lecture, you should be able to:</p>
+<ul>
+<li>explain why gas–liquid mass transfer requires models connecting different scales;</li>
+<li>identify the physical effects controlling the motion and deformation of a single bubble;</li>
+<li>define and interpret the Eötvös and Galilei numbers, including the chosen length convention;</li>
+<li>explain why a numerical regime map motivates a surrogate with discrete outputs;</li>
+<li>construct logarithmic, min–max-scaled features and formulate a labeled binary dataset;</li>
+<li>define a linear classification score, a Heaviside prediction, and its decision boundary;</li>
+<li>explain the perceptron update as an intuitive error-correction rule;</li>
+<li>interpret perceptron convergence and non-monotone training-error histories;</li>
+<li>formulate Bernoulli class probabilities, maximum likelihood, binary cross entropy, and the logistic-regression gradient;</li>
+<li>combine sigmoid features into a nonlinear classifier and relate its staged training to a multilayer perceptron;</li>
+<li>encode categorical labels, interpret softmax probabilities and argmax regions, and use validation-based early stopping.</li>
+</ul>
+</section>
+<section id="from-gasliquid-mass-transfer-to-bubble-dynamics" class="level2">
+<h2 class="anchored" data-anchor-id="from-gasliquid-mass-transfer-to-bubble-dynamics">From gas–liquid mass transfer to bubble dynamics</h2>
+<p>Gas–liquid mass transfer is essential in chemical and process engineering. Bubble column reactors bring a gas into contact with a liquid; bioreactors must supply dissolved gases such as oxygen to microorganisms or cells. In gas-evolving electrolyzers, bubble formation and removal affect the exposed electrode area and transport near the electrode. These applications connect reactions and local transport to the behavior of an entire apparatus.</p>
+<figure class="quarto-float quarto-figure quarto-figure-center figure">
+<div class="quarto-float-body">
+<img class="reactive-bubble-animation figure-img" style="border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.4)" src="media/reactive-oxygen-taylor-bubble-tuhh-horizontal.gif?v=rightward" width="555" alt="Oxygen Taylor bubble and its colored wake in a copper-complex solution; rotated for horizontal display.">
+</div>
+<figcaption>
+Reactive oxygen Taylor bubble with a visible colored wake in a copper-complex solution. Source: project group of Prof.&nbsp;Michael Schlüter, TU Hamburg, <a href="https://www.tuhh.de/dfg-spp1740/en/spp-1740">DFG Priority Program 1740 — Reactive Bubbly Flows</a>.
+</figcaption>
+</figure>
+<p>This animation shows an oxygen Taylor bubble in a copper-complex solution. The colored wake provides a visual example of the connection between bubble motion, transport, and chemical reaction. The confined Taylor-bubble geometry differs from the unconfined single-bubble setup used for the regime map later in this lecture.</p>
+<p>A reactor therefore contains several interacting ranges of scales:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Representative scale</th>
+<th style="text-align: left;">Processes of interest</th>
+<th style="text-align: left;">Consequence for modeling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Molecular, below the continuum scale</td>
+<td style="text-align: left;">Molecular interactions and reaction events</td>
+<td style="text-align: left;">Reaction kinetics and constitutive relations</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Micrometers</td>
+<td style="text-align: left;">Concentration boundary layers near gas–liquid interfaces</td>
+<td style="text-align: left;">Strong gradients control local mass transfer</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Millimeters</td>
+<td style="text-align: left;">Individual bubble shapes, wakes, and trajectories</td>
+<td style="text-align: left;">Bubble dynamics influence interfacial area and transport</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Centimeters</td>
+<td style="text-align: left;">Bubble–bubble and wake interactions, coalescence and breakup</td>
+<td style="text-align: left;">Collective behavior changes bubble populations</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Meters</td>
+<td style="text-align: left;">Reactor circulation, bubble plumes, and, in suitable geometries, slugs</td>
+<td style="text-align: left;">Large-scale flow redistributes gas and dissolved species</td>
+</tr>
+</tbody>
+</table>
+<p>These are illustrative scales, not universal boundaries. Bubble sizes and boundary-layer thicknesses depend on the fluid system and operating conditions. Reaction kinetics enter continuum models as rate laws, although the underlying molecular events occur below the continuum scale.</p>
+<p><img src="media/bubble-multiscale-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Representative scales of gas–liquid transport and the transfer of information between models. Each panel is a schematic, not a geometrically scaled view."> <img src="media/bubble-multiscale-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Representative scales of gas–liquid transport and the transfer of information between models. Each panel is a schematic, not a geometrically scaled view."></p>
+<section id="scale-up-modeling" class="level3">
+<h3 class="anchored" data-anchor-id="scale-up-modeling">Scale-up modeling</h3>
+<p>A detailed numerical or experimental investigation resolves a limited range of scales. Its results supply a model for effects that a larger-scale description cannot resolve. At the next level, that model is combined with newly resolved processes. This is repeated until a description of the apparatus becomes feasible. A surrogate can provide one such connection: it approximates a relationship learned from detailed simulations or measurements.</p>
+<p>For example, an interface-resolved simulation of an individual bubble can inform a model for its motion or mass transfer. An Euler–Lagrange calculation then tracks many bubbles without resolving every interface or concentration boundary layer. An Euler–Euler model describes interpenetrating phases through averaged fields and requires closures for interphase exchange and, often, bubble populations. The larger-scale prediction inherits the assumptions and uncertainty of these closures. Where the reactor state changes the local bubble environment, information must also pass back toward the smaller-scale model.</p>
+<section id="numerical-investigations" class="level4">
+<h4 class="anchored" data-anchor-id="numerical-investigations">Numerical investigations</h4>
+<p>Interface-resolved, Euler–Lagrange, and Euler–Euler descriptions retain different information. The sketches distinguish a resolved gas–liquid interface, tracked bubble particles, and an averaged gas-volume-fraction field.</p>
+<p><img src="media/bubble-numerical-methods-light.svg?v=20261102-particle-motion" class="light-content img-fluid" style="width:100.0%" alt="Numerical descriptions of bubbly flow: resolved interfaces, Lagrangian bubble particles, and Eulerian phase averages."> <img src="media/bubble-numerical-methods-dark.svg?v=20261102-particle-motion" class="dark-content img-fluid" style="width:100.0%" alt="Numerical descriptions of bubbly flow: resolved interfaces, Lagrangian bubble particles, and Eulerian phase averages."></p>
+<p>These numerical descriptions cover overlapping ranges of scales. Their useful range depends on spatial and temporal resolution, model assumptions, and computational cost. Covering two or three orders of magnitude can already be demanding; this is a practical illustration rather than a fixed limit for every method.</p>
+<p><strong>Our focus is the dynamics of an individual rising bubble.</strong> Before learning a classifier, we need to understand which physical parameters distinguish its possible behaviors.</p>
+</section>
+</section>
+</section>
+<section id="what-controls-a-rising-bubble" class="level2">
+<h2 class="anchored" data-anchor-id="what-controls-a-rising-bubble">What controls a rising bubble?</h2>
+<p>We consider an initially spherical gas bubble released from rest in an otherwise quiescent liquid. The density difference drives its rise. As the surrounding liquid moves, pressure and viscous stresses act on the interface, while surface tension resists deformation.</p>
+<p><img src="media/bubble-forces-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Physical effects acting on a rising bubble. Buoyancy is shown after combining hydrostatic pressure and bubble weight; the other annotations describe stresses and flow response rather than four independent point forces."> <img src="media/bubble-forces-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Physical effects acting on a rising bubble. Buoyancy is shown after combining hydrostatic pressure and bubble weight; the other annotations describe stresses and flow response rather than four independent point forces."></p>
+<ul>
+<li><strong>Buoyancy:</strong> the net hydrostatic driving force is <span class="math inline">\(F_b=(\rho_l-\rho_g)gV\)</span>, where <span class="math inline">\(V\)</span> is the gas volume.</li>
+<li><strong>Viscous effects:</strong> velocity gradients generate stresses that dissipate energy and contribute to resistance against the motion.</li>
+<li><strong>Inertia:</strong> acceleration of the bubble and liquid, wake formation, and unsteady pressure contribute to the dynamics. Inertia is a response to forces, not an additional independent applied force.</li>
+<li><strong>Surface tension:</strong> interfacial stresses resist increases of area and couple the pressure jump to curvature. For a spherical interface of radius <span class="math inline">\(R\)</span>, the Laplace pressure jump is <span class="math inline">\(2\sigma/R\)</span>.</li>
+</ul>
+<p>A closed interface with uniform surface tension does not experience a net translational force from surface tension alone. Its local stresses nevertheless strongly affect shape and thereby the surrounding flow.</p>
+<section id="eötvös-number-buoyancy-relative-to-surface-tension" class="level3">
+<h3 class="anchored" data-anchor-id="eötvös-number-buoyancy-relative-to-surface-tension">Eötvös number: buoyancy relative to surface tension</h3>
+<p>We use <span class="math inline">\(R\)</span> to denote the <strong>initial bubble radius</strong>, <span class="math inline">\(\rho_l\)</span> and <span class="math inline">\(\rho_g\)</span> the liquid and gas densities, <span class="math inline">\(\mu_l\)</span> the liquid dynamic viscosity, and <span class="math inline">\(\sigma\)</span> the surface tension. The radius-based definition retaining the density difference is</p>
+<p><span class="math display">\[
+Eo_{\Delta\rho,R}=\frac{(\rho_l-\rho_g)gR^2}{\sigma}.
+\]</span></p>
+<p>For a light gas, <span class="math inline">\(\rho_g\ll\rho_l\)</span>. Following the convention of the reference study, we use</p>
+<p><span class="math display">\[
+\boxed{Eo=\frac{\rho_l gR^2}{\sigma}.}
+\]</span></p>
+<p>The Eötvös number is also called the <strong>Bond number</strong>. For <span class="math inline">\(Eo\ll1\)</span>, surface tension strongly resists deformation. As <span class="math inline">\(Eo\)</span> increases, buoyancy becomes more important relative to capillary stresses, permitting stronger deformation. The actual shape also depends on the flow and the other parameters.</p>
+<p><img src="media/bubble-eotvos-trend-light.svg?v=20261102-simplified" class="light-content img-fluid" style="width:100.0%" alt="Conceptual deformation trend with increasing Eötvös number under comparable other conditions; shapes do not define numerical regime thresholds."> <img src="media/bubble-eotvos-trend-dark.svg?v=20261102-simplified" class="dark-content img-fluid" style="width:100.0%" alt="Conceptual deformation trend with increasing Eötvös number under comparable other conditions; shapes do not define numerical regime thresholds."></p>
+</section>
+<section id="galilei-number-inertia-relative-to-viscosity" class="level3">
+<h3 class="anchored" data-anchor-id="galilei-number-inertia-relative-to-viscosity">Galilei number: inertia relative to viscosity</h3>
+<p>Using the gravitational velocity scale <span class="math inline">\(U_g=\sqrt{gR}\)</span> gives</p>
+<p><span class="math display">\[
+\boxed{Ga=\frac{\rho_l U_gR}{\mu_l}
+       =\frac{\rho_l\sqrt{gR^3}}{\mu_l}
+       =\frac{\sqrt{gR^3}}{\nu_l},}
+\qquad \nu_l=\frac{\mu_l}{\rho_l}.
+\]</span></p>
+<p>This is a Reynolds number formed with a gravitational velocity scale rather than the unknown rise speed. It compares inertial and viscous effects on that scale; equivalently, <span class="math inline">\(Ga^2\)</span> compares gravitational and viscous scales.</p>
+<p>Increasing <span class="math inline">\(Ga\)</span> reduces the relative importance of viscous damping, making inertial wakes and instabilities more accessible. It does not imply a universal monotonic increase in oscillation amplitude: the regime depends jointly on <span class="math inline">\(Ga\)</span>, <span class="math inline">\(Eo\)</span>, and the remaining physical conditions.</p>
+<p><img src="media/bubble-galileo-trend-light.svg?v=compact-ga-eo" class="light-content img-fluid" style="width:100.0%" alt="Conceptual change from viscously damped rise toward inertial and potentially unsteady wakes as Galilei number increases; instability depends on Eötvös number and the remaining conditions."> <img src="media/bubble-galileo-trend-dark.svg?v=compact-ga-eo" class="dark-content img-fluid" style="width:100.0%" alt="Conceptual change from viscously damped rise toward inertial and potentially unsteady wakes as Galilei number increases; instability depends on Eötvös number and the remaining conditions."></p>
+<div class="callout callout-style-default callout-note callout-titled" title="The length convention matters">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The length convention matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Many references use the initial diameter <span class="math inline">\(d=2R\)</span> and retain <span class="math inline">\(\Delta\rho=\rho_l-\rho_g\)</span>. For the definitions <span class="math inline">\(Eo_d=\Delta\rho\,gd^2/\sigma\)</span> and <span class="math inline">\(Ga_d=\sqrt{(\Delta\rho/\rho_l)gd^3}/\nu_l\)</span>, conversion from our convention gives</p>
+<p><span class="math display">\[
+Eo_d=4(1-\rho_g/\rho_l)Eo,\qquad
+Ga_d=2^{3/2}\sqrt{1-\rho_g/\rho_l}\,Ga.
+\]</span> A classifier and its input data must use the same definitions.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="a-regime-map-as-the-starting-point-for-a-surrogate" class="level2">
+<h2 class="anchored" data-anchor-id="a-regime-map-as-the-starting-point-for-a-surrogate">A regime map as the starting point for a surrogate</h2>
+<p><span class="citation" data-cites="tripathi2015">Tripathi et al. (<a href="#ref-tripathi2015" role="doc-biblioref">2015</a>)</span> investigated initially spherical bubbles using three-dimensional simulations. Their study spans <span class="math inline">\(7\leq Ga\leq500\)</span> and <span class="math inline">\(0.1\leq Eo\leq200\)</span>, using the radius-based convention above and fixed density and viscosity ratios <span class="math inline">\(\rho_g/\rho_l=10^{-3}\)</span> and <span class="math inline">\(\mu_g/\mu_l=10^{-2}\)</span>.</p>
+<p>Their <a href="https://www.nature.com/articles/ncomms7268/figures/1">Figure 1</a> summarizes five regimes on logarithmic Galilei–Eötvös axes:</p>
+<p><img src="media/bubble-regime-map-light.svg?v=compact-ga-eo" class="light-content img-fluid" style="width:100.0%" alt="Bubble regimes reconstructed from a fresh digitization of visible markers in Figure 1 of Tripathi et al.; both axes are logarithmic."> <img src="media/bubble-regime-map-dark.svg?v=compact-ga-eo" class="dark-content img-fluid" style="width:100.0%" alt="Bubble regimes reconstructed from a fresh digitization of visible markers in Figure 1 of Tripathi et al.; both axes are logarithmic."></p>
+<p><strong>Data provenance.</strong> This reproduction uses an independent digitization of the marker positions in the published image. It represents visible or recoverable markers rather than the complete set of simulations. Partially obscured points are flagged in the extraction record; an unreadable location is excluded. The coordinates retain digitization uncertainty and are not original simulation outputs. No fitted or hand-drawn regime boundaries are added.</p>
+<p><a href="../datasets/path_shape_regimes/tripathi2015_digitization/points.csv">Download freshly digitized points</a> · <a href="../datasets/path_shape_regimes/tripathi2015_digitization/extraction-overlay.png">Inspect the extraction overlay</a>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Regime numbering in the source">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Regime numbering in the source
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In <span class="citation" data-cites="tripathi2015">Tripathi et al. (<a href="#ref-tripathi2015" role="doc-biblioref">2015</a>)</span>, the Roman labels II and III printed inside Figure 1 are interchanged relative to the figure caption and main Results discussion. This course consistently follows the <strong>caption and main Results</strong>: <strong>II denotes skirted, non-oscillatory bubbles</strong>, and <strong>III denotes oscillatory paths</strong>. The revised figure, downloadable dataset, and exercise all use this convention. The difference is an internal inconsistency in the publication, not a separate numbering scheme introduced for the course.</p>
+</div>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Regime</th>
+<th style="text-align: left;">Characteristic behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">I</td>
+<td style="text-align: left;">Axisymmetric rise</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">II</td>
+<td style="text-align: left;">Skirted bubbles with limited asymmetry</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">III</td>
+<td style="text-align: left;">Strong shape asymmetry and zigzag or spiral paths</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IV</td>
+<td style="text-align: left;">Peripheral breakup</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V</td>
+<td style="text-align: left;">Central breakup / change of topology</td>
+</tr>
+</tbody>
+</table>
+<p>The reproduction above contains only the digitized marker points. The <strong>original Figure 1 in <span class="citation" data-cites="tripathi2015">Tripathi et al. (<a href="#ref-tripathi2015" role="doc-biblioref">2015</a>)</span> also contains hand-drawn regime boundaries</strong>, introduced as guides to the eye. These lines summarize the numerical observations graphically; they are not the output of an explicit predictive function.</p>
+<p>Such a diagram is useful for interpreting the observed regimes, but its direct use in a computational model is limited. For example, a reactor simulation might need to choose between <strong>mass-transfer correlations developed for different bubble-rise regimes</strong>. For each new pair <span class="math inline">\((Ga,Eo)\)</span>, the simulation would need a rule that returns the corresponding regime label. A picture with hand-drawn boundaries does not provide an evaluable input–output relation; that classification rule must first be formulated and implemented. Predicting the regime could then support the selection of a suitable correlation, whose validity under the simulated conditions would still need to be checked.</p>
+<p>Drawing the boundaries also involves subjective judgment. Asking ten people to separate the same labeled markers could produce ten slightly different sets of boundaries, especially in sparsely sampled regions. A visual drawing alone supplies no quantitative criterion for deciding which separation represents the data better.</p>
+<p>We therefore seek a <strong>surrogate for a discrete prediction</strong>: a mathematical mapping from the dimensionless inputs to a regime label, together with an explicit quantitative measure of prediction quality. A classification loss or misclassification rate can quantify agreement with the labeled data. Evaluation on held-out data can then assess how well the resulting boundaries generalize beyond the samples used to construct them. This provides a reproducible basis for fitting and comparing classifiers. The regime label supports model selection; a separate mass-transfer correlation is still needed to predict the exchange rate.</p>
+<p>The two-input description applies within the assumptions of the dataset. Different density or viscosity ratios, contamination, confinement, ambient turbulence, or neighboring bubbles can change the dynamics. Those conditions must be checked before using the learned map in another application.</p>
+</section>
+<section id="mathematical-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="mathematical-modeling">Mathematical modeling</h2>
+<section id="a-logarithmic-plot-already-transforms-the-features" class="level3">
+<h3 class="anchored" data-anchor-id="a-logarithmic-plot-already-transforms-the-features">A logarithmic plot already transforms the features</h3>
+<p>The publication displays the data on logarithmic axes. This makes a wide parameter range readable, but it also changes the geometry in which we judge distances and draw straight boundaries. Without explicitly discussing feature engineering, we have already adopted the transformation <span class="math inline">\((Ga,Eo)\mapsto(\log_{10}(Ga),\log_{10}(Eo))\)</span>.</p>
+<p>For comparison, the following plot shows exactly the same 104 digitized points on <strong>linear axes</strong>. Many samples occupy a relatively small region near the lower-left corner, while a few large parameter values determine the extent of the axes. The coordinates have not changed; only the axis representation has.</p>
+<p><img src="media/bubble-regime-linear-light.svg" class="light-content img-fluid" style="width:100.0%" alt="The same 104 regime markers on linear Galilei and Eötvös axes, with the same class colors as the logarithmic regime plot."> <img src="media/bubble-regime-linear-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="The same 104 regime markers on linear Galilei and Eötvös axes, with the same class colors as the logarithmic regime plot."></p>
+<p>The histograms make the uneven sampling visible for each input separately. Their left column uses equal-width bins in the original variables; their right column uses equal-width bins after taking the common logarithm. Logarithmic scaling spreads out the smaller values and compresses the larger ones, making the <strong>marginal sample distributions</strong> (the sample distributions of each feature considered separately) <strong>more balanced</strong>. It does not create additional observations, guarantee uniform sampling, or remove gaps in the two-dimensional parameter space.</p>
+<p><img src="media/bubble-feature-histograms-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Sample counts for raw and logarithmic Galilei and Eötvös features; the two columns compare the feature representations."> <img src="media/bubble-feature-histograms-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Sample counts for raw and logarithmic Galilei and Eötvös features; the two columns compare the feature representations."></p>
+<p>A straight line on logarithmic axes is a straight line in <strong>log-transformed features</strong>. It generally becomes a curved, power-law relation when expressed in the original variables. Changing the representation therefore changes the family of boundaries described by a linear model.</p>
+</section>
+<section id="transformed-features-and-a-binary-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="transformed-features-and-a-binary-dataset">Transformed features and a binary dataset</h3>
+<p>For a positive input <span class="math inline">\(q\in\{Ga,Eo\}\)</span>, we first take its logarithm and then apply min–max scaling:</p>
+<p><span class="math display">\[
+a_q=\min_{j\in\mathcal T}\log_{10}(q_j),
+\qquad
+b_q=\max_{j\in\mathcal T}\log_{10}(q_j),
+\]</span></p>
+<p><span class="math display">\[
+\boxed{\widetilde q_i
+=2\frac{\log_{10}(q_i)-a_q}{b_q-a_q}-1.}
+\]</span></p>
+<p>Here <span class="math inline">\(\mathcal T\)</span> is the set of training samples and <span class="math inline">\(b_q&gt;a_q\)</span> is required. The smallest and largest training values map to <span class="math inline">\(-1\)</span> and <span class="math inline">\(1\)</span>. The same stored extrema must be reused for validation data and new predictions; values outside the training range can map outside <span class="math inline">\([-1,1]\)</span>. Fitting the scaling on validation or test samples would leak information about their distribution into model preparation. Min–max scaling changes the range, but does not itself make a nonuniform sample distribution uniform.</p>
+<p>We now focus on <strong>regime I (axisymmetric rise)</strong> and <strong>regime III (oscillatory paths)</strong>. The other regimes remain part of the full dataset but are excluded from this first binary classification problem. For the worked training demonstration, the 20 regime-I and 27 regime-III samples form <span class="math inline">\(\mathcal T\)</span>, giving <span class="math inline">\(N=47\)</span>. Thus the scaler is fitted on these 47 samples. The preceding histograms describe all 104 samples and serve only to compare representations.</p>
+<p>Now we are ready to collect the scaled features in a feature vector:</p>
+<p><span class="math display">\[
+\mathbf x_i=
+\begin{bmatrix}
+\widetilde{Ga}_i\\
+\widetilde{Eo}_i\\
+1
+\end{bmatrix}\in\mathbb R^3.
+\]</span></p>
+<p>The final component is a constant that lets us include the bias in a dot product. It is not a third measured physical input. We assign labels according to the observed regime:</p>
+<p><span class="math display">\[
+y_i=
+\begin{cases}
+0,&amp;\text{sample }i\text{ belongs to regime I},\\
+1,&amp;\text{sample }i\text{ belongs to regime III}.
+\end{cases}
+\qquad
+\mathcal D=\{(\mathbf x_i,y_i)\}_{i=1}^{N}.
+\]</span></p>
+</section>
+<section id="a-linear-score-and-a-hard-decision" class="level3">
+<h3 class="anchored" data-anchor-id="a-linear-score-and-a-hard-decision">A linear score and a hard decision</h3>
+<p>The simplest score is affine (a linear combination plus a constant bias) in the two transformed physical features:</p>
+<p><span class="math display">\[
+z(\widetilde{Ga},\widetilde{Eo})
+=w_1\widetilde{Ga}+w_2\widetilde{Eo}+b.
+\]</span></p>
+<p>We collect the two coefficients and the bias into the weight vector,</p>
+<p><span class="math display">\[
+\mathbf w=\begin{bmatrix}w_1\\w_2\\b\end{bmatrix},
+\qquad
+z_i=z(\widetilde{Ga}_i,\widetilde{Eo}_i)
+=\mathbf w^{\mathsf T}\mathbf x_i.
+\]</span></p>
+<p>To turn <span class="math inline">\(z\)</span> into an actual class prediction, we apply the Heaviside function:</p>
+<p><span class="math display">\[
+H(z)=\begin{cases}0,&amp;z\leq0,\\1,&amp;z&gt;0,\end{cases}
+\qquad
+\widehat y_i=H(z_i).
+\]</span></p>
+<p>Positive scores predict regime III; nonpositive scores predict regime I. The <strong>decision boundary</strong> is the isoline</p>
+<p><span class="math display">\[
+z=0
+\quad\Longleftrightarrow\quad
+w_1\widetilde{Ga}+w_2\widetilde{Eo}+b=0.
+\]</span></p>
+<p>This is a straight line in the transformed feature plane for nonzero <span class="math inline">\((w_1,w_2)\)</span>. The score <span class="math inline">\(z_i\)</span> is a signed decision score, not a probability.</p>
+</section>
+<section id="counting-classification-errors" class="level3">
+<h3 class="anchored" data-anchor-id="counting-classification-errors">Counting classification errors</h3>
+<p>We define an optimal weight vector through the error-counting loss:</p>
+<p><span class="math display">\[
+\mathbf w^\star\in\underset{\mathbf w}{\operatorname{arg\,min}}\,\mathcal L_{\mathrm{count}}(\mathbf w),
+\qquad
+\mathcal L_{\mathrm{count}}(\mathbf w)
+=\frac12\sum_{i=1}^{N}(y_i-\widehat y_i)^2.
+\]</span></p>
+<p>Here <span class="math inline">\(\operatorname{arg\,min}\)</span> denotes the set of weight vectors attaining the smallest loss. We use <span class="math inline">\(\in\)</span> because more than one weight vector can be optimal.</p>
+<p>Since both labels are binary, <span class="math inline">\((y_i-\widehat y_i)^2\)</span> equals zero for a correct prediction and one for an incorrect prediction. Therefore <span class="math inline">\(2\mathcal L_{\mathrm{count}}\)</span> is exactly the number of misclassified samples. Zero loss means that every training label is predicted correctly.</p>
+</section>
+<section id="the-perceptron-as-an-error-correction-rule" class="level3">
+<h3 class="anchored" data-anchor-id="the-perceptron-as-an-error-correction-rule">The perceptron as an error-correction rule</h3>
+<p>We can find suitable weights through a simple error-correction idea. Following the reinforcement motivation of <span class="citation" data-cites="rosenblatt1958">Rosenblatt (<a href="#ref-rosenblatt1958" role="doc-biblioref">1958</a>)</span>, we adjust the connections so that a mistaken response becomes less likely. In our binary notation, this gives three cases:</p>
+<ul>
+<li>For a missed positive sample (<span class="math inline">\(y_i=1\)</span>, <span class="math inline">\(\widehat y_i=0\)</span>), we add <span class="math inline">\(\eta\mathbf x_i\)</span> to the weights, raising its score.</li>
+<li>For a false positive (<span class="math inline">\(y_i=0\)</span>, <span class="math inline">\(\widehat y_i=1\)</span>), we subtract <span class="math inline">\(\eta\mathbf x_i\)</span>, lowering its score.</li>
+<li>For a correct prediction, we leave the weights unchanged.</li>
+</ul>
+<p>These cases can be collected in the <strong>perceptron update rule</strong>:</p>
+<p><span class="math display">\[
+\boxed{\mathbf w^{(n+1)}=\mathbf w^{(n)}
++\eta\bigl(y_i-\widehat y_i^{(n)}\bigr)\mathbf x_i},
+\qquad \eta&gt;0.
+\]</span></p>
+<p>Here <span class="math inline">\(\eta\)</span> is the learning rate and sets the size of each correction. This is our compact binary formulation of the error-correction idea; Rosenblatt’s original paper describes a more elaborate reinforcement system.</p>
+<p>In components,</p>
+<p><span class="math display">\[
+w_1^{(n+1)}=w_1^{(n)}+\eta(y_i-\widehat y_i^{(n)})\widetilde{Ga}_i,
+\]</span> <span class="math display">\[
+w_2^{(n+1)}=w_2^{(n)}+\eta(y_i-\widehat y_i^{(n)})\widetilde{Eo}_i,
+\qquad
+b^{(n+1)}=b^{(n)}+\eta(y_i-\widehat y_i^{(n)}).
+\]</span></p>
+<p>A correctly classified sample leaves the weights unchanged. For a missed positive sample, the update increases its score by <span class="math inline">\(\eta\|\mathbf x_i\|^2\)</span>; for a false positive, it decreases the score by the same amount. The update can nevertheless worsen predictions at other samples.</p>
+<p>This is the <strong>online perceptron algorithm</strong>: we process one sample at a time and correct the weights whenever its prediction is wrong. We use the hard-label loss <span class="math inline">\(\mathcal L_{\mathrm{count}}\)</span> to monitor the total number of classification errors. The correction improves the score for the currently presented sample, but it need not reduce this total loss at every step.</p>
+</section>
+<section id="training-the-perceptron" class="level3">
+<h3 class="anchored" data-anchor-id="training-the-perceptron">Training the perceptron</h3>
+<p>We initialize <span class="math inline">\(\mathbf w^{(0)}=\mathbf0\)</span> and use <span class="math inline">\(\eta=1\)</span>. Each epoch presents all 47 training samples once, in an order shuffled by a NumPy random generator with seed 42. We update only on a misclassification and stop after a complete pass with no update, with a maximum budget of 500 epochs. In the plot, iteration <span class="math inline">\(n\)</span> counts <strong>sample presentations</strong>, including those that leave the weights unchanged. After every presentation, we recompute <span class="math inline">\(\mathcal L_{\mathrm{count}}\)</span> on all 47 samples; the trace is not a cumulative count of mistakes made along the training sequence.</p>
+<p><img src="media/bubble-perceptron-results-light.svg?v=consistency-20261102" class="light-content img-fluid" style="width:100.0%" alt="Perceptron boundary for regimes I and III in transformed features and the full-training-set error-counting loss during the recorded run."> <img src="media/bubble-perceptron-results-dark.svg?v=consistency-20261102" class="dark-content img-fluid" style="width:100.0%" alt="Perceptron boundary for regimes I and III in transformed features and the full-training-set error-counting loss during the recorded run."></p>
+<p>We can examine the following questions before considering the result notes:</p>
+<ol type="1">
+<li><strong>Can the loss become zero?</strong> What geometric property of these transformed data would allow a linear decision boundary to classify all samples correctly?</li>
+<li><strong>When do the updates stop?</strong> How do one correctly predicted sample, a complete pass without an update, and reaching the iteration budget differ?</li>
+<li><strong>Is the loss monotonically decreasing?</strong> Could improving the prediction at one sample increase the total number of errors?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Result notes">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Result notes
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In this reproducible run, the first zero-error state occurs at presentation <strong>1290</strong>. Training terminates after <strong>29 epochs</strong>, <strong>1363 sample presentations</strong>, and <strong>125 weight updates</strong>, once an entire pass confirms that no update is needed. The final weights are approximately</p>
+<p><span class="math display">\[
+\mathbf w=\begin{bmatrix}8.8045\\1.3294\\3.0000\end{bmatrix}.
+\]</span></p>
+<p>The error-counting loss starts at <span class="math inline">\(13.5\)</span> (27 wrong predictions) and ends at zero. It increases after <strong>56 individual updates</strong>, so it is not monotonically decreasing. A correction for one sample can move the boundary across other samples.</p>
+<p>An independent convex-hull separation check confirms that these particular transformed samples admit a separator with a positive margin. Thus zero training loss is attainable here; the successful finite run is also a constructive separating example. This conclusion concerns the digitized samples, not a proven physical boundary between all possible bubbles.</p>
+<p>For finite data that admit a separating hyperplane with a strictly positive margin, repeated perceptron passes terminate after finitely many errors. If the data are not linearly separable, that guarantee does not apply. A finite run that does not reach zero errors is not, by itself, a proof of nonseparability. The plotted quantity is training error; this demonstration does not measure predictive performance on independent data.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="from-hard-decisions-to-class-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="from-hard-decisions-to-class-probabilities">From hard decisions to class probabilities</h3>
+<p>The perceptron example shows that a correction can improve one prediction while worsening others, so the error-counting loss need not decrease at every update. Moreover, a label alone does not distinguish a sample close to the decision boundary from one far into a predicted region. This motivates modeling <strong>conditional class probabilities</strong> with a smooth function.</p>
+<p>For our binary problem, we define</p>
+<p><span class="math display">\[
+P(Y=1\mid\mathbf X=\mathbf x).
+\]</span></p>
+<p>We read this aloud as <strong>“the probability that the label <span class="math inline">\(Y\)</span> equals one, given the feature vector <span class="math inline">\(\mathbf x\)</span>.”</strong> Here class one means regime III, and class zero means regime I. The uppercase symbols denote random variables; <span class="math inline">\(\mathbf x\)</span> and an observed label <span class="math inline">\(y_i\)</span> denote particular values. In the following, <span class="math inline">\(P(Y=1\mid\mathbf x)\)</span> is shorthand for the same conditional probability.</p>
+<p>The model approximates this probability by <span class="math inline">\(y_{\mathbf w}(\mathbf x)\)</span>. The subscript <span class="math inline">\(\mathbf w\)</span> indicates that this is a model parameterized by the weights <span class="math inline">\(\mathbf w\)</span>. For sample <span class="math inline">\(i\)</span>, we write</p>
+<p><span class="math display">\[
+\widehat y_i=y_{\mathbf w}(\mathbf x_i)\in(0,1).
+\]</span></p>
+<p><strong>The prediction <span class="math inline">\(\widehat y_i\)</span> is now a soft output</strong>, replacing the earlier hard-label prediction. It always denotes the probability of class one; it is not necessarily the probability of the observed class. The probability assigned to the actual observed label is</p>
+<p><span class="math display">\[
+q_i=P_{\mathbf w}(Y=y_i\mid\mathbf x_i)
+=\begin{cases}\widehat y_i,&amp;y_i=1,\\1-\widehat y_i,&amp;y_i=0.\end{cases}
+\]</span></p>
+<p>This distinction matters: for a regime-I sample, a good model predicts a small <span class="math inline">\(\widehat y_i\)</span> but a large <span class="math inline">\(q_i\)</span>.</p>
+<section id="a-probability-thought-experiment" class="level4">
+<h4 class="anchored" data-anchor-id="a-probability-thought-experiment">A probability thought experiment</h4>
+<p>For an informative, well-fitted model, what values would we expect in the following situations?</p>
+<ol type="1">
+<li><span class="math inline">\(P(Y=1\mid\mathbf x)\)</span> for a point well inside regime III?</li>
+<li><span class="math inline">\(P(Y=1\mid\mathbf x)\)</span> for a point well inside regime I?</li>
+<li><span class="math inline">\(P(Y=1\mid\mathbf x)\)</span> for a point close to the I–III decision boundary?</li>
+<li><span class="math inline">\(P(Y=0\mid\mathbf x)\)</span> for a point well inside regime I?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Expected answers">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Expected answers
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The first probability should be close to one, the second close to zero, the third around one half, and the fourth close to one. The two class probabilities satisfy <span class="math inline">\(P(Y=0\mid\mathbf x)=1-P(Y=1\mid\mathbf x)\)</span>.</p>
+<p>These are expectations for the intended model behavior. A fitted classifier can be wrong or overconfident; distance from an assumed physical boundary alone does not establish a calibrated probability. Our model’s equal-probability boundary will be defined by <span class="math inline">\(y_{\mathbf w}(\mathbf x)=1/2\)</span>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="turning-the-linear-score-into-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="turning-the-linear-score-into-probabilities">Turning the linear score into probabilities</h3>
+<p>We retain the augmented features and linear score, but replace the Heaviside function by the <strong>logistic sigmoid</strong>:</p>
+<p><span class="math display">\[
+z_i=\mathbf w^{\mathsf T}\mathbf x_i,
+\qquad
+\sigma(z)=\frac{1}{1+\exp(-z)},
+\qquad
+\boxed{\widehat y_i=\sigma(z_i).}
+\]</span></p>
+<p>The sigmoid maps any finite real score to a number strictly between zero and one. It is smooth, with</p>
+<p><span class="math display">\[
+\sigma'(z)=\sigma(z)\bigl[1-\sigma(z)\bigr],
+\qquad \sigma(0)=\frac12.
+\]</span></p>
+<p><img src="media/doe-sigmoid-light.png" class="light-content img-fluid" style="width:80.0%" alt="The logistic sigmoid maps a real-valued score to a class-one probability."> <img src="media/doe-sigmoid-dark.png" class="dark-content img-fluid" style="width:80.0%" alt="The logistic sigmoid maps a real-valued score to a class-one probability."></p>
+<p>If a discrete decision is needed, we define a separate hard prediction</p>
+<p><span class="math display">\[
+\widehat c_i=\begin{cases}0,&amp;\widehat y_i\leq\frac12,\\1,&amp;\widehat y_i&gt;\frac12.\end{cases}
+\]</span></p>
+<p>Since the sigmoid is strictly increasing, <span class="math inline">\(\widehat y_i=1/2\)</span> is equivalent to <span class="math inline">\(z_i=0\)</span>. Thus this change preserves the family of linear boundaries in transformed feature space. What changes is the model output and its training objective. The log-odds are linear:</p>
+<p><span class="math display">\[
+\log\!\left(\frac{\widehat y_i}{1-\widehat y_i}\right)=z_i=\mathbf w^{\mathsf T}\mathbf x_i.
+\]</span></p>
+<p>Here and in the likelihood below, <span class="math inline">\(\log\)</span> denotes the natural logarithm; the feature transformation used <span class="math inline">\(\log_{10}\)</span>.</p>
+</section>
+<section id="maximum-likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="maximum-likelihood">Maximum likelihood</h3>
+<p>Using the Bernoulli model, we express the probability of either observed label in one formula:</p>
+<p><span class="math display">\[
+q_i=\widehat y_i^{y_i}(1-\widehat y_i)^{1-y_i}.
+\]</span></p>
+<p>For <span class="math inline">\(y_i=1\)</span>, only the <span class="math inline">\(\widehat y_i\)</span> factor remains; for <span class="math inline">\(y_i=0\)</span>, only <span class="math inline">\(1-\widehat y_i\)</span> remains. Under the modeling assumption that the labels are <strong>conditionally independent given their inputs and the weights</strong>, the joint conditional probability of the observed labels is</p>
+<p><span class="math display">\[
+\begin{aligned}
+L(\mathbf w;\mathcal D)
+&amp;=P_{\mathbf w}(Y_1=y_1,\ldots,Y_N=y_N\mid\mathbf x_1,\ldots,\mathbf x_N)\\
+&amp;=\prod_{i=1}^{N}q_i
+=\prod_{i=1}^{N}
+\widehat y_i^{\,y_i}(1-\widehat y_i)^{1-y_i}.
+\end{aligned}
+\]</span></p>
+<p>Viewed as a function of the unknown weights with the observations fixed, <span class="math inline">\(L\)</span> is the <strong>likelihood</strong>. Maximum-likelihood estimation seeks weights that maximize this likelihood. Equivalently, it seeks to assign high probability to the labels that were actually observed. The likelihood is not a probability distribution over the weights.</p>
+</section>
+<section id="from-products-to-log-likelihood-and-binary-cross-entropy" class="level3">
+<h3 class="anchored" data-anchor-id="from-products-to-log-likelihood-and-binary-cross-entropy">From products to log-likelihood and binary cross entropy</h3>
+<p>Directly multiplying many probabilities can produce extremely small numbers and eventually floating-point <strong>underflow</strong>. Its gradient also carries the potentially small product as a factor: <span class="math inline">\(\nabla L=L\nabla\log(L)\)</span>. For example, if every observed label receives probability <span class="math inline">\(1/2\)</span>, then <span class="math inline">\(L=2^{-N}\)</span>; with the 47 training samples this is already about <span class="math inline">\(7.1\times10^{-15}\)</span>. This particular value is representable in double precision, but the product becomes increasingly troublesome for larger datasets or poorly predicted labels.</p>
+<p>The natural logarithm is strictly increasing, so maximizing <span class="math inline">\(L\)</span> and maximizing its <strong>log-likelihood</strong> have the same ordering of candidate weights:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ell(\mathbf w;\mathcal D)
+&amp;=\log\!\left(L(\mathbf w;\mathcal D)\right)\\
+&amp;=\log\!\left(\prod_{i=1}^{N}
+\widehat y_i^{\,y_i}(1-\widehat y_i)^{1-y_i}\right)\\
+&amp;=\sum_{i=1}^{N}\log\!\left(
+\widehat y_i^{\,y_i}(1-\widehat y_i)^{1-y_i}\right)\\
+&amp;=\sum_{i=1}^{N}\left[
+\log\!\left(\widehat y_i^{\,y_i}\right)
++\log\!\left((1-\widehat y_i)^{1-y_i}\right)\right]\\
+&amp;=\sum_{i=1}^{N}\left[
+y_i\log(\widehat y_i)+(1-y_i)\log(1-\widehat y_i)\right].
+\end{aligned}
+\]</span></p>
+<p>We first substitute the likelihood product. Using <span class="math inline">\(\log(ab)=\log(a)+\log(b)\)</span>, we turn the product over samples into a sum and split each sample’s two factors. Finally, <span class="math inline">\(\log(a^r)=r\log(a)\)</span> brings the label-dependent exponents in front of the logarithms. The sigmoid outputs satisfy <span class="math inline">\(0&lt;\widehat y_i&lt;1\)</span> for finite scores, so all logarithm arguments are positive.</p>
+<p>This is evaluated as a sum; there is no need to form the probability product first. Changing sign turns maximization into minimization. Dividing by <span class="math inline">\(N\)</span> gives the mean <strong>binary cross entropy (BCE)</strong>:</p>
+<p><span class="math display">\[
+\boxed{\mathcal L_{\mathrm{BCE}}(\mathbf w)
+=-\frac1N\sum_{i=1}^{N}
+\left[y_i\log(\widehat y_i)+(1-y_i)\log(1-\widehat y_i)\right]
+=-\frac1N\ell(\mathbf w;\mathcal D).}
+\]</span></p>
+<p>An incorrect confident prediction is penalized strongly: for <span class="math inline">\(y_i=1\)</span>, the contribution <span class="math inline">\(-\log(\widehat y_i)\)</span> grows without bound as <span class="math inline">\(\widehat y_i\to0\)</span>. Unlike the hard error count, BCE also changes when the probability improves without crossing the classification threshold.</p>
+<p>We can also examine the contribution of a single sample. The <strong>per-sample BCE</strong> is its negative log-probability under the model:</p>
+<p><span class="math display">\[
+\ell_{\mathrm{BCE},i}
+=-\left[y_i\log(\widehat y_i)+(1-y_i)\log(1-\widehat y_i)\right],
+\qquad
+\mathcal L_{\mathrm{BCE}}=\frac1N\sum_{i=1}^{N}\ell_{\mathrm{BCE},i}.
+\]</span></p>
+<p>This separates the penalty for one prediction from the averaging over the dataset. It also lets us derive the gradient for one sample first and then average the contributions, or use individual contributions in stochastic training.</p>
+<p>For implementation, we can express the same loss directly through the linear score <span class="math inline">\(z_i\)</span>. Substituting <span class="math inline">\(\widehat y_i=\sigma(z_i)\)</span> gives</p>
+<p><span class="math display">\[
+\log(\widehat y_i)=z_i-\log\!\left(1+\exp(z_i)\right),
+\qquad
+\log(1-\widehat y_i)=-\log\!\left(1+\exp(z_i)\right).
+\]</span></p>
+<p>Hence,</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ell_{\mathrm{BCE},i}
+&amp;=-y_i\left[z_i-\log\!\left(1+\exp(z_i)\right)\right]
++(1-y_i)\log\!\left(1+\exp(z_i)\right)\\
+&amp;=\boxed{\log\!\left(1+\exp(z_i)\right)-y_i z_i.}
+\end{aligned}
+\]</span></p>
+<p>The two expressions are mathematically equivalent, but the score-based form is helpful numerically. For a large positive score, the computed sigmoid can round to one. If the true label is zero, evaluating <span class="math inline">\(-\log(1-\widehat y_i)\)</span> then produces infinity even though the loss for a finite score is finite. For example, at <span class="math inline">\(z_i=100\)</span> and <span class="math inline">\(y_i=0\)</span>, the correct loss is approximately <span class="math inline">\(100\)</span>.</p>
+<p>We therefore evaluate the score-based expression with a stable <strong>softplus</strong> or log-sum-exp implementation, such as <code>numpy.logaddexp(0, z_i) - y_i*z_i</code>. We still avoid computing <span class="math inline">\(\exp(z_i)\)</span> naively, since that can overflow for large positive scores. A stable equivalent form is</p>
+<p><span class="math display">\[
+\ell_{\mathrm{BCE},i}
+=\max(0,z_i)-y_i z_i
++\log\!\left(1+\exp(-|z_i|)\right).
+\]</span></p>
+<p>Here the exponential argument is never positive, so the exponential cannot overflow. In practice, a library’s BCE-with-logits function combines this stable loss evaluation with its gradient calculation.</p>
+</section>
+<section id="the-logistic-regression-update" class="level3">
+<h3 class="anchored" data-anchor-id="the-logistic-regression-update">The logistic-regression update</h3>
+<p>For one sample, differentiating with respect to the score gives</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial\ell_{\mathrm{BCE},i}}{\partial z_i}
+&amp;=\left[-\frac{y_i}{\widehat y_i}+\frac{1-y_i}{1-\widehat y_i}\right]
+\widehat y_i(1-\widehat y_i)\\
+&amp;=\widehat y_i-y_i.
+\end{aligned}
+\]</span></p>
+<p>Since <span class="math inline">\(\nabla_{\mathbf w}z_i=\mathbf x_i\)</span>,</p>
+<p><span class="math display">\[
+\nabla_{\mathbf w}\mathcal L_{\mathrm{BCE}}
+=\frac1N\sum_{i=1}^{N}(\widehat y_i-y_i)\mathbf x_i,
+\]</span></p>
+<p>and a full-batch gradient-descent step is</p>
+<p><span class="math display">\[
+\boxed{\mathbf w^{(n+1)}=\mathbf w^{(n)}
++\frac{\eta}{N}\sum_{i=1}^{N}
+\bigl(y_i-\widehat y_i^{(n)}\bigr)\mathbf x_i.}
+\]</span></p>
+<p>For a stochastic single-sample step, we omit the average and use just the selected sample’s contribution. The form resembles the perceptron update, but the residual now contains a <strong>smooth probability</strong>, rather than a hard class label. A correctly classified sample can still change the weights because its probability need not equal its observed label.</p>
+<p>The linear log-odds model fitted by Bernoulli maximum likelihood is called <strong>logistic regression</strong>, even though its application here is classification. Its construction and likelihood derivation are described by <span class="citation" data-cites="nglogisticnotes">Ng (<a href="#ref-nglogisticnotes" role="doc-biblioref">n.d.</a>)</span>. In linear logistic regression, BCE is convex in the weights. A suitable step size can produce decreasing BCE, but an excessively large learning rate can still cause poor optimization behavior. Convexity does not by itself guarantee a finite minimizer.</p>
+</section>
+<section id="comparing-likelihood-and-log-likelihood-landscapes" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-likelihood-and-log-likelihood-landscapes">Comparing likelihood and log-likelihood landscapes</h3>
+<p>To visualize the three-parameter model on a plane, we hold the bias fixed at <span class="math inline">\(b=0\)</span> and vary <span class="math inline">\(w_1\)</span> and <span class="math inline">\(w_2\)</span> over <span class="math inline">\([-8,12]\)</span>. Both panels use the same 47 training samples and the same feature scaling: the left shows <span class="math inline">\(L\)</span> and the right shows <span class="math inline">\(\ell=\log(L)\)</span>. These are coefficient slices, rather than the full three-dimensional objective or the optimization path of the trained model, whose bias is free to change.</p>
+<p><img src="media/bubble-logistic-landscapes-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Likelihood and log-likelihood on the same two-weight slice; the bias is fixed and the data and feature scaling are identical in both panels."> <img src="media/bubble-logistic-landscapes-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Likelihood and log-likelihood on the same two-weight slice; the bias is fixed and the data and feature scaling are identical in both panels."></p>
+<p>Taking the logarithm changes the numerical scale and gradient magnitudes, but it does not introduce a different ordering of likelihood values or move their maxima. The two panels describe the same likelihood criterion under a monotone transformation; they are not two different statistical models. The negative log-likelihood, and hence BCE, provides a convex minimization objective for this linear model.</p>
+</section>
+<section id="predicted-probabilities-and-the-decision-boundary" class="level3">
+<h3 class="anchored" data-anchor-id="predicted-probabilities-and-the-decision-boundary">Predicted probabilities and the decision boundary</h3>
+<p>We use the same 47 training samples and scaling as in the perceptron example. Starting from <span class="math inline">\(\mathbf w=\mathbf0\)</span>, we perform <strong>2000 full-batch gradient steps</strong> with learning rate <span class="math inline">\(\eta=1\)</span> on <strong>mean BCE</strong>. One plotted iteration is now a full-batch step, rather than a single sample presentation. The final weights are approximately <span class="math inline">\((18.1248,\,2.1303,\,5.6672)^{\mathsf T}\)</span> and mean BCE is <span class="math inline">\(0.07524\)</span>. The hard classification error first reaches zero at step <strong>302</strong> and remains zero at the end; BCE continues to decrease after that point. The fixed budget defines the displayed model, not a claim of convergence to finite maximum-likelihood weights.</p>
+<p><img src="media/bubble-logistic-probabilities-light.svg?v=consistency-20261102" class="light-content img-fluid" style="width:100.0%" alt="Logistic-regression class-one probability contours and the mean binary-cross-entropy training history for regimes I and III."> <img src="media/bubble-logistic-probabilities-dark.svg?v=consistency-20261102" class="dark-content img-fluid" style="width:100.0%" alt="Logistic-regression class-one probability contours and the mean binary-cross-entropy training history for regimes I and III."></p>
+<p>The solid isoline gives the discrete decision boundary. Other isolines show how gradually or sharply the fitted probability changes away from it. The color field shows probabilities from the fitted model; this training plot alone does not establish that they are calibrated probabilities for new physical cases.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="A finite training run is not a finite maximum-likelihood solution">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>A finite training run is not a finite maximum-likelihood solution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The 47 transformed training samples are linearly separable. Along a separating weight direction, increasing the weight magnitude makes the observed-label probabilities approach one. The likelihood approaches its supremum and BCE approaches zero, while the weights grow without a finite maximizing value. Thus <strong>unregularized maximum-likelihood weights do not exist as a finite optimum for this dataset</strong>, even if the training classification error is already zero.</p>
+<p>Our displayed weights are the result of a stated finite iteration budget. Regularization or a suitable prior can control the coefficient magnitude; these require an explicit additional modeling choice. Separation in logistic regression is discussed by <span class="citation" data-cites="shalizi2020logistic">Shalizi (<a href="#ref-shalizi2020logistic" role="doc-biblioref">2020</a>)</span>. Smooth training therefore improves the optimization formulation but does not remove every limitation of the model or the data.</p>
+</div>
+</div>
+</section>
+<section id="regime-i-versus-the-union-of-regimes-ii-and-iii" class="level3">
+<h3 class="anchored" data-anchor-id="regime-i-versus-the-union-of-regimes-ii-and-iii">Regime I versus the union of regimes II and III</h3>
+<p>We next enlarge the positive class. The task is still <strong>binary classification</strong>, although three physical regimes supply the observations:</p>
+<p><span class="math display">\[
+y_i^{\cup}=\begin{cases}
+0,&amp;\text{regime I},\\
+1,&amp;\text{regime II or III}.
+\end{cases}
+\]</span></p>
+<p>This gives <span class="math inline">\(M=59\)</span> samples: 20 from regime I, 12 from regime II, and 27 from regime III. Regimes IV and V are excluded. The positive label now means either skirted, non-oscillatory bubbles or bubbles with oscillatory paths; it does not distinguish those two behaviors.</p>
+<p>For these 59 transformed samples, an independent geometric check finds an intersection between the convex hull of regime I and that of regimes II and III together. Consequently, the classes cannot all be separated by one affine decision boundary. This conclusion uses the sample geometry, rather than a visual impression of the map or an optimization run that happened to fail.</p>
+<p>For this enlarged training demonstration, we fit one common logarithmic min–max transformation on the 59 training samples. Both component models and the combined model use these <strong>same transformed coordinates</strong>. The I–III component solves the same classification task as before, but is fitted again in the common representation; coefficients from differently scaled feature spaces must not be combined without conversion.</p>
+</section>
+<section id="two-component-models-and-a-learned-combination" class="level3">
+<h3 class="anchored" data-anchor-id="two-component-models-and-a-learned-combination">Two component models and a learned combination</h3>
+<p>We first construct two logistic models:</p>
+<p><span class="math display">\[
+h_1(\mathbf x)=\sigma(\bigl(\mathbf w_1^{(1)}\bigr)^{\mathsf T}\mathbf x)
+\quad\text{trained on regimes I and III},
+\]</span> <span class="math display">\[
+h_2(\mathbf x)=\sigma(\bigl(\mathbf w_2^{(1)}\bigr)^{\mathsf T}\mathbf x)
+\quad\text{trained on regimes I and II}.
+\]</span></p>
+<p>Here <span class="math inline">\(\mathbf w_j^{(1)}=[w_{j1}^{(1)},w_{j2}^{(1)},b_j^{(1)}]^{\mathsf T}\)</span> multiplies <span class="math inline">\(\mathbf x=[\widetilde{Ga},\widetilde{Eo},1]^{\mathsf T}\)</span>. The constant-one input supplies the hidden-neuron bias. At the next layer, <span class="math inline">\([h_1,h_2,1]^{\mathsf T}\)</span> similarly supplies the output bias.</p>
+<p>Both use label zero for regime I. The first uses label one for regime III; the second uses label one for regime II. Each component has a straight <span class="math inline">\(h_j=1/2\)</span> boundary in the transformed physical feature plane. Its predictions in the third regime, which was excluded from that component’s training, have not been independently established.</p>
+<p>We use the two <strong>sigmoid outputs</strong> as new features:</p>
+<p><span class="math display">\[
+\boldsymbol\phi(\mathbf x)=
+\begin{bmatrix}h_1(\mathbf x)\\h_2(\mathbf x)\\1\end{bmatrix},
+\qquad
+\mathbf w^{(2)}=
+\begin{bmatrix}w_1^{(2)}\\w_2^{(2)}\\b^{(2)}\end{bmatrix}.
+\]</span></p>
+<p>The combined probability model is</p>
+<p><span class="math display">\[
+\boxed{y_\theta(\mathbf x)
+=\sigma\!\left(\bigl(\mathbf w^{(2)}\bigr)^{\mathsf T}\boldsymbol\phi(\mathbf x)\right)
+=\sigma\!\left(w_1^{(2)}h_1(\mathbf x)+w_2^{(2)}h_2(\mathbf x)+b^{(2)}\right).}
+\]</span></p>
+<p>Here <span class="math inline">\(\theta\)</span> collects the two hidden weight vectors and the output weight vector. For sample <span class="math inline">\(i\)</span>, the combined prediction is <span class="math inline">\(\widehat y_i^{\cup}=y_\theta(\mathbf x_i)\)</span>, approximating <span class="math inline">\(P(Y^{\cup}=1\mid\mathbf x_i)\)</span>. This follows the same model-versus-prediction notation as before; the superscript <span class="math inline">\(\cup\)</span> identifies the enlarged positive class.</p>
+<p>The outer model has the same form as logistic regression, but its input features are now the outputs of two learned models. The coefficients determine how those features contribute to the combined decision; they need not define an average or sum to one.</p>
+<p>The intermediate sigmoid functions are essential. Combining only the raw linear scores would give</p>
+<p><span class="math display">\[
+w_1^{(2)}\bigl(\mathbf w_1^{(1)}\bigr)^{\mathsf T}\mathbf x+
+w_2^{(2)}\bigl(\mathbf w_2^{(1)}\bigr)^{\mathsf T}\mathbf x+b^{(2)},
+\]</span></p>
+<p>which is still affine in the physical features. Applying a sigmoid only at the very end would leave a linear equal-probability boundary. With the nonlinear intermediate features <span class="math inline">\(h_1\)</span> and <span class="math inline">\(h_2\)</span>, the equation</p>
+<p><span class="math display">\[
+w_1^{(2)}h_1(\mathbf x)+w_2^{(2)}h_2(\mathbf x)+b^{(2)}=0
+\]</span></p>
+<p>can instead describe a <strong>nonlinear boundary</strong> in <span class="math inline">\((\widetilde{Ga},\widetilde{Eo})\)</span>.</p>
+</section>
+<section id="the-same-construction-as-a-multilayer-perceptron" class="level3">
+<h3 class="anchored" data-anchor-id="the-same-construction-as-a-multilayer-perceptron">The same construction as a multilayer perceptron</h3>
+<p>The graph exposes a familiar structure:</p>
+<ul>
+<li>the <strong>input layer</strong> supplies <span class="math inline">\(\widetilde{Ga}\)</span> and <span class="math inline">\(\widetilde{Eo}\)</span>;</li>
+<li>two <strong>hidden neurons</strong> compute <span class="math inline">\(h_1\)</span> and <span class="math inline">\(h_2\)</span>, each from an affine score followed by a sigmoid;</li>
+<li>one <strong>output neuron</strong> computes <span class="math inline">\(y_\theta\)</span> from the hidden activations and its bias.</li>
+</ul>
+<p><img src="media/bubble-mlp-architecture-light.svg?v=consistency-20261102" class="light-content img-fluid" style="width:100.0%" alt="Two binary logistic component models supply the hidden features of a two-input, two-hidden-unit, one-output multilayer perceptron."> <img src="media/bubble-mlp-architecture-dark.svg?v=consistency-20261102" class="dark-content img-fluid" style="width:100.0%" alt="Two binary logistic component models supply the hidden features of a two-input, two-hidden-unit, one-output multilayer perceptron."></p>
+<p>This is a <strong>multilayer perceptron (MLP)</strong> with one hidden layer. The constant-one entries are bookkeeping for the three biases, rather than additional measured inputs. There are nine trainable parameters: three in each component and three in the output model. Despite its name, an MLP need not use the hard Heaviside function or the perceptron learning rule.</p>
+<p>The physical interpretation assigned to each hidden unit here comes from deliberately training it on a particular two-regime task. Hidden neurons in a generally trained MLP do not automatically acquire such an interpretation.</p>
+</section>
+<section id="training-the-combination-by-gradient-descent" class="level3">
+<h3 class="anchored" data-anchor-id="training-the-combination-by-gradient-descent">Training the combination by gradient descent</h3>
+<p>In a staged construction, we first fit <span class="math inline">\(\mathbf w_1^{(1)}\)</span> and <span class="math inline">\(\mathbf w_2^{(1)}\)</span> on their respective binary datasets. We then freeze these component weights, evaluate <span class="math inline">\(\boldsymbol\phi_i=\boldsymbol\phi(\mathbf x_i)\)</span> on all 59 samples, and train <span class="math inline">\(\mathbf w^{(2)}\)</span> using mean binary cross entropy with labels <span class="math inline">\(y_i^{\cup}\)</span>:</p>
+<p><span class="math display">\[
+\mathcal L_{\cup}
+=-\frac1M\sum_{i=1}^{M}
+\left[y_i^{\cup}\log(\widehat y_i^{\cup})
++(1-y_i^{\cup})\log(1-\widehat y_i^{\cup})\right].
+\]</span></p>
+<p>The output-weight gradient is exactly the logistic-regression gradient in the new features:</p>
+<p><span class="math display">\[
+\nabla_{\mathbf w^{(2)}}\mathcal L_{\cup}
+=\frac1M\sum_{i=1}^{M}
+(\widehat y_i^{\cup}-y_i^{\cup})\boldsymbol\phi_i.
+\]</span></p>
+<p>It is also possible to update all layers jointly. Applying the chain rule to a hidden weight vector gives</p>
+<p><span class="math display">\[
+\nabla_{\mathbf w_j^{(1)}}\mathcal L_{\cup}
+=\frac1M\sum_{i=1}^{M}
+(\widehat y_i^{\cup}-y_i^{\cup})w_j^{(2)}
+h_j(\mathbf x_i)\bigl[1-h_j(\mathbf x_i)\bigr]\mathbf x_i,
+\qquad j\in\{1,2\}.
+\]</span></p>
+<p>Passing the output error back through the hidden activations is the basic idea of <strong>backpropagation</strong>. Joint training can adapt the hidden features to the combined task, but it no longer guarantees that each unit retains its original two-regime interpretation. The full MLP objective is generally nonconvex in all layer weights together, even though the output-layer problem with fixed hidden features is convex.</p>
+</section>
+<section id="component-and-combined-probability-maps" class="level3">
+<h3 class="anchored" data-anchor-id="component-and-combined-probability-maps">Component and combined probability maps</h3>
+<p>For each component, we use zero initial weights, learning rate <span class="math inline">\(\eta=1\)</span>, and <strong>2000 full-batch steps</strong> minimizing mean BCE on that component’s training subset. We freeze both components and train the output weights from zero for another <strong>2000 full-batch steps</strong> on all 59 samples, again with <span class="math inline">\(\eta=1\)</span>. No joint fine-tuning is used in these plots. Thus the construction retains the two component tasks as an explicit, interpretable hidden layer.</p>
+<p><img src="media/bubble-mlp-probabilities-light.svg?v=consistency-20261102" class="light-content img-fluid" style="width:100.0%" alt="Two component probability maps and their combined nonlinear probability map for regime I versus regimes II and III, all in the same transformed feature coordinates."> <img src="media/bubble-mlp-probabilities-dark.svg?v=consistency-20261102" class="dark-content img-fluid" style="width:100.0%" alt="Two component probability maps and their combined nonlinear probability map for regime I versus regimes II and III, all in the same transformed feature coordinates."></p>
+<p>We compare the straight equal-probability boundaries of the two components with the combined model’s solid decision boundary. The color fields show the model probabilities as well as the hard decision boundaries. Each component panel shows the samples used to fit that component; the final panel shows the enlarged binary dataset.</p>
+<p>In this staged run, both component classifiers have zero training errors on their respective subsets. Their mean BCE values are approximately <span class="math inline">\(0.07662\)</span> for I–III and <span class="math inline">\(0.04356\)</span> for I–II. The combined classifier has <strong>zero errors on all 59 training samples</strong>, with mean BCE approximately <span class="math inline">\(0.02865\)</span>. Its output weights are approximately <span class="math inline">\(\mathbf w^{(2)}=(12.6122,\,11.1134,\,-6.3421)^{\mathsf T}\)</span>. These values describe a finite optimization run, not exact population probabilities or an identified physical regime boundary.</p>
+<p>The combination remains a model of this restricted dataset. It does not classify breakup regimes IV and V, and training-set agreement does not establish generalization or probability calibration.</p>
+</section>
+<section id="extension-to-k-classes" class="level3">
+<h3 class="anchored" data-anchor-id="extension-to-k-classes">Extension to <span class="math inline">\(K\)</span> classes</h3>
+<p>The union model still has only two outcomes. We now return to all five physical regimes and predict a separate probability for each. More generally, for <span class="math inline">\(K\geq2\)</span>, we define the categorical label as</p>
+<p><span class="math display">\[
+y_i\in\{1,2,\ldots,K\}.
+\]</span></p>
+<p>For this subsection, we use the integer labels <span class="math inline">\(1,\ldots,5\)</span> for regimes I, II, III, IV, and V. These category identifiers do not impose a physical ordering or a distance between regimes. They replace the earlier binary label convention.</p>
+<section id="one-hot-encoding" class="level4">
+<h4 class="anchored" data-anchor-id="one-hot-encoding">One-hot encoding</h4>
+<p>Why do we change the label representation? Our classifier will produce <strong>one probability for each of the <span class="math inline">\(K\)</span> classes</strong>. We therefore want a target with the same structure: one entry per class, indicating which outcome was observed. One-hot encoding provides exactly this representation. The observed class receives an entry of one, and all other entries are zero.</p>
+<p>Treating the category number as a scalar regression target would introduce an artificial numerical meaning. For example, squared error would penalize predicting class 5 for a class-1 sample more strongly than predicting class 2, simply because the identifiers are farther apart. Our regime labels do not justify that ordering or distance. With one-hot targets, every class has its own entry, and categorical cross entropy selects the probability assigned to the observed class.</p>
+<p>One-hot encoding is thus useful for expressing the model and loss in a common vector notation. It is <strong>not necessary to store the labels as vectors</strong>: many implementations accept integer class labels and select the corresponding probability directly, giving the same categorical cross entropy. We use the explicit vectors here to make the connection between targets, predicted probabilities, and the loss visible.</p>
+<p>We define the encoding function for category <span class="math inline">\(k\)</span> by</p>
+<p><span class="math display">\[
+e_k(y)=\begin{cases}1,&amp;y=k,\\0,&amp;y\neq k,\end{cases}
+\qquad k=1,\ldots,K.
+\]</span></p>
+<p>The corresponding target vector is</p>
+<p><span class="math display">\[
+\boxed{\mathbf y_i=
+\begin{bmatrix}e_1(y_i)\\e_2(y_i)\\\vdots\\e_K(y_i)\end{bmatrix}
+\in\{0,1\}^{K},
+\qquad\sum_{k=1}^{K}y_{ik}=1.}
+\]</span></p>
+<p>Exactly one entry equals one: the entry identifying the observed category. For <span class="math inline">\(K=5\)</span> and <span class="math inline">\(y_i=4\)</span>,</p>
+<p><span class="math display">\[
+\mathbf y_i=\begin{bmatrix}0\\0\\0\\1\\0\end{bmatrix}.
+\]</span></p>
+<p>Before continuing, we distinguish a valid encoding from an encoding of the correct category:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Candidate target for a sample with <span class="math inline">\(y_i=4\)</span></th>
+<th style="text-align: left;">Valid one-hot vector?</th>
+<th style="text-align: left;">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((0,0,0,1,0)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Correctly encodes class 4.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((0,1,0,0,0)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Encodes class 2; incorrect for this sample.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((0,0,1,1,0)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Selects two mutually exclusive categories.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((0,0,0,0,0)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Does not select a category.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((0.1,0.1,0.1,0.6,0.1)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">A valid probability vector, but not a one-hot target.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-mlp-with-a-softmax-output-layer" class="level4">
+<h4 class="anchored" data-anchor-id="the-mlp-with-a-softmax-output-layer">The MLP with a softmax output layer</h4>
+<p>We use the layer notation from <a href="../notebooks/ml_intro.html#the-multilayer-perceptron">the previous lecture</a>. We write biases explicitly again, as in the previous lecture. We keep the notation <span class="math inline">\(\mathbf x_i\)</span> for the feature vector, but now include only the two scaled physical features; the constant-one component is no longer needed because the biases appear separately:</p>
+<p><span class="math display">\[
+\mathbf x_i=\begin{bmatrix}\widetilde{Ga}_i\\\widetilde{Eo}_i\end{bmatrix},
+\qquad\mathbf h_i^{(0)}=\mathbf x_i.
+\]</span></p>
+<p>The hidden layers retain the same form:</p>
+<p><span class="math display">\[
+\mathbf h_i^{(\ell)}
+=\phi_\ell\!\left(W^{(\ell)}\mathbf h_i^{(\ell-1)}+\mathbf b^{(\ell)}\right),
+\qquad\ell=1,\ldots,L-1.
+\]</span></p>
+<p>The final affine layer produces <strong><span class="math inline">\(K\)</span> logits</strong>, one score per category:</p>
+<p><span class="math display">\[
+\mathbf z_i=W^{(L)}\mathbf h_i^{(L-1)}+\mathbf b^{(L)}\in\mathbb R^{K}.
+\]</span></p>
+<p>We replace the scalar output sigmoid by <strong>softmax</strong>:</p>
+<p><span class="math display">\[
+\boxed{\widehat{\mathbf y}_i
+=\mathbf y_\theta(\mathbf x_i)
+=\operatorname{softmax}(\mathbf z_i),
+\qquad
+\widehat y_{ik}=\frac{\exp(z_{ik})}{\sum_{j=1}^{K}\exp(z_{ij})}.}
+\]</span></p>
+<p>The vector <span class="math inline">\(\theta\)</span> collects all trainable weights and biases. Each output component models <span class="math inline">\(P_\theta(Y=k\mid\mathbf x_i)\)</span>. Softmax has the following properties:</p>
+<ul>
+<li>every component lies strictly between zero and one for finite logits;</li>
+<li>the components sum to one, so they form a categorical probability vector;</li>
+<li>adding the same constant to all logits leaves the probabilities unchanged;</li>
+<li>the largest logit also has the largest probability.</li>
+</ul>
+<p>For <span class="math inline">\(K=2\)</span>, <span class="math inline">\(\operatorname{softmax}(\mathbf z)_2=\sigma(z_2-z_1)\)</span>, connecting softmax to binary logistic regression. For numerical stability, we subtract <span class="math inline">\(m_i=\max_j z_{ij}\)</span> before exponentiating:</p>
+<p><span class="math display">\[
+\widehat y_{ik}
+=\frac{\exp(z_{ik}-m_i)}{\sum_j\exp(z_{ij}-m_i)}.
+\]</span></p>
+<p>Using <span class="math inline">\(K\)</span> independent sigmoids would not enforce a sum of one. That would be a different output model, appropriate to some multi-label problems, rather than this mutually exclusive regime classification.</p>
+</section>
+<section id="probability-predictions-and-the-categorical-decision" class="level4">
+<h4 class="anchored" data-anchor-id="probability-predictions-and-the-categorical-decision">Probability predictions and the categorical decision</h4>
+<p>For a true class-4 target <span class="math inline">\(\mathbf y_i=(0,0,0,1,0)^{\mathsf T}\)</span>, we compare:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Candidate prediction <span class="math inline">\(\widehat{\mathbf y}_i\)</span></th>
+<th style="text-align: left;">Valid probability vector?</th>
+<th style="text-align: left;">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((0.01,0.02,0.02,0.93,0.02)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">High probability for the observed class.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((0.04,0.80,0.04,0.08,0.04)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Confident prediction of the wrong class.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((0.20,0.20,0.20,0.20,0.20)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No preference among classes; all entries tie.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((0.10,0.10,0.10,0.90,0.10)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Components sum to 1.3.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((0.10,-0.10,0.10,0.80,0.10)^{\mathsf T}\)</span></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Contains a negative probability.</td>
+</tr>
+</tbody>
+</table>
+<p>The model’s primary output is the probability vector. We convert it to a categorical prediction using</p>
+<p><span class="math display">\[
+\boxed{\widehat c_i=\operatorname*{arg\,max}_{k\in\{1,\ldots,K\}}\widehat y_{ik}.}
+\]</span></p>
+<p>We use a deterministic convention for ties: our implementation chooses the lowest category index among tied maxima. The decision-region plots use this <strong>argmax rule</strong>, rather than thresholding each class independently at probability one half. With five classes, a class can win with probability below one half. Boundaries occur where the maximizing category changes, with the tied categories at least as probable as all others.</p>
+</section>
+<section id="categorical-cross-entropy" class="level4">
+<h4 class="anchored" data-anchor-id="categorical-cross-entropy">Categorical cross entropy</h4>
+<p>The probability assigned to an observed label is</p>
+<p><span class="math display">\[
+P_\theta(Y=y_i\mid\mathbf x_i)
+=\prod_{k=1}^{K}\widehat y_{ik}^{\,y_{ik}}.
+\]</span></p>
+<p>Only the component selected by the one-hot target contributes. Under the same conditional-independence model as before, maximizing the product over training samples is equivalent to minimizing the mean <strong>categorical cross entropy</strong>:</p>
+<p><span class="math display">\[
+\boxed{\mathcal L_{\mathrm{train}}(\theta)
+=-\frac{1}{N_{\mathrm{train}}}
+\sum_{i\in\mathcal T}\sum_{k=1}^{K}y_{ik}\log(\widehat y_{ik})
+=-\frac{1}{N_{\mathrm{train}}}\sum_{i\in\mathcal T}\log(\widehat y_{i,y_i}).}
+\]</span></p>
+<p>With <span class="math inline">\(\ell_{\mathrm{CE},i}=-\sum_{k=1}^{K}y_{ik}\log(\widehat y_{ik})\)</span>, softmax and cross entropy give the particularly simple per-sample logit derivative</p>
+<p><span class="math display">\[
+\nabla_{\mathbf z_i}\ell_{\mathrm{CE},i}=\widehat{\mathbf y}_i-\mathbf y_i.
+\]</span></p>
+<p>Backpropagation applies the chain rule through the remaining layers, and a gradient-based optimizer updates <span class="math inline">\(\theta\)</span>. Stable implementations combine log-softmax and cross entropy, using log-sum-exp rather than taking the logarithm of probabilities that may have rounded to zero.</p>
+</section>
+</section>
+<section id="one-training-trajectory-several-snapshots" class="level3">
+<h3 class="anchored" data-anchor-id="one-training-trajectory-several-snapshots">One training trajectory, several snapshots</h3>
+<p>To examine learning and possible overfitting, we use <strong>one fixed training–validation split</strong>, one initialization, and one uninterrupted training trajectory. We record both losses and save model states at selected epochs. A snapshot comparison then changes only how far the same training run has progressed; it does not mix independently trained models or different data splits.</p>
+<p>The worked example uses all 104 digitized observations, stratified by class into <strong>84 training</strong> and <strong>20 validation</strong> samples. The respective training/validation counts are I: 16/4, II: 10/2, III: 22/5, IV: 13/3, and V: 23/6. The split and initialization use separate random generators with seed 42. We fit a <strong>2–32–32–5 MLP</strong> with two hyperbolic-tangent hidden layers, <span class="math inline">\(\phi(z)=\tanh(z)\)</span>, and a softmax output. We train for <strong>10,000 full-batch epochs</strong> using Adam, a gradient-based optimizer, with learning rate <span class="math inline">\(0.01\)</span>, momentum coefficients <span class="math inline">\(0.9\)</span> and <span class="math inline">\(0.999\)</span>, and numerical offset <span class="math inline">\(10^{-8}\)</span>. In this full-batch run, one epoch is one parameter update. The saved states include predefined checkpoints and the validation-selected checkpoint.</p>
+<p>Only training examples contribute to the gradient. Validation examples are excluded from weight updates and from fitting the logarithmic min–max scaling. The same training-fitted scaler is reused for validation; some validation features may consequently lie outside <span class="math inline">\([-1,1]\)</span>. There is <strong>no test set</strong> in this small-data demonstration.</p>
+<p>We compute the validation loss using the same cross-entropy definition, averaged over validation samples. It monitors predictions on observations that were not used in the parameter updates. If training loss continues to fall while validation loss rises, that is evidence of <strong>overfitting in this particular split</strong>. Classification error and cross entropy can behave differently: a model can become more confidently wrong on a validation point without changing its predicted category.</p>
+<p><img src="media/bubble-multiclass-snapshots-light.svg?v=consistency-20261102" class="light-content img-fluid" style="width:100.0%" alt="Argmax decision regions at selected snapshots from one multiclass training trajectory, with training and validation samples distinguished."> <img src="media/bubble-multiclass-snapshots-dark.svg?v=consistency-20261102" class="dark-content img-fluid" style="width:100.0%" alt="Argmax decision regions at selected snapshots from one multiclass training trajectory, with training and validation samples distinguished."></p>
+<p>The three displayed snapshots are <strong>epoch 10</strong>, the <strong>best-validation checkpoint at epoch 57</strong>, and <strong>epoch 10,000</strong>. These epochs were chosen to illustrate early learning, the validation minimum, and late fitting along the recorded trajectory. At these snapshots, training cross entropy is approximately <span class="math inline">\(0.6966\)</span>, <span class="math inline">\(0.2487\)</span>, and <span class="math inline">\(7.23\times10^{-7}\)</span>, while validation cross entropy is <span class="math inline">\(0.7331\)</span>, <span class="math inline">\(0.3835\)</span>, and <span class="math inline">\(2.4449\)</span>. Training errors decrease from 22 to 8 to 0 out of 84 samples. Validation errors are 4, 2, and 2 out of 20. The late model thus has the same number of validation mistakes as the selected model, yet much worse validation cross entropy: the probability assignments, not only the argmax labels, matter.</p>
+<p>Changes in regions far from observed markers should be interpreted cautiously. The decision map includes feature combinations unsupported by nearby training data; a visually smooth or elaborate boundary is not by itself evidence of physical accuracy.</p>
+</section>
+<section id="validation-based-early-stopping" class="level3">
+<h3 class="anchored" data-anchor-id="validation-based-early-stopping">Validation-based early stopping</h3>
+<p>Early stopping uses validation performance to select a model before further fitting degrades that performance. We keep a saved copy of the parameters when the validation loss improves. If it fails to improve sufficiently for a specified number of epochs, we stop and <strong>restore the selected checkpoint</strong>, rather than returning the weights from the last epoch.</p>
+<p>For this example, an improvement means a <strong>strictly smaller validation cross entropy</strong>, with no additional minimum-change threshold. With <strong>patience 500</strong>, the last improvement at epoch 57 is followed by 500 epochs without a new minimum. Early stopping would therefore trigger at <strong>epoch 557</strong> and restore <strong>epoch 57</strong>. The restored model has training/validation cross entropy approximately <span class="math inline">\(0.2487/0.3835\)</span>, and 8/2 classification errors on the 84/20 samples. The figure distinguishes the selected checkpoint from the later stopping trigger.</p>
+<p><img src="media/bubble-multiclass-early-stopping-light.svg?v=consistency-20261102" class="light-content img-fluid" style="width:100.0%" alt="Training and validation cross entropy along the long run, selected snapshot epochs and the early-stopping decision; restored-checkpoint argmax boundary shown alongside."> <img src="media/bubble-multiclass-early-stopping-dark.svg?v=consistency-20261102" class="dark-content img-fluid" style="width:100.0%" alt="Training and validation cross entropy along the long run, selected snapshot epochs and the early-stopping decision; restored-checkpoint argmax boundary shown alongside."></p>
+<p>The long trajectory is intentionally continued beyond the stopping point to make the later behavior visible. An operational early-stopping run would terminate at the stated trigger and restore its stored checkpoint. This reduces unnecessary fitting in this example; it does not guarantee that all overfitting is prevented.</p>
+<p>Validation data are now part of model selection. Their score is not an independent final test score, and a small validation set gives a noisy estimate. Repeatedly changing the architecture or other choices to improve this same validation score can also overfit the validation set. Here the aim is to make the relationship between training duration, validation loss, and the changing decision boundary visible with a reproducible example.</p>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-nglogisticnotes" class="csl-entry" role="listitem">
+Ng, Andrew. n.d. <em>Supervised Learning: Logistic Regression</em>. CS229 Lecture Notes, Stanford University. <a href="https://cs229.stanford.edu/summer2020/cs229-notes1.pdf">https://cs229.stanford.edu/summer2020/cs229-notes1.pdf</a>.
+</div>
+<div id="ref-rosenblatt1958" class="csl-entry" role="listitem">
+Rosenblatt, Frank. 1958. <span>“The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain.”</span> <em>Psychological Review</em> 65 (6): 386–408. <a href="https://doi.org/10.1037/h0042519">https://doi.org/10.1037/h0042519</a>.
+</div>
+<div id="ref-shalizi2020logistic" class="csl-entry" role="listitem">
+Shalizi, Cosma Rohilla. 2020. <em>Linear Classifiers and Logistic Regression</em>. Methods of Statistical Learning, Carnegie Mellon University. <a href="https://stat.cmu.edu/~cshalizi/dm/20/lectures/07/lecture-07.html">https://stat.cmu.edu/~cshalizi/dm/20/lectures/07/lecture-07.html</a>.
+</div>
+<div id="ref-tripathi2015" class="csl-entry" role="listitem">
+Tripathi, Manoj Kumar, Kirti Chandra Sahu, and Rama Govindarajan. 2015. <span>“Dynamics of an Initially Spherical Bubble Rising in Quiescent Liquid.”</span> <em>Nature Communications</em> 6: 6268. <a href="https://doi.org/10.1038/ncomms7268">https://doi.org/10.1038/ncomms7268</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
