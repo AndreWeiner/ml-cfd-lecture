@@ -1,0 +1,51 @@
+{
+  "marker_count": 183,
+  "counts": {
+    "black_circle": 3,
+    "red_circle": 9,
+    "purple_circle": 11,
+    "blue_triangle": 40,
+    "black_triangle": 36,
+    "brown_square": 47,
+    "magenta_square": 37
+  },
+  "calibration": {
+    "Ga": {
+      "pixel": [
+        632.0,
+        1787.0
+      ],
+      "value": [
+        10.0,
+        100.0
+      ]
+    },
+    "Eo": {
+      "pixel": [
+        315.0,
+        750.0,
+        1183.0,
+        1617.0
+      ],
+      "value": [
+        100.0,
+        10.0,
+        1.0,
+        0.1
+      ]
+    }
+  },
+  "fits": {
+    "Ga": [
+      0.0008658008658008661,
+      0.4528138528138533
+    ],
+    "Eo": [
+      -0.0023046767835550493,
+      2.7268939421100664
+    ]
+  },
+  "image_sha256": "181e74ae0e6860f7326f638638cd115d0b70c4df45eeba08112a825fd5207732",
+  "scope": "All individually discernible markers selected from Figure 4; cannot recover fully occluded markers or underlying repeat runs.",
+  "mapping": "Source IV deliberately not mapped to Tripathi IV/V."
+}

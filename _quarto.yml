@@ -9,6 +9,7 @@ project:
   - notebooks/ml_intro.py
   - notebooks/ml_intro_exercise.py
   - notebooks/bubble_path_classification.py
+  - notebooks/bubble_path_classification_exercise.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
   resources:
@@ -17,8 +18,10 @@ project:
   - notebooks/ml_intro.py
   - notebooks/ml_intro_exercise.py
   - notebooks/bubble_path_classification.py
+  - notebooks/bubble_path_classification_exercise.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
+  - notebooks/classification_exercise_tools.py
   - notebooks/training_tools.py
   - notebooks/training_strategies_experiments.py
   - notebooks/training_strategies_plots.py
@@ -31,8 +34,12 @@ project:
   - containers/of_pytorch/**
   - logo_stiftung_hochschullehre.png
   - requirements.txt
+  - datasets/path_shape_regimes/classification_exercise/**
   - datasets/path_shape_regimes/tripathi2015_digitization/**
+  - datasets/path_shape_regimes/sharaf2017_digitization/**
   - datasets/path_shape_regimes/TRIPATHI_SOURCE_SEARCH.md
+  - "!.private/**"
+  - "!**/.private/**"
   - .nojekyll
   - images/TUD*.svg
   - notebooks/media/ml-fluid-mechanics-venn-*
@@ -102,6 +109,8 @@ website:
         contents:
         - href: notebooks/bubble_path_classification.py
           text: Lecture
+        - href: notebooks/bubble_path_classification_exercise.py
+          text: Practice
 
     - section: Optional material
       contents:

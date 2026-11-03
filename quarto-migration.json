@@ -16,5 +16,11 @@
     "title": "Surrogate models for discrete predictions",
     "cells": 1,
     "code_cells": 0
+  },
+  {
+    "slug": "bubble_path_classification_exercise",
+    "title": "Surrogate models for discrete predictions - Exercise",
+    "cells": 13,
+    "code_cells": 6
   }
 ]

@@ -40,3 +40,15 @@ notebooks/*_files/
 /docs/datasets/path_shape_regimes/*
 !/docs/datasets/path_shape_regimes/TRIPATHI_SOURCE_SEARCH.md
 !/docs/datasets/path_shape_regimes/tripathi2015_digitization/
+
+# Small source-curation templates for the classification exercise.
+!/datasets/path_shape_regimes/classification_exercise/
+!/docs/datasets/path_shape_regimes/classification_exercise/
+
+# Small, documented Sharaf Figure 4 digitization used in Exercise 4.
+!/datasets/path_shape_regimes/sharaf2017_digitization/
+!/docs/datasets/path_shape_regimes/sharaf2017_digitization/
+
+
+# Instructor-only worked examples; never part of course publication.
+/.private/

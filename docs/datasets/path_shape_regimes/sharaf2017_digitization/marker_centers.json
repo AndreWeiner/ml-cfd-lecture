@@ -1,0 +1,1100 @@
+[
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 368.0,
+    "pixel_y": 807.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 473.5,
+    "pixel_y": 809.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 679.5,
+    "pixel_y": 812.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 345.0,
+    "pixel_y": 873.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 551.0,
+    "pixel_y": 876.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 449.0,
+    "pixel_y": 927.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 726.0,
+    "pixel_y": 930.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 553.0,
+    "pixel_y": 1018.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "red_circle",
+    "pixel_x": 801.0,
+    "pixel_y": 1025.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 318.5,
+    "pixel_y": 600.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 396.5,
+    "pixel_y": 602.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 475.5,
+    "pixel_y": 602.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 572.5,
+    "pixel_y": 603.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 770.5,
+    "pixel_y": 605.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 342.5,
+    "pixel_y": 718.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 542.0,
+    "pixel_y": 720.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 647.0,
+    "pixel_y": 721.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 515,
+    "pixel_y": 544,
+    "note": "Circle intersected by dashed boundary/triangle; center from visible circumference."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 593,
+    "pixel_y": 544,
+    "note": "Circle intersected by dashed boundary/triangle; center from visible circumference."
+  },
+  {
+    "source_marker": "purple_circle",
+    "pixel_x": 690,
+    "pixel_y": 544,
+    "note": "Circle intersected by dashed boundary/triangle; center from visible circumference."
+  },
+  {
+    "source_marker": "black_circle",
+    "pixel_x": 1011.0,
+    "pixel_y": 1453.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "black_circle",
+    "pixel_x": 823.0,
+    "pixel_y": 1466.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "black_circle",
+    "pixel_x": 555.0,
+    "pixel_y": 1600.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 534,
+    "pixel_y": 314,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 576,
+    "pixel_y": 314,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 579,
+    "pixel_y": 289,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 622,
+    "pixel_y": 290,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 406,
+    "pixel_y": 377,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 449,
+    "pixel_y": 378,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 603,
+    "pixel_y": 381,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 673,
+    "pixel_y": 375,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 305,
+    "pixel_y": 428,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 347,
+    "pixel_y": 428,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 501,
+    "pixel_y": 429,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 571,
+    "pixel_y": 426,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 667,
+    "pixel_y": 427,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 746,
+    "pixel_y": 427,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 289,
+    "pixel_y": 461,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 445,
+    "pixel_y": 460,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 515,
+    "pixel_y": 459,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 609,
+    "pixel_y": 459,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 689,
+    "pixel_y": 460,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 767,
+    "pixel_y": 459,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 865,
+    "pixel_y": 460,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1064,
+    "pixel_y": 460,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1170,
+    "pixel_y": 461,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 329,
+    "pixel_y": 521,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 342,
+    "pixel_y": 545,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 398,
+    "pixel_y": 517,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 438,
+    "pixel_y": 546,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 493,
+    "pixel_y": 517,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 571,
+    "pixel_y": 518,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 649,
+    "pixel_y": 517,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 746,
+    "pixel_y": 517,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 890,
+    "pixel_y": 547,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 946,
+    "pixel_y": 518,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 995,
+    "pixel_y": 547,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1051,
+    "pixel_y": 519,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1201,
+    "pixel_y": 551,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1257,
+    "pixel_y": 523,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 877,
+    "pixel_y": 608,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1083,
+    "pixel_y": 610,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "blue_triangle",
+    "pixel_x": 1359,
+    "pixel_y": 614,
+    "note": "Hollow upward triangle; geometric centroid of outline, including touching/overlaid markers."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2613.0,
+    "pixel_y": 651.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1130.0,
+    "pixel_y": 728.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1378.5,
+    "pixel_y": 735.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1766.5,
+    "pixel_y": 742.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2024.5,
+    "pixel_y": 749.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2240.5,
+    "pixel_y": 756.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2383.5,
+    "pixel_y": 766.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2610.0,
+    "pixel_y": 773.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 956.0,
+    "pixel_y": 815.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1204.5,
+    "pixel_y": 822.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1592.5,
+    "pixel_y": 829.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1851.0,
+    "pixel_y": 836.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2067.0,
+    "pixel_y": 843.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2209.5,
+    "pixel_y": 853.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2436.0,
+    "pixel_y": 860.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1076.5,
+    "pixel_y": 886.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1464.5,
+    "pixel_y": 893.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1723.0,
+    "pixel_y": 900.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1938.5,
+    "pixel_y": 907.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2081.5,
+    "pixel_y": 917.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2308.0,
+    "pixel_y": 925.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1363.0,
+    "pixel_y": 944.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1621.0,
+    "pixel_y": 951.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1837.0,
+    "pixel_y": 958.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1979.5,
+    "pixel_y": 968.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2206.0,
+    "pixel_y": 976.0,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1189.0,
+    "pixel_y": 1031.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1447.0,
+    "pixel_y": 1038.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1663.0,
+    "pixel_y": 1045.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1800.5,
+    "pixel_y": 1179.0,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1376.0,
+    "pixel_y": 1271.0,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1200.0,
+    "pixel_y": 1278.0,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2022.0,
+    "pixel_y": 1442.5,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 1262.0,
+    "pixel_y": 1449.0,
+    "note": "Filled upward triangle; geometric centroid, not bounding-box center."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2542,
+    "pixel_y": 1182,
+    "note": "Touching pair crossed by green line; centroid from visible triangle edges."
+  },
+  {
+    "source_marker": "black_triangle",
+    "pixel_x": 2573,
+    "pixel_y": 1167,
+    "note": "Touching pair crossed by green line; centroid from visible triangle edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1809.5,
+    "pixel_y": 388.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2057.5,
+    "pixel_y": 395.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2445.5,
+    "pixel_y": 402.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2703.5,
+    "pixel_y": 409.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1707.5,
+    "pixel_y": 439.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1956.0,
+    "pixel_y": 446.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2344.0,
+    "pixel_y": 453.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2602.5,
+    "pixel_y": 460.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1651.5,
+    "pixel_y": 467.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1900.0,
+    "pixel_y": 474.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2288.0,
+    "pixel_y": 481.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2546.5,
+    "pixel_y": 488.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1782.0,
+    "pixel_y": 533.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2170.0,
+    "pixel_y": 540.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2428.5,
+    "pixel_y": 547.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2644.5,
+    "pixel_y": 554.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1726.0,
+    "pixel_y": 561.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2114.0,
+    "pixel_y": 568.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2372.5,
+    "pixel_y": 575.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2588.5,
+    "pixel_y": 582.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2731.0,
+    "pixel_y": 592.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1996.5,
+    "pixel_y": 627.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2254.5,
+    "pixel_y": 634.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2470.5,
+    "pixel_y": 641.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1937,
+    "pixel_y": 324,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 1982,
+    "pixel_y": 301,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2021,
+    "pixel_y": 282,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2055,
+    "pixel_y": 265,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2186,
+    "pixel_y": 331,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2231,
+    "pixel_y": 308,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2270,
+    "pixel_y": 289,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2303,
+    "pixel_y": 272,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2574,
+    "pixel_y": 338,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2620,
+    "pixel_y": 316,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2659,
+    "pixel_y": 296,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2692,
+    "pixel_y": 279,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "magenta_square",
+    "pixel_x": 2762,
+    "pixel_y": 495,
+    "note": "Touching/partly frame-occluded square; center from visible edges."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 768.5,
+    "pixel_y": 375.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 846.5,
+    "pixel_y": 376.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 924.5,
+    "pixel_y": 377.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1022.0,
+    "pixel_y": 378.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1221.0,
+    "pixel_y": 380.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1326.5,
+    "pixel_y": 381.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1532.5,
+    "pixel_y": 384.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 823.0,
+    "pixel_y": 428.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 920.0,
+    "pixel_y": 429.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1119.5,
+    "pixel_y": 431.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1225.0,
+    "pixel_y": 432.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1431.0,
+    "pixel_y": 435.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1375.0,
+    "pixel_y": 463.5,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1533.5,
+    "pixel_y": 526.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1477.5,
+    "pixel_y": 554.0,
+    "note": "Visible marker; center from source outline."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 731,
+    "pixel_y": 315,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 769,
+    "pixel_y": 292,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 800,
+    "pixel_y": 311,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 816,
+    "pixel_y": 273,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 848,
+    "pixel_y": 255,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 873,
+    "pixel_y": 279,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 897,
+    "pixel_y": 313,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 920,
+    "pixel_y": 252,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 948,
+    "pixel_y": 278,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 975,
+    "pixel_y": 313,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1015,
+    "pixel_y": 253,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1040,
+    "pixel_y": 277,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1057,
+    "pixel_y": 314,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1092,
+    "pixel_y": 255,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1121,
+    "pixel_y": 279,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1150,
+    "pixel_y": 314,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1172,
+    "pixel_y": 254,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1190,
+    "pixel_y": 280,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1237,
+    "pixel_y": 271,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1268,
+    "pixel_y": 253,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1348,
+    "pixel_y": 315,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1389,
+    "pixel_y": 291,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1418,
+    "pixel_y": 276,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1467,
+    "pixel_y": 257,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1484,
+    "pixel_y": 289,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1455,
+    "pixel_y": 318,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1522,
+    "pixel_y": 278,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1570,
+    "pixel_y": 256,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1660,
+    "pixel_y": 316,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1705,
+    "pixel_y": 294,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1745,
+    "pixel_y": 278,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  },
+  {
+    "source_marker": "brown_square",
+    "pixel_x": 1779,
+    "pixel_y": 260,
+    "note": "Overlapping filled square; approximate center inferred from exposed horizontal/vertical edges; occluded multiplicity cannot be recovered."
+  }
+]

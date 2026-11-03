@@ -156,7 +156,7 @@
 # [Download freshly digitized points](../datasets/path_shape_regimes/tripathi2015_digitization/points.csv) · [Inspect the extraction overlay](../datasets/path_shape_regimes/tripathi2015_digitization/extraction-overlay.png).
 #
 # ::: {.callout-note title="Regime numbering in the source"}
-# In @tripathi2015, the Roman labels II and III printed inside Figure 1 are interchanged relative to the figure caption and main Results discussion. This course consistently follows the **caption and main Results**: **II denotes skirted, non-oscillatory bubbles**, and **III denotes oscillatory paths**. The revised figure, downloadable dataset, and exercise all use this convention. The difference is an internal inconsistency in the publication, not a separate numbering scheme introduced for the course.
+# In @tripathi2015, the Roman labels II and III printed inside Figure 1 are interchanged relative to the figure caption and main Results discussion. This course consistently follows the **caption and main Results**: **II denotes skirted, non-oscillatory bubbles**, and **III denotes oscillatory paths**. The revised figure and downloadable Tripathi dataset use this convention. The exercise retains these source labels when loading the lecture data; any later harmonization with another investigation is a separate, documented step. The difference is an internal inconsistency in the publication, not a separate numbering scheme introduced for the course.
 # :::
 #
 # | Regime | Characteristic behavior |
