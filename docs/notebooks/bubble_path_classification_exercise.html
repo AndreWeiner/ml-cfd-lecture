@@ -477,7 +477,10 @@ div.csl-indent {
    
   <ul>
   <li><a href="#aim-of-the-exercise" id="toc-aim-of-the-exercise" class="nav-link active" data-scroll-target="#aim-of-the-exercise">Aim of the exercise</a></li>
-  <li><a href="#files-and-preparation" id="toc-files-and-preparation" class="nav-link" data-scroll-target="#files-and-preparation">Files and preparation</a></li>
+  <li><a href="#files-and-preparation" id="toc-files-and-preparation" class="nav-link" data-scroll-target="#files-and-preparation">Files and preparation</a>
+  <ul class="collapse">
+  <li><a href="#getting-started-with-the-supplied-code" id="toc-getting-started-with-the-supplied-code" class="nav-link" data-scroll-target="#getting-started-with-the-supplied-code">Getting started with the supplied code</a></li>
+  </ul></li>
   <li><a href="#load-and-investigate-the-two-datasets" id="toc-load-and-investigate-the-two-datasets" class="nav-link" data-scroll-target="#load-and-investigate-the-two-datasets">Load and investigate the two datasets</a></li>
   <li><a href="#a-common-classification-problem" id="toc-a-common-classification-problem" class="nav-link" data-scroll-target="#a-common-classification-problem">A common classification problem</a></li>
   <li><a href="#merge-then-split-into-training-and-validation-data" id="toc-merge-then-split-into-training-and-validation-data" class="nav-link" data-scroll-target="#merge-then-split-into-training-and-validation-data">Merge, then split into training and validation data</a></li>
@@ -525,6 +528,16 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="files-and-preparation">Files and preparation</h2>
 <p><a href="../notebooks/bubble_path_classification_exercise.py" class="btn btn-outline-primary btn-sm" download="bubble_path_classification_exercise.py">Download exercise source</a> <a href="classification_exercise_tools.py" class="btn btn-outline-primary btn-sm" download="classification_exercise_tools.py">Download supplied helpers</a> <a href="../datasets/path_shape_regimes/tripathi2015_digitization/points.csv" class="btn btn-outline-primary btn-sm" download="tripathi2015-points.csv">Download Tripathi data</a> <a href="../datasets/path_shape_regimes/sharaf2017_digitization/points.csv" class="btn btn-outline-primary btn-sm" download="sharaf2017-points.csv">Download Sharaf data</a></p>
 <p>The helpers also use <a href="figure_style.py">figure_style.py</a> and <a href="figure_utils.py">figure_utils.py</a>. Outside a repository clone, place these three helper files beside the exercise source and save the two CSVs as <code>tripathi2015-points.csv</code> and <code>sharaf2017-points.csv</code>. The code runs locally in Python, not on this HTML page. Run the code blocks in sequence in a Python editor, or open the source as a notebook using Jupytext. NumPy and Matplotlib are needed; figure exports use LaTeX by default. An explicit <code>use_tex=False</code> option is available when TeX is unavailable.</p>
+<section id="getting-started-with-the-supplied-code" class="level3">
+<h3 class="anchored" data-anchor-id="getting-started-with-the-supplied-code">Getting started with the supplied code</h3>
+<p><strong>The supplied code is our starting point for experimenting: we do not need to implement a classifier or training loop from scratch.</strong> The main aim is to run comparisons, try different configurations, and interpret what changes when we vary the data, training-set size, or network architecture.</p>
+<ol type="1">
+<li>Download the exercise source, the three helper files linked above, and both CSV files into one working folder. Use the filenames <code>tripathi2015-points.csv</code> and <code>sharaf2017-points.csv</code> for the data.</li>
+<li>Run Python from that folder. With these filenames, the supplied <code>dataset_file</code> function finds the data automatically. If the CSVs are stored elsewhere, replace the paths in its <code>choices</code> list with the paths to your local files.</li>
+<li>Run the loading block below first and inspect its printed summary. Before training, complete <code>label_maps</code> and <code>class_names</code> in “A common classification problem” after comparing the source labels. These are the intended data-definition choices; the remaining training and plotting code can be used as supplied.</li>
+<li>Run the remaining blocks in order to obtain a baseline. Then change one setting at a time, such as the training fractions, network widths and depths, or learning rate, and compare the results using the same validation cases. Keep a record of the settings and explain the observed differences.</li>
+</ol>
+</section>
 </section>
 <section id="load-and-investigate-the-two-datasets" class="level2">
 <h2 class="anchored" data-anchor-id="load-and-investigate-the-two-datasets">Load and investigate the two datasets</h2>
@@ -536,7 +549,7 @@ div.csl-indent {
 <li>Compare the marker legends and descriptions in the two papers. Do the same category identifiers describe the same physical behavior? Can every source label be translated unambiguously into the lecture’s classes?</li>
 <li>Check the definitions of Ga and Eo, the length scale, and the density and viscosity ratios. Which differences might affect the comparison even after the labels are reconciled?</li>
 </ul>
-<div id="9d28f547" class="cell" data-execution_count="1">
+<div id="a62eee97" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> csv</span>
@@ -585,7 +598,7 @@ div.csl-indent {
 <li>Compare the retained class counts and parameter coverage. Is the resulting prediction task still exactly the same as in the lecture?</li>
 </ul>
 <p>Matching definitions and labels does not establish that Ga and Eo alone explain both sources. Density and viscosity ratios, release conditions, or other unmodeled differences may cause conflicting observations. Keep the source IDs so that such differences remain visible.</p>
-<div id="b59ad15f" class="cell" data-execution_count="2">
+<div id="eff0b7e3" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete these after investigating the source descriptions.</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>label_maps <span class="op">=</span> {<span class="st">"tripathi2015"</span>: <span class="va">None</span>, <span class="st">"sharaf2017"</span>: <span class="va">None</span>}</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>class_names <span class="op">=</span> <span class="va">None</span>  <span class="co"># Ordered list of the chosen common class names.</span></span>
@@ -616,7 +629,7 @@ div.csl-indent {
 <li>Run the split below and inspect class and source counts in both partitions. Confirm that no source/case group crosses the split.</li>
 <li>Keep the validation cases unchanged throughout the training-size comparison. Adding validation cases as the training set grows would change the quantity being compared.</li>
 </ul>
-<div id="4d3c78ea" class="cell" data-execution_count="3">
+<div id="00023942" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>training, validation <span class="op">=</span> split_by_source_and_class(merged, seed<span class="op">=</span><span class="dv">42</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>training_groups <span class="op">=</span> {(merged[i][<span class="st">"source_id"</span>], merged[i][<span class="st">"group_id"</span>]) <span class="cf">for</span> i <span class="kw">in</span> training}</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>validation_groups <span class="op">=</span> {(merged[i][<span class="st">"source_id"</span>], merged[i][<span class="st">"group_id"</span>]) <span class="cf">for</span> i <span class="kw">in</span> validation}</span>
@@ -636,7 +649,7 @@ div.csl-indent {
 <li>Does accuracy tell the same story as cross entropy? Where might differences between the physical investigations limit the benefit of additional data?</li>
 <li>Does this experiment isolate the benefit of Sharaf’s data specifically, or the effect of training size in the pooled dataset? Explain the distinction.</li>
 </ul>
-<div id="6c9434a3" class="cell" data-execution_count="4">
+<div id="9a4beeaa" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>configuration <span class="op">=</span> <span class="bu">dict</span>(width<span class="op">=</span><span class="dv">16</span>, learning_rate<span class="op">=</span><span class="fl">0.01</span>, epochs<span class="op">=</span><span class="dv">500</span>, patience<span class="op">=</span><span class="dv">100</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> learning_curve(merged, training, validation, class_names,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                         fractions<span class="op">=</span>(<span class="fl">.2</span>, <span class="fl">.4</span>, <span class="fl">.6</span>, <span class="fl">.8</span>, <span class="fl">1.</span>), seeds<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">22</span>, <span class="dv">33</span>),</span>
@@ -660,7 +673,7 @@ div.csl-indent {
 <li>Inspect the training and validation loss histories. Where does training loss continue to decrease while validation loss increases? Can validation accuracy stay unchanged while validation cross entropy worsens?</li>
 <li>Compare each validation minimum with the final epoch. How would early stopping change the parameters retained? Distinguish possible overfitting from underfitting or incomplete optimization; a larger network is not automatically an overfitted network.</li>
 </ul>
-<div id="976ff1db" class="cell" data-execution_count="5">
+<div id="56f53b7d" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>architecture_results <span class="op">=</span> compare_architectures(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    merged, training, validation, class_names,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    architectures<span class="op">=</span>((<span class="dv">8</span>,), (<span class="dv">16</span>,), (<span class="dv">32</span>,), (<span class="dv">16</span>,<span class="dv">16</span>), (<span class="dv">16</span>,<span class="dv">16</span>,<span class="dv">16</span>), (<span class="dv">32</span>,<span class="dv">32</span>)),</span>
@@ -683,7 +696,7 @@ div.csl-indent {
 <li>Include the data-source documentation and paired learning-curve, accuracy, and loss-history figures.</li>
 <li>Explain the main trend, its sensitivity to the seed, and at least one physical or statistical limitation. A result showing little improvement or deterioration is informative too.</li>
 </ul>
-<div id="0a36ef14" class="cell" data-execution_count="6">
+<div id="af0913a7" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>record <span class="op">=</span> <span class="bu">dict</span>(label_maps<span class="op">=</span>label_maps, class_names<span class="op">=</span>class_names, configuration<span class="op">=</span>configuration,</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>              split_seed<span class="op">=</span><span class="dv">42</span>, merged<span class="op">=</span>merged, excluded<span class="op">=</span>excluded,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>              training_indices<span class="op">=</span>training.tolist(), validation_indices<span class="op">=</span>validation.tolist(),</span>

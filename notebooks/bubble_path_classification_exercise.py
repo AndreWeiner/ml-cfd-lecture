@@ -39,6 +39,15 @@
 #
 # The helpers also use [figure_style.py](figure_style.py) and [figure_utils.py](figure_utils.py). Outside a repository clone, place these three helper files beside the exercise source and save the two CSVs as `tripathi2015-points.csv` and `sharaf2017-points.csv`. The code runs locally in Python, not on this HTML page. Run the code blocks in sequence in a Python editor, or open the source as a notebook using Jupytext. NumPy and Matplotlib are needed; figure exports use LaTeX by default. An explicit `use_tex=False` option is available when TeX is unavailable.
 #
+# ### Getting started with the supplied code
+#
+# **The supplied code is our starting point for experimenting: we do not need to implement a classifier or training loop from scratch.** The main aim is to run comparisons, try different configurations, and interpret what changes when we vary the data, training-set size, or network architecture.
+#
+# 1. Download the exercise source, the three helper files linked above, and both CSV files into one working folder. Use the filenames `tripathi2015-points.csv` and `sharaf2017-points.csv` for the data.
+# 2. Run Python from that folder. With these filenames, the supplied `dataset_file` function finds the data automatically. If the CSVs are stored elsewhere, replace the paths in its `choices` list with the paths to your local files.
+# 3. Run the loading block below first and inspect its printed summary. Before training, complete `label_maps` and `class_names` in “A common classification problem” after comparing the source labels. These are the intended data-definition choices; the remaining training and plotting code can be used as supplied.
+# 4. Run the remaining blocks in order to obtain a baseline. Then change one setting at a time, such as the training fractions, network widths and depths, or learning rate, and compare the results using the same validation cases. Keep a record of the settings and explain the observed differences.
+#
 # ## Load and investigate the two datasets
 #
 # The lecture dataset contains 104 digitized markers from Figure 1 of @tripathi2015. The additional CSV contains 183 discernible markers from the experimental Figure 4 of @sharaf2017. Their positions were extracted from the embedded high-resolution image and calibrated using the logarithmic axis ticks. Touching and partly obscured markers were reviewed visually. These are approximate digitized coordinates, not the authors' original raw observations; repeated experiments and fully hidden markers cannot be recovered from the map.
