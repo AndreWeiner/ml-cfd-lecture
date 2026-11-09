@@ -17,6 +17,8 @@ project:
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
   resources:
+  - notebooks/media/bubble-time-factors-*.svg
+  - notebooks/media/pytorch-to-cpp-*.svg
   - notebooks/bubble_data_figures.py
   - notebooks/media/bubble-data-*
   - notebooks/media/bubble-local-sherwood-*

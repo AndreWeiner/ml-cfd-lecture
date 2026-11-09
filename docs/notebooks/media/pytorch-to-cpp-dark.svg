@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="430" viewBox="0 0 1060 430">
+<title>Three PyTorch export paths to C++</title>
+<rect width="1060" height="430" fill="#111111"/>
+<g font-family="DejaVu Sans, sans-serif" fill="#f4f4f4">
+<text x="30" y="33" font-size="18" font-weight="700">Export in Python</text>
+<text x="387" y="33" font-size="18" font-weight="700">Exported artifact</text>
+<text x="706" y="33" font-size="18" font-weight="700">Load and run in C++</text>
+<rect x="30" y="58" width="6" height="18" fill="#1f77b4"/>
+<text x="45" y="73" font-size="20" font-weight="700">AOTInductor · Lecture 5</text>
+<rect x="30" y="85" width="314" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="42" y="111" font-size="18" font-weight="700">torch.export → AOTInductor</text>
+<text x="42" y="134" font-size="16" font-weight="400">Capture, compile and package</text>
+<rect x="387" y="85" width="276" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="399" y="111" font-size="18" font-weight="700">.pt2 package</text>
+<text x="399" y="134" font-size="16" font-weight="400">Compiled model and weights</text>
+<rect x="706" y="85" width="324" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="718" y="111" font-size="18" font-weight="700">LibTorch + AOTI loader</text>
+<text x="718" y="134" font-size="16" font-weight="400">Run inside OpenFOAM</text>
+<path d="M352 117 h26 m-7 -6 l7 6 -7 6" fill="none" stroke="#a0a0a0" stroke-width="2"/>
+<path d="M671 117 h26 m-7 -6 l7 6 -7 6" fill="none" stroke="#a0a0a0" stroke-width="2"/>
+<rect x="30" y="185" width="6" height="18" fill="#ff7f0e"/>
+<text x="45" y="200" font-size="20" font-weight="700">TorchScript · legacy</text>
+<rect x="30" y="212" width="314" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="42" y="238" font-size="18" font-weight="700">torch.jit.script / trace</text>
+<text x="42" y="261" font-size="16" font-weight="400">Capture and save TorchScript</text>
+<rect x="387" y="212" width="276" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="399" y="238" font-size="18" font-weight="700">.pt archive</text>
+<text x="399" y="261" font-size="16" font-weight="400">TorchScript model and weights</text>
+<rect x="706" y="212" width="324" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="718" y="238" font-size="18" font-weight="700">LibTorch + torch::jit::load</text>
+<text x="718" y="261" font-size="16" font-weight="400">Run the TorchScript module</text>
+<path d="M352 244 h26 m-7 -6 l7 6 -7 6" fill="none" stroke="#a0a0a0" stroke-width="2"/>
+<path d="M671 244 h26 m-7 -6 l7 6 -7 6" fill="none" stroke="#a0a0a0" stroke-width="2"/>
+<rect x="30" y="312" width="6" height="18" fill="#2ca02c"/>
+<text x="45" y="327" font-size="20" font-weight="700">ONNX · exchange format</text>
+<rect x="30" y="339" width="314" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="42" y="365" font-size="18" font-weight="700">torch.onnx.export</text>
+<text x="42" y="388" font-size="16" font-weight="400">Convert to an ONNX graph</text>
+<rect x="387" y="339" width="276" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="399" y="365" font-size="18" font-weight="700">.onnx model</text>
+<text x="399" y="388" font-size="16" font-weight="400">Graph and weights</text>
+<rect x="706" y="339" width="324" height="65" rx="7" fill="none" stroke="#a0a0a0"/>
+<text x="718" y="365" font-size="18" font-weight="700">ONNX Runtime C++ API</text>
+<text x="718" y="388" font-size="16" font-weight="400">Load and run the ONNX graph</text>
+<path d="M352 371 h26 m-7 -6 l7 6 -7 6" fill="none" stroke="#a0a0a0" stroke-width="2"/>
+<path d="M671 371 h26 m-7 -6 l7 6 -7 6" fill="none" stroke="#a0a0a0" stroke-width="2"/>
+</g></svg>

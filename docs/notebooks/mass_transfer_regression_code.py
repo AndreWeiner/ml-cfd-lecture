@@ -28,6 +28,9 @@
 #
 # The verified export uses PyTorch **2.14.1** with CPU tensors and a C++ compiler for ahead-of-time compilation. The container uses the matching LibTorch version. The deployment path is `torch.export.export()` → `torch._inductor.aoti_compile_and_package()` → a compiled `.pt2` package → LibTorch's `torch::inductor::AOTIModelPackageLoader` in C++. No Python interpreter runs inside OpenFOAM. Preprocessing, physical output scaling, and initial/symmetry constraints travel with the network. The helper contains the complete export calls; [PyTorch's AOTInductor documentation](https://docs.pytorch.org/docs/stable/user_guide/torch_compiler/torch.compiler_aot_inductor.html) explains the deployment API.
 #
+# ![Three paths for running a trained PyTorch model in C++.](media/pytorch-to-cpp-light.svg){.light-content width=100%}
+# ![Three paths for running a trained PyTorch model in C++.](media/pytorch-to-cpp-dark.svg){.dark-content width=100%}
+#
 # A plain `torch.export.save()` archive is not a compiled deployment package. AOTInductor compiles native code for a target device/platform, so export and deployment need compatible PyTorch/LibTorch versions, C++ runtime and CPU capabilities. We use CPU float64, one thread, and AVX2 generated kernels (`cpp.simdlen=256`) for this example; packages are rebuilt when the deployment environment changes.
 #
 # OpenFOAM solvers and boundary conditions are implemented in C++. In this example, our boundary conditions call LibTorch from C++ to evaluate the surrogate during the simulation. That is where the compiled package produced in Python connects to OpenFOAM.

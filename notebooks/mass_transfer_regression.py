@@ -428,6 +428,11 @@
 # s(t)=\frac{t}{1+t}.
 # $$
 #
+# The plot uses $\tilde{t}$ for the same dimensionless time denoted by $t$ in the equations. The reference dataset has $T=14.85$. Both functions start at zero. The normalized time $q(t)$ reaches one at the last snapshot, while $s(t)$ rises quickly at startup and approaches one as time increases.
+#
+# ![Normalized time and startup factor (left), and sine and cosine extending beyond 0 and 2π (right).](media/bubble-time-factors-light.svg){.light-content width=100%}
+# ![Normalized time and startup factor (left), and sine and cosine extending beyond 0 and 2π (right).](media/bubble-time-factors-dark.svg){.dark-content width=100%}
+#
 # The predictions used in the worked example are
 #
 # $$
