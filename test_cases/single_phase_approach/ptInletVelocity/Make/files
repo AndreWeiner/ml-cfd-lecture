@@ -1,2 +1,0 @@
-ptInletVelocityFvPatchVectorField.C
-LIB = libPtInletVelocity

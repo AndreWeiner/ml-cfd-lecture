@@ -1,0 +1,6 @@
+{
+  "max_abs_relative_volume_error": 0.00030951790727618,
+  "min_radius": 0.30060177015911127,
+  "initial_radius_derivative_fd": 1.0166489317064986e-05,
+  "notes": "FD startup derivative has O(h) error; exact zero checked separately by PyTorch autodiff. Snapshot tests are retrospective; no new-bubble generalization claim."
+}

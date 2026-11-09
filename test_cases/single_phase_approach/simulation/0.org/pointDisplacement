@@ -23,11 +23,11 @@ boundaryField
 {
     bubble
     {
-        type            ptBoundaryDisplacement;
+        type            aotiBoundaryDisplacement;
         center          (0 0 0);
         direction       (0 1 0);
         normal          (0 0 1);
-        modelName       "rad_model.pt";
+        model       "r.pt2";
         radius          0.5;
         value           uniform (0 0 0);
     }

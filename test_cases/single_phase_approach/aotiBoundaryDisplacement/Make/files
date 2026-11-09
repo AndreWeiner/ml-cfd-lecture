@@ -1,0 +1,2 @@
+aotiDisplacementPointPatchVectorField.C
+LIB = $(FOAM_USER_LIBBIN)/libAotiBoundaryDisplacement

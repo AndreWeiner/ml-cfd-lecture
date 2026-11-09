@@ -1,0 +1,23 @@
+{
+  "comparison": [
+    {
+      "target": "ub",
+      "previous_test_rmse": 0.03414240055723003,
+      "revised_test_rmse": 0.00540192618213768,
+      "reduction_factor": 6.320412276296417
+    },
+    {
+      "target": "r",
+      "previous_test_rmse": 0.0025920066842056518,
+      "revised_test_rmse": 0.0004345463221453331,
+      "reduction_factor": 5.964857029301379
+    },
+    {
+      "target": "ut",
+      "previous_test_rmse": 0.06689680253289004,
+      "revised_test_rmse": 0.020885069657379983,
+      "reduction_factor": 3.2030921433508976
+    }
+  ],
+  "scope": "Same retrospective temporal holdout; models selected by validation, not test. Not a new-bubble validation."
+}

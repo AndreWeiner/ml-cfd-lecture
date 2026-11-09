@@ -1,0 +1,13 @@
+EXE_INC = \
+    -I../common \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -isystem $(TORCH_LIBRARIES)/include \
+    -isystem $(TORCH_LIBRARIES)/include/torch/csrc/api/include \
+    -std=c++20
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -L$(TORCH_LIBRARIES)/lib -ltorch -ltorch_cpu -lc10 \
+    -Wl,-rpath,$(TORCH_LIBRARIES)/lib

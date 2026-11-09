@@ -21,7 +21,7 @@
 #
 # $$
 # a=\frac{Re_b^{0.8}}{30},\qquad
-# g(\eta)=\log\!\left[1+a(2\eta-\eta^2)\right],\qquad
+# g(\eta)=\log\!\left(1+a(2\eta-\eta^2)\right),\qquad
 # u_x(\eta_i)=\bar U\frac{g(\eta_i)}{\sum_j w_jg(\eta_j)},
 # $$
 #

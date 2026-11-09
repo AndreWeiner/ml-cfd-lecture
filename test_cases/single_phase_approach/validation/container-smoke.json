@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-06",
+  "OpenFOAM": "v2606",
+  "build": "linux64GccDPInt32Opt",
+  "compiler": "GCC 15.2.0",
+  "container": "Existing of2606-libtorch2.14.1-ubuntu26.04-cpu SIF",
+  "ONNX_Runtime": "1.31.1 CPU",
+  "mode": "serial",
+  "cells": 640,
+  "time_range": [
+    0,
+    0.03
+  ],
+  "scope": "Coarse startup/coupling check; not transport convergence",
+  "libraries_loaded": [
+    "onnxInletVelocity",
+    "onnxSurfaceVelocity",
+    "onnxBoundaryDisplacement"
+  ],
+  "species_solved": [
+    "s1",
+    "s2",
+    "s3"
+  ],
+  "global_transfer_files": 3,
+  "checkMesh": "Mesh OK",
+  "inlet_y_readback": -0.0847911,
+  "expected_inlet_y": -0.08479106415096724,
+  "inlet_readback_atol": 1e-07
+}

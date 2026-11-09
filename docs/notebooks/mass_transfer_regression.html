@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Surrogate models for continuous predictions – Machine Learning in Fluid Mechanics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bef53a435fa9deb9018fac7b5c06cf9f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-b164dce217d8d0b484465d0fb8432922.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../quarto.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-dark"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = true;
+    const darkModeDefault = authorPrefersDark;
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/TUD_Logo_RGB_horizontal_schwarz_en.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo light-content">
+    <img src="../images/TUD-white.svg" alt="TU Dresden — Dresden University of Technology" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Machine Learning in Fluid Mechanics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Course overview</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/lecture_00.html">Lectures and exercises</a></li><li class="breadcrumb-item"><a href="../notebooks/mass_transfer_regression.html">Surrogate models for continuous predictions</a></li><li class="breadcrumb-item"><a href="../notebooks/mass_transfer_regression.html">Lecture</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures and exercises</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/lecture_00.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to learn with generative AI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Course overview and motivation</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_cfd_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/system_setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Introduction to machine learning</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ml_intro_exercise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Surrogate models for discrete predictions</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/bubble_path_classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/bubble_path_classification_exercise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Surrogate models for continuous predictions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mass_transfer_regression.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mass_transfer_regression_exercise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mass_transfer_regression_code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complementary code</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Optional material and worked examples</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/python_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting started with Python</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/neural_network_training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Training neural networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/bubble_path_classification_code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bubble regime classification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mass_transfer_regression_code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bubble surrogate modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#the-high-schmidt-number-problem" id="toc-the-high-schmidt-number-problem" class="nav-link" data-scroll-target="#the-high-schmidt-number-problem">The high Schmidt number problem</a>
+  <ul class="collapse">
+  <li><a href="#a-thin-layer-controls-the-transfer" id="toc-a-thin-layer-controls-the-transfer" class="nav-link" data-scroll-target="#a-thin-layer-controls-the-transfer">A thin layer controls the transfer</a></li>
+  <li><a href="#three-dimensionless-groups" id="toc-three-dimensionless-groups" class="nav-link" data-scroll-target="#three-dimensionless-groups">Three dimensionless groups</a></li>
+  <li><a href="#a-one-millimeter-bubble-in-water" id="toc-a-one-millimeter-bubble-in-water" class="nav-link" data-scroll-target="#a-one-millimeter-bubble-in-water">A one-millimeter bubble in water</a></li>
+  <li><a href="#from-dimensionless-groups-to-layer-thicknesses" id="toc-from-dimensionless-groups-to-layer-thicknesses" class="nav-link" data-scroll-target="#from-dimensionless-groups-to-layer-thicknesses">From dimensionless groups to layer thicknesses</a></li>
+  <li><a href="#why-numerical-resolution-becomes-expensive" id="toc-why-numerical-resolution-becomes-expensive" class="nav-link" data-scroll-target="#why-numerical-resolution-becomes-expensive">Why numerical resolution becomes expensive</a></li>
+  </ul></li>
+  <li><a href="#the-sharp-interface-flow-model" id="toc-the-sharp-interface-flow-model" class="nav-link" data-scroll-target="#the-sharp-interface-flow-model">The sharp-interface flow model</a>
+  <ul class="collapse">
+  <li><a href="#two-domains-and-one-moving-interface" id="toc-two-domains-and-one-moving-interface" class="nav-link" data-scroll-target="#two-domains-and-one-moving-interface">Two domains and one moving interface</a></li>
+  <li><a href="#slow-dissolution-and-the-normal-velocity" id="toc-slow-dissolution-and-the-normal-velocity" class="nav-link" data-scroll-target="#slow-dissolution-and-the-normal-velocity">Slow dissolution and the normal velocity</a></li>
+  <li><a href="#tangential-continuity-is-a-closure-assumption" id="toc-tangential-continuity-is-a-closure-assumption" class="nav-link" data-scroll-target="#tangential-continuity-is-a-closure-assumption">Tangential continuity is a closure assumption</a></li>
+  <li><a href="#momentum-transmission-and-surface-tension" id="toc-momentum-transmission-and-surface-tension" class="nav-link" data-scroll-target="#momentum-transmission-and-surface-tension">Momentum transmission and surface tension</a></li>
+  </ul></li>
+  <li><a href="#two-numerical-representations-of-the-interface" id="toc-two-numerical-representations-of-the-interface" class="nav-link" data-scroll-target="#two-numerical-representations-of-the-interface">Two numerical representations of the interface</a>
+  <ul class="collapse">
+  <li><a href="#volume-of-fluid-the-interface-cuts-through-bulk-cells" id="toc-volume-of-fluid-the-interface-cuts-through-bulk-cells" class="nav-link" data-scroll-target="#volume-of-fluid-the-interface-cuts-through-bulk-cells">Volume of fluid: the interface cuts through bulk cells</a></li>
+  <li><a href="#interface-tracking-the-mesh-follows-the-phase-boundary" id="toc-interface-tracking-the-mesh-follows-the-phase-boundary" class="nav-link" data-scroll-target="#interface-tracking-the-mesh-follows-the-phase-boundary">Interface tracking: the mesh follows the phase boundary</a></li>
+  <li><a href="#why-combine-these-ideas" id="toc-why-combine-these-ideas" class="nav-link" data-scroll-target="#why-combine-these-ideas">Why combine these ideas?</a></li>
+  </ul></li>
+  <li><a href="#a-simplified-simulation-approach" id="toc-a-simplified-simulation-approach" class="nav-link" data-scroll-target="#a-simplified-simulation-approach">A simplified simulation approach</a>
+  <ul class="collapse">
+  <li><a href="#four-steps-from-two-phase-flow-to-resolved-species-transport" id="toc-four-steps-from-two-phase-flow-to-resolved-species-transport" class="nav-link" data-scroll-target="#four-steps-from-two-phase-flow-to-resolved-species-transport">Four steps from two-phase flow to resolved species transport</a></li>
+  <li><a href="#parameterizing-an-axisymmetric-bubble" id="toc-parameterizing-an-axisymmetric-bubble" class="nav-link" data-scroll-target="#parameterizing-an-axisymmetric-bubble">Parameterizing an axisymmetric bubble</a></li>
+  <li><a href="#which-velocity-do-we-learn" id="toc-which-velocity-do-we-learn" class="nav-link" data-scroll-target="#which-velocity-do-we-learn">Which velocity do we learn?</a></li>
+  <li><a href="#regression-forms-that-enforce-known-structure" id="toc-regression-forms-that-enforce-known-structure" class="nav-link" data-scroll-target="#regression-forms-that-enforce-known-structure">Regression forms that enforce known structure</a></li>
+  <li><a href="#from-the-learned-radius-to-mesh-motion-and-normal-velocity" id="toc-from-the-learned-radius-to-mesh-motion-and-normal-velocity" class="nav-link" data-scroll-target="#from-the-learned-radius-to-mesh-motion-and-normal-velocity">From the learned radius to mesh motion and normal velocity</a></li>
+  <li><a href="#inflow-and-transient-species-transport" id="toc-inflow-and-transient-species-transport" class="nav-link" data-scroll-target="#inflow-and-transient-species-transport">Inflow and transient species transport</a></li>
+  <li><a href="#computed-deformation-and-concentration-transport" id="toc-computed-deformation-and-concentration-transport" class="nav-link" data-scroll-target="#computed-deformation-and-concentration-transport">Computed deformation and concentration transport</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/lecture_00.html">Lectures and exercises</a></li><li class="breadcrumb-item"><a href="../notebooks/mass_transfer_regression.html">Surrogate models for continuous predictions</a></li><li class="breadcrumb-item"><a href="../notebooks/mass_transfer_regression.html">Lecture</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Surrogate models for continuous predictions</h1>
+<p class="subtitle lead">Lecture 5 — resolving concentration boundary layers</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
+<section id="learning-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h2>
+<p>After this lecture, we should be able to:</p>
+<ul>
+<li>Explain why a high Schmidt number makes concentration boundary layers difficult to resolve.</li>
+<li>Compare volume-of-fluid and interface-tracking methods for transport near a bubble.</li>
+<li>Explain how a continuous surrogate couples bubble dynamics to a liquid-only transport calculation.</li>
+<li>Construct regression models that respect the initial conditions and angular symmetry.</li>
+</ul>
+</section>
+<section id="the-high-schmidt-number-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-high-schmidt-number-problem">The high Schmidt number problem</h2>
+<p>The <a href="../notebooks/mass_transfer_regression_code.html">complementary code notebook</a> provides the worked implementation, and the <a href="../notebooks/mass_transfer_regression_exercise.html">exercise</a> uses it to investigate other bubbles and the limits of the approximation.</p>
+<p>This lecture continues our bubble-scale description of gas–liquid mass transfer. In the previous lecture, the surrogate predicted a discrete bubble regime. Here, we want to predict continuous quantities, such as a bubble’s rise velocity, shape, and interfacial velocity. These predictions will help us compute the transport of dissolved gas near the interface.</p>
+<section id="a-thin-layer-controls-the-transfer" class="level3">
+<h3 class="anchored" data-anchor-id="a-thin-layer-controls-the-transfer">A thin layer controls the transfer</h3>
+<p>In the Taylor-bubble example from the previous lecture, the colored reaction product was most clearly visible in the wake. This does not mean that oxygen entered the liquid only at the rear of the bubble: dissolved gas can be transported along the interface inside a layer too thin to see easily. We now look more closely at that layer <span class="citation" data-cites="weiner2021highsc">(<a href="#ref-weiner2021highsc" role="doc-biblioref">Weiner et al. 2021</a>)</span>.</p>
+<p>We consider a mildly deformed bubble rising through otherwise quiescent liquid. In a reference frame translating with the bubble, its center stays fixed and liquid approaches from above. For a clean, mobile interface, tangential motion also drives circulation inside the gas. The upward arrow in the sketch indicates the bubble’s rise velocity in the laboratory frame; the external streamline arrows indicate the relative liquid motion.</p>
+<p><img src="media/bubble-schmidt-layers-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Conceptual meridional sketch of a mildly deformed bubble, with downward relative liquid flow, internal circulation, a velocity boundary layer, a thinner locally varying concentration layer extending into the downstream wake, and a dashed effective mean concentration film."> <img src="media/bubble-schmidt-layers-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Conceptual meridional sketch of a mildly deformed bubble, with downward relative liquid flow, internal circulation, a velocity boundary layer, a thinner locally varying concentration layer extending into the downstream wake, and a dashed effective mean concentration film."></p>
+<p><em>Conceptual sketch, not a flow solution. The layer widths are exaggerated and do not reproduce the numerical ratios calculated below. The orange region follows the local concentration layer into the downstream wake between the inner streamlines; the dashed contour represents an effective mean concentration film. The drawn layer edges are not sharp physical boundaries. The actual concentration varies smoothly, and its local layer thickness changes along the interface.</em></p>
+<p>The liquid-sided <strong>velocity boundary layer</strong>, with characteristic thickness <span class="math inline">\(\delta_h\)</span>, accommodates viscous adjustments to the surrounding flow. At a mobile gas–liquid interface, the tangential velocity can be nonzero. At a stationary no-slip wall, it is zero. Within the much thinner <strong>concentration boundary layer</strong>, the concentration changes from its interfacial value toward the bulk value.</p>
+<p>Near the interface, molecular diffusion supplies dissolved gas in the normal direction, while the liquid flow carries it in the tangential direction. For a steady, thin-layer estimate, the leading balance can be written schematically as</p>
+<p><span class="math display">\[
+u_t\frac{\partial c}{\partial s}
+\sim D_l\frac{\partial^2 c}{\partial n^2},
+\]</span></p>
+<p>where <span class="math inline">\(s\)</span> and <span class="math inline">\(n\)</span> are tangential and normal coordinates, <span class="math inline">\(u_t\)</span> is the tangential liquid velocity, and <span class="math inline">\(D_l\)</span> is the molecular diffusivity. This balance explains why the local layer depends on both diffusion and the flow along the surface. Unsteadiness, interface deformation, and transport into the wake complicate the full problem; they are omitted from this scaling estimate.</p>
+</section>
+<section id="three-dimensionless-groups" class="level3">
+<h3 class="anchored" data-anchor-id="three-dimensionless-groups">Three dimensionless groups</h3>
+<p>We use the sphere-equivalent bubble diameter <span class="math inline">\(d_b\)</span>, the characteristic rise speed <span class="math inline">\(U_b\)</span>, and the liquid’s kinematic viscosity <span class="math inline">\(\nu_l\)</span>. The <strong>Reynolds number</strong> compares inertia with viscous forces:</p>
+<p><span class="math display">\[
+Re=\frac{U_b d_b}{\nu_l}.
+\]</span></p>
+<p>The <strong>Schmidt number</strong> compares the molecular diffusivities of momentum and species:</p>
+<p><span class="math display">\[
+Sc=\frac{\nu_l}{D_l}.
+\]</span></p>
+<p>A large <span class="math inline">\(Sc\)</span> means that momentum diffuses much more rapidly than the dissolved species. The concentration can therefore vary on much shorter length scales than the velocity.</p>
+<p>The <strong>Péclet number</strong> compares convective and diffusive species transport on the bubble scale:</p>
+<p><span class="math display">\[
+Pe=\frac{U_b d_b}{D_l}=Re\,Sc.
+\]</span></p>
+<p>With lengths scaled by <span class="math inline">\(d_b\)</span>, velocities by <span class="math inline">\(U_b\)</span>, and time by <span class="math inline">\(d_b/U_b\)</span>, the passive-species equation takes the dimensionless form</p>
+<p><span class="math display">\[
+\frac{\partial c^*}{\partial t^*}
++\mathbf{u}^*\cdot\nabla^*c^*
+=\frac{1}{Pe}\nabla^{*2}c^*.
+\]</span></p>
+<p>When <span class="math inline">\(Pe\)</span> is large, diffusion is weak on the bubble scale. It still controls transport across the interface, where the concentration gradients become very steep.</p>
+</section>
+<section id="a-one-millimeter-bubble-in-water" class="level3">
+<h3 class="anchored" data-anchor-id="a-one-millimeter-bubble-in-water">A one-millimeter bubble in water</h3>
+<p>For an order-of-magnitude example, we use the following approximate water–oxygen properties and rise speed:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Bubble diameter <span class="math inline">\(d_b\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(1\,\mathrm{mm}=10^{-3}\,\mathrm{m}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Rise speed <span class="math inline">\(U_b\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(0.25\,\mathrm{m\,s^{-1}}=25\,\mathrm{cm\,s^{-1}}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kinematic liquid viscosity <span class="math inline">\(\nu_l\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(10^{-6}\,\mathrm{m^2\,s^{-1}}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dissolved-oxygen diffusivity <span class="math inline">\(D_l\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(2\times10^{-9}\,\mathrm{m^2\,s^{-1}}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>These are illustrative inputs, rather than a prediction of the terminal speed for every one-millimeter bubble. In particular, interfacial contamination can change the rise speed and surface mobility. With these inputs, we obtain</p>
+<p><span class="math display">\[
+Re=\frac{0.25\times10^{-3}}{10^{-6}}=250,
+\qquad
+Sc=\frac{10^{-6}}{2\times10^{-9}}=500,
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[Pe=250\times500=1.25\times10^5\approx10^5.\]</span></p>
+</section>
+<section id="from-dimensionless-groups-to-layer-thicknesses" class="level3">
+<h3 class="anchored" data-anchor-id="from-dimensionless-groups-to-layer-thicknesses">From dimensionless groups to layer thicknesses</h3>
+<p>We use classical clean-bubble estimates to put physical dimensions on these numbers. The hydrodynamic thickness estimate quoted by <span class="citation" data-cites="weiner2017sgs">Weiner and Bothe (<a href="#ref-weiner2017sgs" role="doc-biblioref">2017</a>)</span>, with reference to p.&nbsp;441 of <span class="citation" data-cites="levich1962">Levich (<a href="#ref-levich1962" role="doc-biblioref">1962</a>)</span>, is</p>
+<p><span class="math display">\[
+\frac{\delta_h}{d_b}\approx\frac{1}{\sqrt{2Re}},
+\qquad
+\frac{d_b}{\delta_h}\approx\sqrt{2Re}.
+\]</span></p>
+<p>For our example,</p>
+<p><span class="math display">\[
+\frac{d_b}{\delta_h}\approx\sqrt{500}\approx22.4,
+\qquad
+\delta_h\approx\frac{1\,\mathrm{mm}}{22.4}
+\approx44.7\,\mu\mathrm{m}.
+\]</span></p>
+<p>The velocity layer is already more than twenty times thinner than the bubble diameter. To estimate the concentration layer, we introduce an <strong>effective mean film thickness</strong> <span class="math inline">\(\overline{\delta}_c\)</span>. In film theory, the mean liquid-side transfer coefficient is <span class="math inline">\(k_L=D_l/\overline{\delta}_c\)</span>, so the Sherwood number is <span class="math inline">\(Sh=k_Ld_b/D_l=d_b/\overline{\delta}_c\)</span>. The classical high-<span class="math inline">\(Pe\)</span>, clean-bubble estimate <span class="math inline">\(Sh\approx2\sqrt{Pe/\pi}\)</span> then gives <span class="citation" data-cites="weiner2017sgs">(<a href="#ref-weiner2017sgs" role="doc-biblioref">Weiner and Bothe 2017</a>)</span></p>
+<p><span class="math display">\[
+\frac{\overline{\delta}_c}{d_b}
+\approx\frac{\sqrt{\pi}}{2\sqrt{Pe}},
+\qquad
+\frac{\overline{\delta}_c}{\delta_h}
+\approx\sqrt{\frac{\pi}{2Sc}}.
+\]</span></p>
+<p>Equivalently, the velocity layer is thicker by a factor</p>
+<p><span class="math display">\[
+\frac{\delta_h}{\overline{\delta}_c}
+\approx\sqrt{\frac{2Sc}{\pi}}
+=\sqrt{\frac{1000}{\pi}}\approx17.8.
+\]</span></p>
+<p>Thus,</p>
+<p><span class="math display">\[
+\overline{\delta}_c\approx\frac{44.7\,\mu\mathrm{m}}{17.8}
+\approx2.51\,\mu\mathrm{m},
+\qquad
+\frac{d_b}{\overline{\delta}_c}\approx400.
+\]</span></p>
+<p>This effective film reproduces a mean mass-transfer rate; it is not the arithmetic average of a sharply defined local layer edge. The dashed contour in the sketch represents this simplification. The estimates assume a clean, mobile interface and idealized flow; deformation, finite-<span class="math inline">\(Re\)</span> corrections, surfactants, and reactions can alter the prefactors or the scaling. Here, their purpose is to explain the separation of scales.</p>
+</section>
+<section id="why-numerical-resolution-becomes-expensive" class="level3">
+<h3 class="anchored" data-anchor-id="why-numerical-resolution-becomes-expensive">Why numerical resolution becomes expensive</h3>
+<p>As a practical starting estimate, we ask for <strong>at least ten cells across the concentration boundary layer</strong>. Using the mean thickness above, the interface-normal cell width would need to satisfy approximately</p>
+<p><span class="math display">\[
+\Delta n\lesssim\frac{\overline{\delta}_c}{10}
+\approx0.25\,\mu\mathrm{m},
+\qquad
+\frac{d_b}{\Delta n}\gtrsim4000.
+\]</span></p>
+<p>The second number expresses an equivalent uniform resolution across one bubble diameter. It is not the total cell count of an adaptively refined or interface-aligned mesh. Moreover, ten cells is a planning rule, not a proof of accuracy: the thinnest local layers may require smaller cells, and mass-transfer rates must be checked by mesh refinement.</p>
+</section>
+</section>
+<section id="the-sharp-interface-flow-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-sharp-interface-flow-model">The sharp-interface flow model</h2>
+<section id="two-domains-and-one-moving-interface" class="level3">
+<h3 class="anchored" data-anchor-id="two-domains-and-one-moving-interface">Two domains and one moving interface</h3>
+<p>A common mathematical model describes the liquid and gas phases as separate time-dependent domains,</p>
+<p><span class="math display">\[
+\Omega^+(t)\quad\text{(liquid)},
+\qquad
+\Omega^-(t)\quad\text{(gas)},
+\]</span></p>
+<p>with a common interface <span class="math inline">\(\Sigma(t)\)</span>. Throughout this lecture, the unit normal <span class="math inline">\(\mathbf{n}_\Sigma\)</span> points <strong>from <span class="math inline">\(\Omega^-\)</span> into <span class="math inline">\(\Omega^+\)</span></strong>, hence from the gas into the liquid. This choice fixes the signs of all jump conditions below.</p>
+<p><img src="media/sharp-interface-light.svg?v=balances" class="light-content img-fluid" style="width:100.0%" alt="Sharp-interface sketch with separate liquid and gas mass and momentum balances, a gas-to-liquid normal, and velocity and traction conditions on the interface."> <img src="media/sharp-interface-dark.svg?v=balances" class="dark-content img-fluid" style="width:100.0%" alt="Sharp-interface sketch with separate liquid and gas mass and momentum balances, a gas-to-liquid normal, and velocity and traction conditions on the interface."></p>
+<p><em>Conceptual sharp-interface model. Each phase has its own balance equations, and transmission conditions couple their one-sided values at the moving interface.</em></p>
+<p>The word <strong>sharp</strong> means that the phase transition is represented by a surface of zero geometric thickness. In the model used here, we also assume that this surface carries <strong>no stored mass</strong>, so there is no separate interfacial mass inventory. These are distinct modeling choices: more general sharp-interface models can include adsorbed interfacial mass <span class="citation" data-cites="bothe2022sharp">(<a href="#ref-bothe2022sharp" role="doc-biblioref">Bothe 2022</a>)</span>. A massless interface can nevertheless exert a surface-tension force.</p>
+<p>We therefore have <strong>two sets of bulk balance equations</strong>, one in each domain, together with kinematic and dynamic coupling conditions on <span class="math inline">\(\Sigma(t)\)</span>. The sketch shows the incompressible mass and momentum balances, with <span class="math inline">\(\mathrm{D}/\mathrm{D}t\)</span> denoting the material derivative and <span class="math inline">\(\mathbf{g}\)</span> gravity. We focus below on the interface conditions that a second simulation must reproduce.</p>
+</section>
+<section id="slow-dissolution-and-the-normal-velocity" class="level3">
+<h3 class="anchored" data-anchor-id="slow-dissolution-and-the-normal-velocity">Slow dissolution and the normal velocity</h3>
+<p>The relevant separation of time scales is</p>
+<p><span class="math display">\[
+\tau_{\mathrm{BL}}\ll\tau_{\mathrm{size}},
+\qquad
+\tau_{\mathrm{size}}\sim\frac{d_b}{|\mathrm{d}d_b/\mathrm{d}t|},
+\]</span></p>
+<p>where <span class="math inline">\(\tau_{\mathrm{BL}}\)</span> characterizes development of the concentration boundary layer and <span class="math inline">\(\tau_{\mathrm{size}}\)</span> characterizes the diameter change caused by dissolution. Over the time needed to establish the boundary layer, the bubble then loses only a small fraction of its volume. We can investigate different bubble sizes and Reynolds numbers separately, retaining species transfer while neglecting its feedback through shrinkage. Hydrodynamic deformation is still allowed; neglecting dissolution-induced volume change does not require a fixed shape.</p>
+<p>To state the condition precisely, we denote the local interface velocity by <span class="math inline">\(\mathbf{u}_\Sigma\)</span> and its normal component by <span class="math inline">\(V_\Sigma=\mathbf{u}_\Sigma\cdot\mathbf{n}_\Sigma\)</span>. The one-sided <strong>total mass fluxes per unit area</strong>, measured relative to that moving surface, are</p>
+<p><span class="math display">\[
+\dot m^\pm
+=\rho^\pm\left(\mathbf{u}^\pm-\mathbf{u}_\Sigma\right)
+\cdot\mathbf{n}_\Sigma.
+\]</span></p>
+<p>Without interfacial mass accumulation, conservation gives</p>
+<p><span class="math display">\[
+\dot m^+-\dot m^-=0
+\qquad\text{on }\Sigma(t).
+\]</span></p>
+<p>Equal mass fluxes alone do <strong>not</strong> imply equal normal velocities when the densities differ. In our leading-order hydrodynamic approximation, we additionally neglect the total mass crossing the interface and set <span class="math inline">\(\dot m^+=\dot m^-=0\)</span>. Consequently,</p>
+<p><span class="math display">\[
+\mathbf{u}^+\cdot\mathbf{n}_\Sigma
+=\mathbf{u}^-\cdot\mathbf{n}_\Sigma
+=V_\Sigma.
+\]</span></p>
+<p>The interface moves with the fluid in the normal direction. The much slower loss of gas is omitted from this hydrodynamic problem, while its dissolved concentration and transfer rate remain the quantities of interest in the species calculation. This is a one-way approximation, not an exact description of a shrinking bubble.</p>
+</section>
+<section id="tangential-continuity-is-a-closure-assumption" class="level3">
+<h3 class="anchored" data-anchor-id="tangential-continuity-is-a-closure-assumption">Tangential continuity is a closure assumption</h3>
+<p>We also assume that the two fluids do not slip tangentially relative to one another at the interface. With the tangential projector</p>
+<p><span class="math display">\[
+\mathbf{P}_\Sigma=\mathbf{I}-\mathbf{n}_\Sigma\otimes\mathbf{n}_\Sigma,
+\]</span></p>
+<p>the condition reads</p>
+<p><span class="math display">\[
+\mathbf{P}_\Sigma\mathbf{u}^+
+=\mathbf{P}_\Sigma\mathbf{u}^-
+\qquad\text{on }\Sigma(t).
+\]</span></p>
+<p>This is an interfacial constitutive assumption, not a consequence of mass conservation. Combined with the normal-velocity condition, it gives continuity of the full velocity trace:</p>
+<p><span class="math display">\[\mathbf{u}^+=\mathbf{u}^-\qquad\text{on }\Sigma(t).\]</span></p>
+<p>Continuity does not mean that the tangential velocity is zero. Both phases can move along the interface, as in the recirculating bubble sketch. A shear-free approximation would concern the tangential <strong>traction</strong>, not the tangential velocity.</p>
+</section>
+<section id="momentum-transmission-and-surface-tension" class="level3">
+<h3 class="anchored" data-anchor-id="momentum-transmission-and-surface-tension">Momentum transmission and surface tension</h3>
+<p>Velocity continuity is accompanied by a force balance. We define the Newtonian Cauchy stress and our jump convention as</p>
+<p><span class="math display">\[
+\mathbf{T}^\pm=-p^\pm\mathbf{I}
++\mu^\pm\left[\nabla\mathbf{u}^\pm+
+\left(\nabla\mathbf{u}^\pm\right)^{\mathsf T}\right],
+\qquad
+[\![a]\!]=a^+ - a^-.
+\]</span></p>
+<p>Here, <span class="math inline">\(\mu^\pm\)</span> are the dynamic viscosities. For the massless interface with no total mass crossing it, the momentum transmission condition is</p>
+<p><span class="math display">\[
+[\![\mathbf{T}]\!]\mathbf{n}_\Sigma
+=\gamma\kappa\mathbf{n}_\Sigma-\nabla_\Sigma\gamma,
+\qquad
+\kappa=\nabla_\Sigma\cdot\mathbf{n}_\Sigma,
+\]</span></p>
+<p>where <span class="math inline">\(\gamma\)</span> is the surface tension and <span class="math inline">\(\nabla_\Sigma\)</span> denotes the surface gradient. For a clean interface with constant <span class="math inline">\(\gamma\)</span>, the gradient term vanishes: the normal traction jump balances capillarity, and tangential traction is continuous. For varying surface tension, the tangential term represents Marangoni forcing.</p>
+<p>Writing <span class="math inline">\(\boldsymbol{\tau}^\pm=\mathbf T^\pm+p^\pm\mathbf I\)</span> for the viscous stress, we can project the jump onto the normal and tangent plane:</p>
+<p><span class="math display">\[
+p^- - p^+ + \mathbf n_\Sigma\cdot[\![\boldsymbol{\tau}]\!]\mathbf n_\Sigma
+=\gamma\kappa,
+\qquad
+\mathbf P_\Sigma[\![\boldsymbol{\tau}]\!]\mathbf n_\Sigma
+=-\nabla_\Sigma\gamma.
+\]</span></p>
+<p>The normal equation relates the pressure values at the interface. Pressure drops out of the tangential equation, which governs the viscous shear jump. Neither projection specifies the liquid-side normal pressure derivative used in the <a href="#a-simplified-simulation-approach">liquid-only simulation</a>.</p>
+<p>A static spherical bubble checks the signs: our normal points outward, so <span class="math inline">\(\kappa=2/R\)</span>. With zero viscous stress, the condition gives the familiar pressure difference</p>
+<p><span class="math display">\[p^- - p^+=\frac{2\gamma}{R}.\]</span></p>
+<p>The gas pressure is larger even though velocity is continuous. In the hybrid simulation, the learned interface motion and surface velocity must therefore be compatible with a flow solution; prescribing only a bubble outline would leave essential coupling information out.</p>
+</section>
+</section>
+<section id="two-numerical-representations-of-the-interface" class="level2">
+<h2 class="anchored" data-anchor-id="two-numerical-representations-of-the-interface">Two numerical representations of the interface</h2>
+<p>The sharp-interface model describes the physics. We still need a numerical representation of its moving domains. Two useful choices make the motivation for our hybrid approach clearer.</p>
+<section id="volume-of-fluid-the-interface-cuts-through-bulk-cells" class="level3">
+<h3 class="anchored" data-anchor-id="volume-of-fluid-the-interface-cuts-through-bulk-cells">Volume of fluid: the interface cuts through bulk cells</h3>
+<p>In the <strong>volume-of-fluid (VOF)</strong> representation, we first define a gas-phase indicator <span class="citation" data-cites="hirt1981vof">(<a href="#ref-hirt1981vof" role="doc-biblioref">Hirt and Nichols 1981</a>)</span>:</p>
+<p><span class="math display">\[
+\chi_g(\mathbf{x},t)=
+\begin{cases}
+1,&amp;\mathbf{x}\in\Omega^-(t),\\
+0,&amp;\mathbf{x}\in\Omega^+(t).
+\end{cases}
+\]</span></p>
+<p>The value directly on the zero-thickness interface does not affect a volume integral. For a computational cell <span class="math inline">\(K\)</span>, the stored <strong>gas volume fraction</strong> is the cell average of this indicator:</p>
+<p><span class="math display">\[
+\alpha_{g,K}(t)
+=\frac{1}{|K|}\int_K\chi_g(\mathbf{x},t)\,\mathrm{d}V
+=\frac{|K\cap\Omega^-(t)|}{|K|}.
+\]</span></p>
+<p>Pure liquid cells have <span class="math inline">\(\alpha_{g,K}=0\)</span>, pure gas cells have <span class="math inline">\(\alpha_{g,K}=1\)</span>, and cut cells have <span class="math inline">\(0&lt;\alpha_{g,K}&lt;1\)</span>. The intermediate value describes how much gas occupies a cell; it is not a locally mixed physical phase.</p>
+<p><img src="media/vof-interface-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Coarse Cartesian VOF representation of a bubble, with cell-averaged gas volume fractions and straight PLIC interface segments in mixed cells."> <img src="media/vof-interface-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Coarse Cartesian VOF representation of a bubble, with cell-averaged gas volume fractions and straight PLIC interface segments in mixed cells."></p>
+<p><em>Conceptual two-dimensional geometric VOF representation. Color indicates the gas volume fraction; the segments reconstruct an interface inside cut cells. In this planar illustration, area fractions play the role of volume fractions.</em></p>
+<p>The interface is represented implicitly by the collection of volume fractions. A geometric reconstruction additionally estimates its orientation and places a line segment in each cut cell so that the reconstructed gas area matches the stored fraction. In three dimensions, a plane replaces that line. This is the idea of <strong>piecewise linear interface calculation (PLIC)</strong>. A fraction alone does not uniquely determine a segment: neighboring data and a normal-estimation procedure are needed <span class="citation" data-cites="roenby2016advection">(<a href="#ref-roenby2016advection" role="doc-biblioref">Roenby et al. 2016</a>)</span>.</p>
+<p>VOF is attractive for robust, comparatively efficient simulations of moving and strongly deforming interfaces on bulk meshes. It also accommodates topology changes without maintaining a fitted boundary mesh. For our transport problem, however, the cell faces generally do not follow the interface. Accurately resolving a steep concentration gradient normal to that interface, and advecting the thin layer along it, can therefore demand substantial local refinement or a subgrid model.</p>
+<p>This is a limitation of the mesh–interface relationship and transport discretization, rather than a statement that all VOF schemes have poor accuracy. Geometric reconstruction and advection can be highly accurate; a coarse PLIC description alone does not resolve a micrometer-scale concentration layer.</p>
+</section>
+<section id="interface-tracking-the-mesh-follows-the-phase-boundary" class="level3">
+<h3 class="anchored" data-anchor-id="interface-tracking-the-mesh-follows-the-phase-boundary">Interface tracking: the mesh follows the phase boundary</h3>
+<p>Here, <strong>interface tracking</strong> means an interface-fitted moving-mesh approach. The liquid and gas occupy separate mesh regions, and their shared boundary explicitly represents <span class="math inline">\(\Sigma(t)\)</span>. Mesh faces on that boundary move with the interface; interior points move to maintain mesh quality <span class="citation" data-cites="tukovic2012tracking">(<a href="#ref-tukovic2012tracking" role="doc-biblioref">Tuković and Jasak 2012</a>)</span>.</p>
+<p><img src="media/fitted-interface-light.svg?v=outward-20261105" class="light-content img-fluid" style="width:100.0%" alt="Interface-fitted meshes in the gas and liquid, sharing an explicit moving bubble boundary, with closely spaced liquid layers normal to the interface."> <img src="media/fitted-interface-dark.svg?v=outward-20261105" class="dark-content img-fluid" style="width:100.0%" alt="Interface-fitted meshes in the gas and liquid, sharing an explicit moving bubble boundary, with closely spaced liquid layers normal to the interface."></p>
+<p><em>Conceptual interface-fitted mesh. The shared boundary is an actual mesh boundary, and liquid cells can be thin in the normal direction while remaining longer along the surface. The drawing is not a convergence-tested simulation mesh.</em></p>
+<p>This representation is especially useful for an isolated bubble with moderate deformation. Transmission conditions can be applied directly at boundary faces, and interface-aligned cell layers give precise control over the normal resolution needed for mass transfer. It is therefore well suited to high-accuracy interfacial transport calculations.</p>
+<p>The cost is additional geometric and algorithmic work: mesh motion, iterative phase coupling, and possibly remeshing. Large deformations can degrade cells and threaten robustness; breakup and coalescence are much harder to accommodate than in VOF. Its accuracy and runtime still depend on the implementation and mesh, rather than on the method name alone.</p>
+</section>
+<section id="why-combine-these-ideas" class="level3">
+<h3 class="anchored" data-anchor-id="why-combine-these-ideas">Why combine these ideas?</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Representation</th>
+<th style="text-align: left;">Useful feature for this lecture</th>
+<th style="text-align: left;">Main difficulty for this lecture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">VOF on a bulk mesh</td>
+<td style="text-align: left;">Efficient, robust generation of bubble motion and deformation data</td>
+<td style="text-align: left;">Very thin interfacial concentration layers need extra resolution or modeling</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Interface-fitted moving mesh</td>
+<td style="text-align: left;">Direct boundary conditions and concentrated interface-normal resolution</td>
+<td style="text-align: left;">Maintaining two moving, coupled phase meshes adds complexity</td>
+</tr>
+</tbody>
+</table>
+<p>We would like to retain the practical two-phase flow calculation while exploiting an interface-aligned liquid mesh for the expensive species problem. The continuous surrogate models connect those two representations.</p>
+</section>
+</section>
+<section id="a-simplified-simulation-approach" class="level2">
+<h2 class="anchored" data-anchor-id="a-simplified-simulation-approach">A simplified simulation approach</h2>
+<p>We now combine the practical strengths of the two representations: VOF provides the bubble dynamics, while a surface-aligned liquid mesh provides the resolution for species transport. The information passed between them consists of continuous functions learned from the first simulation. The strategy follows Section 2.3 of <span class="citation" data-cites="weiner2022transient">Weiner et al. (<a href="#ref-weiner2022transient" role="doc-biblioref">2022</a>)</span>. In this lecture, the first-stage data come from VOF; the reference study used a front-tracking solver for that stage.</p>
+<section id="four-steps-from-two-phase-flow-to-resolved-species-transport" class="level3">
+<h3 class="anchored" data-anchor-id="four-steps-from-two-phase-flow-to-resolved-species-transport">Four steps from two-phase flow to resolved species transport</h3>
+<p><img src="media/bubble-hybrid-workflow-light.svg?v=horizontal" class="light-content img-fluid" style="width:100.0%" alt="Four stages from left to right. VOF supplies rise speed, interface positions and liquid velocities. Regression fits continuous boundary data for a moving liquid mesh, where a solver computes flow and concentration."> <img src="media/bubble-hybrid-workflow-dark.svg?v=horizontal" class="dark-content img-fluid" style="width:100.0%" alt="Four stages from left to right. VOF supplies rise speed, interface positions and liquid velocities. Regression fits continuous boundary data for a moving liquid mesh, where a solver computes flow and concentration."></p>
+<p><em>Conceptual workflow. The regression curves and concentration wake are illustrative.</em></p>
+<p>At each saved VOF time, we obtain the rise speed from the bubble-center history and sample positions and liquid velocities on the reconstructed interface. In the translating bubble frame, those samples give the radius <span class="math inline">\(r\)</span> and the tangential velocity <span class="math inline">\(u_t\)</span> as functions of polar angle. The fitted rise speed sets the inflow, while the fitted radius and tangential velocity set the moving boundary and its velocity. The liquid solver then computes the transient flow and species transport.</p>
+<p>In the liquid-only case, the surrogate prescribes the moving interface and its velocity. OpenFOAM solves for the liquid kinematic pressure <span class="math inline">\(p/\rho^+\)</span> with a homogeneous Neumann condition at the bubble, <span class="math inline">\(\partial_{n_\Sigma}(p/\rho^+)=0\)</span>, and a pressure reference at the outlet. This extrapolates the liquid pressure to the bubble with zero normal slope, while allowing it to vary along the surface. The normal component of the liquid momentum equation can give a nonzero pressure gradient when acceleration, viscosity, or body forces contribute. Even quasi-steady tangential flow can have normal acceleration as it follows the curved surface.</p>
+</section>
+<section id="parameterizing-an-axisymmetric-bubble" class="level3">
+<h3 class="anchored" data-anchor-id="parameterizing-an-axisymmetric-bubble">Parameterizing an axisymmetric bubble</h3>
+<p>We assume a straight rise path, azimuthal symmetry of shape and flow, and no azimuthal swirl. The calculation is performed in a meridional section, but represents a three-dimensional body of revolution. It is therefore an <strong>axisymmetric simulation</strong>, rather than a planar two-dimensional bubble.</p>
+<p>The polar angle <span class="math inline">\(\vartheta\in[0,\pi]\)</span> is measured from the upward rise axis: <span class="math inline">\(\vartheta=0\)</span> is the front pole and <span class="math inline">\(\vartheta=\pi\)</span> is the rear pole. The azimuthal angle is <span class="math inline">\(\varphi\)</span>, and <span class="math inline">\(\mathbf{e}_r(\vartheta,\varphi)\)</span> is the radial unit vector. Relative to the bubble center <span class="math inline">\(\mathbf{x}_b(t)\)</span>, we parameterize the surface by</p>
+<p><span class="math display">\[
+\mathbf{x}_\Sigma(t,\vartheta,\varphi)
+=\mathbf{x}_b(t)+r(t,\vartheta)\mathbf{e}_r(\vartheta,\varphi),
+\qquad
+\frac{\mathrm{d}\mathbf{x}_b}{\mathrm{d}t}=U_b(t)\mathbf{e}_z.
+\]</span></p>
+<p>This radius representation requires a single surface intersection along each ray from the center. It is suitable for the mildly deformed bubbles considered here; it does not describe arbitrary overhanging or breaking interfaces.</p>
+<p><img src="media/bubble-interface-coordinates-light.svg?v=outward-20261105" class="light-content img-fluid" style="width:100.0%" alt="Axisymmetric meridional geometry showing the polar angle, radius, translating reference frame, increasing-angle tangent, outward gas-to-liquid normal, and velocity decomposition at the interface."> <img src="media/bubble-interface-coordinates-dark.svg?v=outward-20261105" class="dark-content img-fluid" style="width:100.0%" alt="Axisymmetric meridional geometry showing the polar angle, radius, translating reference frame, increasing-angle tangent, outward gas-to-liquid normal, and velocity decomposition at the interface."></p>
+<p><em>Conceptual meridional geometry. The tangent points toward increasing polar angle, and the normal retains our gas-to-liquid orientation. Surface motion and fluid motion have the same normal component in the approximation used here; their tangential components need not coincide.</em></p>
+</section>
+<section id="which-velocity-do-we-learn" class="level3">
+<h3 class="anchored" data-anchor-id="which-velocity-do-we-learn">Which velocity do we learn?</h3>
+<p>We subtract the translational velocity of the bubble center from the laboratory-frame liquid velocity:</p>
+<p><span class="math display">\[
+\mathbf{u}^{\mathrm{rel}}\big|_\Sigma
+=\mathbf{u}^{\mathrm{lab}}\big|_\Sigma-U_b(t)\mathbf{e}_z.
+\]</span></p>
+<p>With <span class="math inline">\(\mathbf{t}_\Sigma\)</span> the unit tangent toward increasing <span class="math inline">\(\vartheta\)</span>, its two meridional components are</p>
+<p><span class="math display">\[
+u_t=\mathbf{u}^{\mathrm{rel}}\big|_\Sigma\cdot\mathbf{t}_\Sigma,
+\qquad
+u_n=\mathbf{u}^{\mathrm{rel}}\big|_\Sigma\cdot\mathbf{n}_\Sigma.
+\]</span></p>
+<p>We learn <strong><span class="math inline">\(u_t\)</span> in the translating frame</strong>, rather than a laboratory-frame tangential component or the difference between fluid velocity and the full local mesh velocity. Translation and deformation are separate: after subtracting the rise speed, the bubble can still deform.</p>
+<p>Interface positions provide the training data for <span class="math inline">\(r(t,\vartheta)\)</span>. They are generally easier to extract reliably than a small normal velocity obtained by projecting a reconstructed interfacial flow field. Differentiating the learned radius also ensures that the prescribed normal motion and boundary velocity refer to the same predicted surface.</p>
+</section>
+<section id="regression-forms-that-enforce-known-structure" class="level3">
+<h3 class="anchored" data-anchor-id="regression-forms-that-enforce-known-structure">Regression forms that enforce known structure</h3>
+<p>The networks <span class="math inline">\(f_U\)</span>, <span class="math inline">\(f_r\)</span>, and <span class="math inline">\(f_t\)</span> use the normalized time <span class="math inline">\(q(t)\)</span>. We define <span class="math inline">\(q(t)\)</span> and the startup factor <span class="math inline">\(s(t)\)</span> using dimensionless time <span class="math inline">\(t\)</span> and the last available snapshot time <span class="math inline">\(T\)</span>.</p>
+<p><span class="math display">\[
+q(t)=\frac{\log(1+t)}{\log(1+T)},\qquad
+s(t)=\frac{t}{1+t}.
+\]</span></p>
+<p>The predictions used in the worked example are</p>
+<p><span class="math display">\[
+\boxed{\widehat U_b(t)=S_U\,s(t)f_U\!\left(q(t)\right)}
+\]</span></p>
+<p><span class="math display">\[
+\boxed{\widehat r(t,\vartheta)
+=r_0+S_r\,s(t)^2f_r\!\left(q(t),\cos(\vartheta)\right)}
+\]</span></p>
+<p><span class="math display">\[
+\boxed{\widehat u_t(t,\vartheta)
+=S_t\,s(t)\sin(\vartheta)f_t\!\left(q(t),\cos(\vartheta)\right)}.
+\]</span></p>
+<p>Here, <span class="math inline">\(r_0\)</span> is the initial spherical radius. The output scales <span class="math inline">\(S_U\)</span>, <span class="math inline">\(S_r\)</span>, and <span class="math inline">\(S_t\)</span> are determined from the training targets. The startup and angular factors enforce the following constraints.</p>
+<ul>
+<li><strong>Initial rise speed:</strong> <span class="math inline">\(\widehat{U}_b(0)=0\)</span> for a finite network output.</li>
+<li><strong>Initial shape:</strong> <span class="math inline">\(\widehat{r}(0,\vartheta)=r_0\)</span> at every angle. The squared startup factor also gives <span class="math inline">\(\partial_t\widehat r(0,\vartheta)=0\)</span>.</li>
+<li><strong>Shape symmetry:</strong> because <span class="math inline">\(\cos(-\vartheta)=\cos(\vartheta)\)</span>, a full-meridian extension satisfies <span class="math inline">\(\widehat{r}(t,-\vartheta)=\widehat{r}(t,\vartheta)\)</span>. It is also <span class="math inline">\(2\pi\)</span>-periodic. For a differentiable model, the angular radius derivative vanishes at both poles.</li>
+<li><strong>Tangential antisymmetry and regularity:</strong> the sine factor gives <span class="math inline">\(\widehat{u}_t(t,-\vartheta)=-\widehat{u}_t(t,\vartheta)\)</span> in the signed full-meridian extension. On the physical interval <span class="math inline">\([0,\pi]\)</span>, it makes the tangential velocity vanish at both poles. The time factor also gives <span class="math inline">\(\widehat{u}_t(0,\vartheta)=0\)</span>.</li>
+</ul>
+<p>These are reflection symmetries about the rise axis. They do not force the front and rear of the bubble to have identical shapes or velocities: <span class="math inline">\(\cos(0)=1\)</span> and <span class="math inline">\(\cos(\pi)=-1\)</span> remain distinct network inputs.</p>
+<p>A positive radius and constant bubble volume still require checks when fitting the shape.</p>
+<p>We fit the constrained predictions directly to the observed quantities, avoiding division by the startup or sine factors where they vanish.</p>
+</section>
+<section id="from-the-learned-radius-to-mesh-motion-and-normal-velocity" class="level3">
+<h3 class="anchored" data-anchor-id="from-the-learned-radius-to-mesh-motion-and-normal-velocity">From the learned radius to mesh motion and normal velocity</h3>
+<p>We differentiate the radius at fixed polar angle, so <span class="math inline">\(z=\cos(\vartheta)\)</span> is constant.</p>
+<p><span class="math display">\[
+\partial_t\widehat r
+= S_r\left[
+2s(t)s'(t)f_r\!\left(q(t),z\right)
++s(t)^2q'(t)\,\partial_q f_r\!\left(q(t),z\right)
+\right].
+\]</span></p>
+<p>Here, <span class="math inline">\(s'(t)=1/(1+t)^2\)</span> and <span class="math inline">\(q'(t)=1/[(1+t)\log(1+T)]\)</span>.</p>
+<p>In bubble-fixed coordinates, a boundary point at fixed <span class="math inline">\((\vartheta,\varphi)\)</span> moves radially with</p>
+<p><span class="math display">\[
+\mathbf{w}_\Sigma
+=\frac{\partial\widehat r}{\partial t}\mathbf{e}_r.
+\]</span></p>
+<p>Its normal component determines the fluid’s normal boundary velocity. The prescribed liquid velocity is therefore</p>
+<p><span class="math display">\[
+\boxed{
+\mathbf{u}^{\mathrm{rel}}\big|_\Sigma
+=\widehat{u}_t\mathbf{t}_\Sigma
++\left(\frac{\partial\widehat r}{\partial t}
+\mathbf{e}_r\cdot\mathbf{n}_\Sigma\right)\mathbf{n}_\Sigma
+}.
+\]</span></p>
+<p>The projection is important: on a deformed bubble, radial and normal directions generally differ. In particular, <span class="math inline">\(\partial_t\widehat r\)</span> is not itself the signed normal speed. With <span class="math inline">\(\widehat r_\vartheta=\partial\widehat r/\partial\vartheta\)</span>, our gas-to-liquid normal satisfies</p>
+<p><span class="math display">\[
+\mathbf{n}_\Sigma
+=\frac{\widehat r\mathbf{e}_r-\widehat r_\vartheta\mathbf{e}_\vartheta}
+{\sqrt{\widehat r^2+\widehat r_\vartheta^2}},
+\qquad
+\widehat{u}_n
+=\frac{\widehat r\,\partial_t\widehat r}
+{\sqrt{\widehat r^2+\widehat r_\vartheta^2}}.
+\]</span></p>
+<p>The same predicted radius sets the displacement of an initially spherical boundary,</p>
+<p><span class="math display">\[
+\Delta\mathbf{x}_\Sigma
+=\left[\widehat r(t,\vartheta)-r_0\right]\mathbf{e}_r.
+\]</span></p>
+<p>We can evaluate the time derivative analytically, by automatic differentiation, or consistently from successive predicted boundary positions. A time-discrete implementation uses the same boundary positions for mesh motion and its normal-velocity condition, so two independently fitted approximations cannot contradict one another. The mesh may move radially while the fluid moves tangentially along it; only their normal components must agree.</p>
+</section>
+<section id="inflow-and-transient-species-transport" class="level3">
+<h3 class="anchored" data-anchor-id="inflow-and-transient-species-transport">Inflow and transient species transport</h3>
+<p>The undisturbed liquid is at rest in the laboratory frame. It therefore enters the translating-frame calculation with the time-dependent velocity</p>
+<p><span class="math display">\[
+\boxed{\mathbf{u}_{\mathrm{in}}(t)
+=-\widehat U_b(t)\mathbf{e}_z}.
+\]</span></p>
+<p>The inner boundary receives the displacement and velocity conditions above, and the liquid solver computes the flow throughout the remaining domain. If the frame accelerates, its acceleration must also be treated consistently in the momentum/pressure formulation; changing the inlet velocity alone does not specify a complete non-inertial formulation.</p>
+<p>We then use that transient flow to compute the dissolved-species concentration, for example with a prescribed equilibrium concentration at the bubble boundary and a lower concentration in the incoming liquid. The fine, interface-aligned cells are used where the normal concentration gradient is steep. A moving-mesh solver accounts for mesh motion in its transport fluxes.</p>
+<p>The result is a <strong>hybrid simulation</strong>, with the flow boundary data represented by regression models and the liquid flow and species fields still obtained from conservation equations. We preserve the time dependence of the original bubble dynamics while concentrating the spatial resolution on the liquid-side transport problem.</p>
+</section>
+<section id="computed-deformation-and-concentration-transport" class="level3">
+<h3 class="anchored" data-anchor-id="computed-deformation-and-concentration-transport">Computed deformation and concentration transport</h3>
+<p>The animations show OpenFOAM fields from the AOTInductor and LibTorch workflow. <strong>The three panels have the same bubble and velocity field at each time</strong>: only the diffusion coefficient changes, giving <span class="math inline">\(Sc=100\)</span>, <span class="math inline">\(1000\)</span>, and <span class="math inline">\(10000\)</span>. The Reynolds number varies during startup, with <span class="math inline">\(Re(t)=Ga\,\widehat U_b(t)\)</span> and <span class="math inline">\(Ga=238.2\)</span> in this dimensionless case.</p>
+<video class="light-content" controls="" loop="" muted="" playsinline="" preload="metadata" width="100%" poster="media/bubble-concentration-light.png?v=aoti-132-t10" aria-label="Computed concentration fields for three Schmidt numbers, light theme">
+<source src="media/bubble-concentration-light.mp4?v=aoti-132-t10" type="video/mp4">
+</video>
+<video class="dark-content" controls="" loop="" muted="" playsinline="" preload="metadata" width="100%" poster="media/bubble-concentration-dark.png?v=aoti-132-t10" aria-label="Computed concentration fields for three Schmidt numbers, dark theme">
+<source src="media/bubble-concentration-dark.mp4?v=aoti-132-t10" type="video/mp4">
+</video>
+<p><em>Actual cell-associated concentration, on a common fixed scale from 0 to 1. This near-bubble meridional view is reflected by axisymmetry. The interface outline follows the moving mesh; the gas interior is excluded from the liquid calculation.</em></p>
+<video class="light-content" controls="" loop="" muted="" playsinline="" preload="metadata" width="100%" poster="media/bubble-mesh-light.png?v=aoti-132-t10" aria-label="Deforming liquid mesh and concentration-layer close-up, light theme">
+<source src="media/bubble-mesh-light.mp4?v=aoti-132-t10" type="video/mp4">
+</video>
+<video class="dark-content" controls="" loop="" muted="" playsinline="" preload="metadata" width="100%" poster="media/bubble-mesh-dark.png?v=aoti-132-t10" aria-label="Deforming liquid mesh and concentration-layer close-up, dark theme">
+<source src="media/bubble-mesh-dark.mp4?v=aoti-132-t10" type="video/mp4">
+</video>
+<p><em>Actual mesh cells, with a close-up following the interface near a polar angle of <span class="math inline">\(45^\circ\)</span>. The local axes are tangential distance <span class="math inline">\(s\)</span> and outward normal distance <span class="math inline">\(n\)</span>; the view translates and rotates, without stretching the geometry. Cell colors show <span class="math inline">\(Sc=1000\)</span>, with no cell-to-point smoothing.</em></p>
+<p>The animations use 200 saved snapshots from <span class="math inline">\(0.05\leq\tilde t\leq10\)</span> on a 13,584-cell mesh with 132 faces along the bubble and milder interface-normal grading. The mesh close-up shows that the steep concentration change at <span class="math inline">\(Sc=1000\)</span> occupies only a few cells normal to the interface. The layer is thinner still at <span class="math inline">\(Sc=10000\)</span>. This limited resolution makes the interfacial gradient and Sherwood numbers sensitive to mesh spacing. A refinement study is needed to establish mesh convergence.</p>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-bothe2022sharp" class="csl-entry" role="listitem">
+Bothe, Dieter. 2022. <span>“Sharp-Interface Continuum Thermodynamics of Multicomponent Fluid Systems with Interfacial Mass.”</span> <em>International Journal of Engineering Science</em> 179: 103731. <a href="https://doi.org/10.1016/j.ijengsci.2022.103731">https://doi.org/10.1016/j.ijengsci.2022.103731</a>.
+</div>
+<div id="ref-hirt1981vof" class="csl-entry" role="listitem">
+Hirt, C. W., and B. D. Nichols. 1981. <span>“Volume of Fluid (<span>VOF</span>) Method for the Dynamics of Free Boundaries.”</span> <em>Journal of Computational Physics</em> 39 (1): 201–25. <a href="https://doi.org/10.1016/0021-9991(81)90145-5">https://doi.org/10.1016/0021-9991(81)90145-5</a>.
+</div>
+<div id="ref-levich1962" class="csl-entry" role="listitem">
+Levich, Veniamin G. 1962. <em>Physicochemical Hydrodynamics</em>. Prentice-Hall.
+</div>
+<div id="ref-roenby2016advection" class="csl-entry" role="listitem">
+Roenby, Johan, Henrik Bredmose, and Hrvoje Jasak. 2016. <span>“A Computational Method for Sharp Interface Advection.”</span> <em>Royal Society Open Science</em> 3 (11): 160405. <a href="https://doi.org/10.1098/rsos.160405">https://doi.org/10.1098/rsos.160405</a>.
+</div>
+<div id="ref-tukovic2012tracking" class="csl-entry" role="listitem">
+Tuković, Željko, and Hrvoje Jasak. 2012. <span>“A Moving Mesh Finite Volume Interface Tracking Method for Surface Tension Dominated Interfacial Fluid Flow.”</span> <em>Computers &amp; Fluids</em> 55: 70–84. <a href="https://doi.org/10.1016/j.compfluid.2011.11.003">https://doi.org/10.1016/j.compfluid.2011.11.003</a>.
+</div>
+<div id="ref-weiner2017sgs" class="csl-entry" role="listitem">
+Weiner, Andre, and Dieter Bothe. 2017. <span>“Advanced Subgrid-Scale Modeling for Convection-Dominated Species Transport at Fluid Interfaces with Application to Mass Transfer from Rising Bubbles.”</span> <em>Journal of Computational Physics</em> 347: 261–89. <a href="https://doi.org/10.1016/j.jcp.2017.06.040">https://doi.org/10.1016/j.jcp.2017.06.040</a>.
+</div>
+<div id="ref-weiner2022transient" class="csl-entry" role="listitem">
+Weiner, Andre, Claire M. Y. Claassen, Irian R. Hierck, J. A. M. Kuipers, and Maike W. Baltussen. 2022. <span>“Assessment of a Subgrid-Scale Model for Convection-Dominated Mass Transfer for Initial Transient Rise of a Bubble.”</span> <em>AIChE Journal</em> 68 (7): e17641. <a href="https://doi.org/10.1002/aic.17641">https://doi.org/10.1002/aic.17641</a>.
+</div>
+<div id="ref-weiner2021highsc" class="csl-entry" role="listitem">
+Weiner, Andre, Dirk Gründing, and Dieter Bothe. 2021. <span>“Computing Mass Transfer at Deformable Bubbles for High Schmidt Numbers.”</span> <em>Chemie Ingenieur Technik</em> 93 (1-2): 81–90. <a href="https://doi.org/10.1002/cite.202000214">https://doi.org/10.1002/cite.202000214</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -38,7 +38,7 @@
 #
 # 1. Sketch a regular grid, independent uniform random sampling, and Latin hypercube sampling in this one-dimensional interval. What does stratification guarantee, and what does it leave random?
 # 2. How does the cost of a regular grid change if viscosity and channel height also vary, with 16 levels per parameter? Contrast this with a fixed total budget of 16 cases.
-# 3. Explain why sampling uniformly in a dimensional parameter need not produce uniform coverage in a transformed feature space, such as $\log Re$.
+# 3. Explain why sampling uniformly in a dimensional parameter need not produce uniform coverage in a transformed feature space, such as $\log(Re)$.
 # 4. Propose an adaptive sampling criterion based on validation errors. Why should the untouched test set not guide the next sample locations?
 # 5. List checks required before treating a final CFD field as a reference label. Can a small training loss compensate for unconverged or poorly resolved reference simulations?
 #

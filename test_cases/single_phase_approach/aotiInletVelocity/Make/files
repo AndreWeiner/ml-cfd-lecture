@@ -1,0 +1,2 @@
+aotiInletVelocityFvPatchVectorField.C
+LIB = $(FOAM_USER_LIBBIN)/libAotiInletVelocity

@@ -1,0 +1,16 @@
+FoamFile { version 2.0; format ascii; class dictionary; object sherwoodBoundary; }
+Sh100
+{
+    field Sh100;
+    expressions ({ patch bubble; target value; expression "snGrad(s1)"; });
+}
+Sh1000
+{
+    field Sh1000;
+    expressions ({ patch bubble; target value; expression "snGrad(s2)"; });
+}
+Sh10000
+{
+    field Sh10000;
+    expressions ({ patch bubble; target value; expression "snGrad(s3)"; });
+}

@@ -23,9 +23,10 @@ boundaryField
 {
     inlet
     {
-        type            ptInletVelocity;
+        type            aotiInletVelocity;
         direction       (0 -1 0);
-        model           "rv_model.pt";
+        model           "ub.pt2";
+        value           uniform (0 0 0);
     }
     outlet
     {
@@ -37,11 +38,12 @@ boundaryField
     }
     bubble
     {
-	    type            ptSurfaceVelocity;
+	    type            aotiSurfaceVelocity;
         origin          (0 0 0);
         axis            (0 1 0);
         normal          (0 0 1);
-        modelName       "tv_model.pt";
+        model           "ut.pt2";
+        value           uniform (0 0 0);
     }
     "wedge_.*"
     {

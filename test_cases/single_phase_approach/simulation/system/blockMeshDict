@@ -64,13 +64,13 @@ zArcBlLowIn #eval{ -1.0 * $zArcBlUpIn };
 
 // mesh
 blocksBl 80;
-blocksInX 60;
-blocksOutX 20;
-blocksUpDownY 60;
-blocksMiddleY 40;
+blocksInX 36;
+blocksOutX 12;
+blocksUpDownY 24;
+blocksMiddleY 30;
 gradingCenterUp 0.2;
 gradingCenterLow 5.0;
-gradingSurface 0.02;
+gradingSurface 0.1;
 gradingMiddleUp 2.0;
 gradingMiddleLow 0.5;
 gradingXOut 0.1;

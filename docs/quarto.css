@@ -10,3 +10,4 @@ main :not(pre) > code { white-space: normal; overflow-wrap: anywhere; }
 
 /* Keep the horizontal university wordmark readable in Quarto's navbar. */
 .navbar-logo { max-height: 56px; }
+

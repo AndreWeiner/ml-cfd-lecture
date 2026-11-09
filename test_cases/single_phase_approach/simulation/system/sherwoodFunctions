@@ -1,0 +1,24 @@
+FoamFile { version 2.0; format ascii; class dictionary; object sherwoodFunctions; }
+functions
+{
+    sherwood
+    {
+        type surfaceFieldValue;
+        libs (fieldFunctionObjects);
+        regionType patch;
+        name bubble;
+        fields (Sh100 Sh1000 Sh10000);
+        operation areaAverage;
+        writeFields true;
+        writeArea true;
+        surfaceFormat raw;
+        formatOptions
+        {
+            raw
+            {
+                normal true;
+                precision 15;
+            }
+        }
+    }
+}

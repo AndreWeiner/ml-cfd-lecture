@@ -1,0 +1,42 @@
+{
+  "torch": "2.14.1+cpu",
+  "snapshots": 100,
+  "nodata_rows_removed": 227,
+  "training": [
+    {
+      "target": "ub",
+      "test_rmse": 0.03414240055723003,
+      "test_max_abs": 0.09231559626144237,
+      "scale": 2.4879060968498563,
+      "training_seconds": 0.7148637770001187,
+      "epochs": 1500,
+      "train_samples": 80,
+      "validation_samples": 10,
+      "test_samples": 10
+    },
+    {
+      "target": "r",
+      "test_rmse": 0.0025920066842056518,
+      "test_max_abs": 0.009760248593200127,
+      "scale": 0.3320760844567935,
+      "training_seconds": 5.861405286000036,
+      "epochs": 1500,
+      "train_samples": 5120,
+      "validation_samples": 640,
+      "test_samples": 640
+    },
+    {
+      "target": "ut",
+      "test_rmse": 0.06689680253289004,
+      "test_max_abs": 0.2448615418656519,
+      "scale": 4.939508452567221,
+      "training_seconds": 5.799953405999986,
+      "epochs": 1500,
+      "train_samples": 5120,
+      "validation_samples": 640,
+      "test_samples": 640
+    }
+  ],
+  "max_onnx_error": 2.6645352591003757e-15,
+  "max_cpp_error": 2.6645352591003757e-15
+}

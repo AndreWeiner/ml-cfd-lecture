@@ -1,0 +1,40 @@
+{
+  "purpose": "Computed bubble deformation, mesh motion, and three Schmidt-number concentration animations",
+  "OpenFOAM": "v2606",
+  "mode": "four MPI ranks from rest",
+  "Eo": 0.4361,
+  "Ga": 238.2,
+  "Schmidt": [
+    100,
+    1000,
+    10000
+  ],
+  "pilot_end": 0.1,
+  "end": 10.0,
+  "write_interval": 0.05,
+  "max_delta_t": 0.001,
+  "mesh": {
+    "blocksBl": 80,
+    "blocksInX": 36,
+    "blocksMiddleY": 30,
+    "blocksOutX": 12,
+    "blocksUpDownY": 24,
+    "gradingSurface": 0.1
+  },
+  "budget": {
+    "pilot_wall_seconds": 120,
+    "run_wall_seconds": 900,
+    "max_disk_GB": 5
+  },
+  "acceptance": "Finite fields, bounded scalar extrema inspected before clipping, successful moving-mesh check, complete shared-time outputs. No claim of mesh convergence.",
+  "cells": 13584,
+  "scope": "Qualitative animation of stable computed fields; high-Schmidt layers not mesh-converged",
+  "note": "The movies use 200 checked snapshots through t=10.",
+  "continuation_target": 10,
+  "bubble_faces": 132,
+  "outer_velocity_tolerance": {
+    "through_t_1": 0.0001,
+    "after_t_1": 0.001
+  },
+  "outer_pressure_tolerance": 0.0001
+}

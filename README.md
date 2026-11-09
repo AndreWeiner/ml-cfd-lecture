@@ -11,18 +11,17 @@ This course previously received funding from the [Foundation for Innovation in H
 
 ## Lectures and exercises
 
-| # | Topic | Lecture | Exercise | Slides |
-|--:|:------|:--------|:---------|:-------|
-| 0 | How to learn with generative AI | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/lecture_00.html) | — | — |
-| 1 | Course overview and motivation | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_cfd_intro.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/system_setup.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
-| 2 | Introduction to machine learning | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_intro.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_intro_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
-| 3 | Surrogate models for discrete predictions | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/bubble_path_classification.html) |
-| 4 | Surrogate models for continuous predictions | | | |
-| 5 | Analysis of coherent structures | | | |
-| 6 | Reduced-order modeling | | | |
-| 7 | Bayesian optimization and exploration | | | |
-| 8 | Data assimilation | | | |
-| 9 | Active flow control | | | |
+| Index | Topic | Lecture | Code | Exercise | Slides |
+|--:|:------|:--------|:-----|:---------|:-------|
+| 0 | How to learn with generative AI | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/lecture_00.html) | — | — | — |
+| 1 | Course overview and motivation | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_cfd_intro.html) | — | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/system_setup.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
+| 2 | Introduction to machine learning | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_intro.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/neural_network_training.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_intro_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
+| 3 | Surrogate models for discrete predictions | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification_code.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/bubble_path_classification.html) |
+| 4 | Surrogate models for continuous predictions | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression_code.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/mass_transfer_regression.html) |
+| 5 | Analysis of coherent structures | — | — | — | — |
+| 6 | Reduced-order modeling | — | — | — | — |
+| 7 | Bayesian optimization and exploration | — | — | — | — |
+| 9 | Active flow control | — | — | — | — |
 
 Later lecture and exercise materials will be revised before they are linked.
 
@@ -68,3 +67,5 @@ quarto preview --port 8002
 ```
 
 The website is generated in `docs/`. Whole-site builds reuse `_freeze/`; explicitly render a chapter to execute it and update its results.
+
+The continuous-prediction material includes the [lecture](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression.html), [exercise](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression_exercise.html), and complementary [worked code notebook](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression_code.html). The worked example exports AOTInductor models and deploys them in the current OpenFOAM.com course environment.

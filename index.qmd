@@ -10,24 +10,25 @@ The course continues to grow as new topics are added and existing materials are 
 
 ## Lectures and exercises
 
-| # | Topic | Lecture | Exercise | Slides |
+| Index | Topic | Lecture | Exercise | Slides |
 |--:|:------|:--------|:---------|:-------|
 | 0 | How to learn with generative AI | [Read](notebooks/lecture_00.qmd) | — | — |
 | 1 | Course overview and motivation | [Read](notebooks/ml_cfd_intro.py) | [Exercises](notebooks/system_setup.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html) |
 | 2 | Introduction to machine learning | [Read](notebooks/ml_intro.py) | [Exercises](notebooks/ml_intro_exercise.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
 | 3 | Surrogate models for discrete predictions | [Read](notebooks/bubble_path_classification.py) | [Exercises](notebooks/bubble_path_classification_exercise.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/bubble_path_classification.html) |
-| 4 | Surrogate models for continuous predictions | | | |
+| 4 | Surrogate models for continuous predictions | [Read](notebooks/mass_transfer_regression.py) | [Exercises](notebooks/mass_transfer_regression_exercise.py) | [Slides](https://andreweiner.github.io/ml-cfd-slides/mass_transfer_regression.html) |
 | 5 | Analysis of coherent structures | | | |
 | 6 | Reduced-order modeling | | | |
 | 7 | Bayesian optimization and exploration | | | |
-| 8 | Data assimilation | | | |
 | 9 | Active flow control | | | |
 
-## Optional material
+## Optional material and worked examples {#optional-material}
 
-Use these readings to refresh background knowledge as needed. They are separate from the numbered lectures and exercises.
+Use the background material to refresh your Python skills. The worked examples complement the lectures by showing how to implement and run the methods.
 
-| Topic | Material |
-|:------|:---------|
+| Material | Notebook |
+|---|---|
 | Getting started with Python | [Read](notebooks/python_intro.py) |
 | Training neural networks | [Read](notebooks/neural_network_training.py) |
+| Bubble regime classification from digitized observations | [Worked example](notebooks/bubble_path_classification_code.py) |
+| Bubble surrogate modeling with Basilisk, PyTorch, and OpenFOAM | [Worked example](notebooks/mass_transfer_regression_code.py) |

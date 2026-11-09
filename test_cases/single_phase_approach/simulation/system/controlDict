@@ -15,14 +15,14 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 libs (
-    "../ptInletVelocity/libPtInletVelocity.so"
-    "../ptBoundaryDisplacement/libPtBoundaryDisplacement.so"
-    "../ptSurfaceVelocity/libPtSurfaceVelocity.so"
+    "libAotiInletVelocity.so"
+    "libAotiBoundaryDisplacement.so"
+    "libAotiSurfaceVelocity.so"
 );
 
 application     scalarPimpleFoam;
 
-startFrom       latestTime;
+startFrom       startTime;
 
 startTime       0;
 

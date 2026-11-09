@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-06",
+  "format": "AOTInductor compiled PT2",
+  "python_torch": "2.14.1+cpu",
+  "container_libtorch": "2.14.1+cpu",
+  "openfoam": "OpenFOAM.com v2606 linux64GccDPInt32Opt",
+  "compiler": "GCC 15.2; C++20 for boundary libraries",
+  "device": "cpu",
+  "cpu_isa": "AVX2",
+  "threads": 1,
+  "constants": "C++ (aot_inductor.use_consts_asm_build=False); no executable-stack requirement",
+  "cpp_checks": [
+    {
+      "model": "ub",
+      "batch": 1,
+      "max_abs_error": 0.0
+    },
+    {
+      "model": "ub",
+      "batch": 7,
+      "max_abs_error": 4.440892098500626e-16
+    },
+    {
+      "model": "ub",
+      "batch": 101,
+      "max_abs_error": 4.440892098500626e-16
+    },
+    {
+      "model": "r",
+      "batch": 1,
+      "max_abs_error": 0.0
+    },
+    {
+      "model": "r",
+      "batch": 7,
+      "max_abs_error": 5.551115123125783e-17
+    },
+    {
+      "model": "r",
+      "batch": 101,
+      "max_abs_error": 1.1102230246251565e-16
+    },
+    {
+      "model": "ut",
+      "batch": 1,
+      "max_abs_error": 0.0
+    },
+    {
+      "model": "ut",
+      "batch": 7,
+      "max_abs_error": 8.881784197001252e-16
+    },
+    {
+      "model": "ut",
+      "batch": 101,
+      "max_abs_error": 1.7763568394002505e-15
+    }
+  ],
+  "max_cpp_error": 1.7763568394002505e-15,
+  "packages": {
+    "ub": "7cbd65ae4cce42e6f9593f6a15d9137782bb7cdea753689c12dd115cadcf9618",
+    "r": "92ec51abff61c6d66efea68a881306886efb794587497004558360d59e462a88",
+    "ut": "3932d36455d0b55862fc5d99c8f641995e6e0e760cbbbc1d86f080e09eb0fcdc"
+  },
+  "serial_smoke": {
+    "end_time": 0.03,
+    "mesh": "8 cells in each block-count setting; 640 cells total",
+    "scalar_fields": [
+      "s1",
+      "s2",
+      "s3"
+    ],
+    "checkMesh": "Mesh OK"
+  },
+  "scope": "Export equivalence and serial startup through t=0.03. The animation run has a separate record in experiments/bubble_transport/results/run-summary.json."
+}

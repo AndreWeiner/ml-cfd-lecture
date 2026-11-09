@@ -1,17 +1,14 @@
-#!/usr/bin/bash
-
-DIR=$(pwd)
-
-# applications
-## calculation of local and global Sherwood numbers
-cd calcSh/ && wclean && wmake && cd $DIR
-## incompressible solver with additional solution of scalar transport equations
-cd scalarPimpleFoam/ && wclean && wmake && cd $DIR
-
-# boundary conditions
-## inlet velocity
-cd ptInletVelocity/ && wclean && wmake && cd $DIR
-## bubble surface velocity
-cd ptSurfaceVelocity/ && wclean && wmake && cd $DIR
-## bubble surface displacement
-cd ptBoundaryDisplacement/ && wclean && wmake && cd $DIR
+#!/usr/bin/env bash
+set -e
+: "${WM_PROJECT_DIR:?Activate OpenFOAM.com v2606 first}"
+: "${TORCH_LIBRARIES:?Set TORCH_LIBRARIES to the container LibTorch directory}"
+cd -- "$(dirname -- "$0")"
+export FOAM_USER_APPBIN="$PWD/build/bin"
+export FOAM_USER_LIBBIN="$PWD/build/lib"
+mkdir -p "$FOAM_USER_APPBIN" "$FOAM_USER_LIBBIN"
+for component in aotiInletVelocity aotiSurfaceVelocity aotiBoundaryDisplacement; do
+    (cd "$component" && wmake libso)
+done
+for component in scalarPimpleFoam; do
+    (cd "$component" && wmake)
+done

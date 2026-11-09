@@ -1,0 +1,79 @@
+{
+  "cells": 13584,
+  "bubble_faces": 132,
+  "mesh_blocks": {
+    "blocksInX": 36,
+    "blocksMiddleY": 30,
+    "blocksOutX": 12,
+    "blocksUpDownY": 24,
+    "blocksBl": 80
+  },
+  "latest_saved_time": 10.0,
+  "saved_snapshots": 200,
+  "min_concentration": -3.47269102165351e-10,
+  "max_concentration": 0.999993986597963,
+  "max_speed": 5.037715788461981,
+  "runtime": "OpenFOAM.com v2606 with LibTorch 2.14.1 CPU and AOTInductor PT2 boundary models",
+  "Ga": 238.2,
+  "Schmidt": [
+    100,
+    1000,
+    10000
+  ],
+  "published_time_range": [
+    0.05,
+    10.0
+  ],
+  "published_frames": 200,
+  "standard_mesh_check_passed_at_all_published_times": true,
+  "final_extended_mesh_check": "Overall domain bounding box (-2.7442279835849e-17 -5 -0.130929607859286) (5 5 0.130929607859286)\n    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)\n    Mesh has 3 solution (non-empty) directions (1 1 1)\n    Wedge wedge_back with angle 1.50000000015289 degrees\n    Wedge wedge_front with angle 1.50000000015289 degrees\n    All edges aligned with or perpendicular to non-empty directions.\n    Boundary openness (7.58562950983982e-17 -2.22366351781809e-18 1.12159863520786e-15) OK.\n    Max cell openness = 4.04321390999203e-16 OK.\n    Max aspect ratio = 83.7527856179423 OK.\n    Minimum face area = 1.64825581782637e-07. Maximum face area = 0.314803660761294.  Face area magnitudes OK.\n    Min volume = 2.78143546011235e-10. Max volume = 0.0751366914611486.  Total volume = 6.54212933759292.  Cell volumes OK.\n    Mesh non-orthogonality Max: 47.5159318814223 average: 16.1395703712995\n    Non-orthogonality check OK.\n    Face pyramids OK.\n    Max skewness = 0.35649201687711 OK.\n    Coupled point location match (average 0) OK.\n    Face tets OK.\n    Min/max edge length = 0.000131394150288385 0.882669124250379 OK.\n    All angles in faces OK.\n    Face flatness (1 = flat, 0 = butterfly) : min = 0.999999999999999  average = 1\n    All face flatness OK.\n    Cell determinant (wellposedness) : minimum: 0.000271902032919812 average: 0.273903958150822\n ***Cells with small determinant (< 0.001) found, number of cells: 51\n  <<Writing 51 under-determined cells to set cellDeterminant\n    Concave cell check OK.\n    Face interpolation weight : minimum: 0.157045937422333 average: 0.48197018857535\n    Face interpolation weight check OK.\n    Face volume ratio : minimum: 0.180648782439265 average: 0.906338007177787\n    Face volume ratio check OK.\n\nFailed 1 mesh checks.\n\nEnd",
+  "scalar_clipping": false,
+  "course_cutoff": 10,
+  "solver_stop_time": 11.087,
+  "grading_surface": 0.1,
+  "execution": "Four MPI ranks from rest; restarted at 0.1, 1, 1.05 and 5. Velocity tolerance changed from 0.0001 to 0.001 at t=1. Pressure tolerance remained 0.0001.",
+  "late_time_checks": {
+    "finite_snapshots": 100,
+    "bounds": [
+      -3.97946046224119e-12,
+      0.99999363534021
+    ],
+    "standard_mesh_passes": 41,
+    "mesh_snapshots": 41,
+    "windows": [
+      {
+        "start": 8.0,
+        "end": 9.0,
+        "sherwood_relative_ranges": [
+          0.0008626132035302516,
+          0.0013884124424078143,
+          0.001614199558059047
+        ],
+        "velocity_index_aligned_relative_L2_change": 0.006653788853849687
+      },
+      {
+        "start": 9.0,
+        "end": 10.0,
+        "sherwood_relative_ranges": [
+          0.000770150843082694,
+          0.0010902437945322298,
+          0.0012027562638996867
+        ],
+        "velocity_index_aligned_relative_L2_change": 0.004623969913969113
+      }
+    ],
+    "final_sherwood": [
+      273.8004065759737,
+      730.8888752293564,
+      1094.224181934364
+    ]
+  },
+  "model_export_max_abs_error": 1.7763568394002505e-15,
+  "model_sha256": {
+    "r.pt2": "ad250d533f06009e348659f6eb43fbc3af12eb9e2271e784da49c1052bb6704a",
+    "ub.pt2": "afd9a3049b66ffa07c1356b049b6aa2d0fb4fb4d9f1b10a7a1746b89bd23d282",
+    "ut.pt2": "35d85849c66fdc0121a581343a641b1d78118620ce44fa768410fdb623ca655e"
+  },
+  "reference_data_sha256": "4554a5caec023eee09b71c523af5a38f3dd0a58a6f11342f141fbd55ce9e55c6",
+  "sherwood_source": "OpenFOAM patch snGrad and surfaceFieldValue areaAverage"
+}

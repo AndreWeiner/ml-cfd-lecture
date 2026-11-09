@@ -10,15 +10,44 @@ project:
   - notebooks/ml_intro_exercise.py
   - notebooks/bubble_path_classification.py
   - notebooks/bubble_path_classification_exercise.py
+  - notebooks/bubble_path_classification_code.py
+  - notebooks/mass_transfer_regression.py
+  - notebooks/mass_transfer_regression_code.py
+  - notebooks/mass_transfer_regression_exercise.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
   resources:
+  - notebooks/bubble_data_figures.py
+  - notebooks/media/bubble-data-*
+  - notebooks/media/bubble-local-sherwood-*
+  - downloads/bubble-sherwood-data.zip
+  - experiments/bubble_transport/README.md
+  - experiments/bubble_transport/animation-case.json
+  - experiments/bubble_transport/results/*.json
+  - notebooks/media/bubble-concentration-*
+  - notebooks/media/bubble-mesh-*
+  - notebooks/bubble_surrogate_tools.py
+  - notebooks/bubble_surrogate_figures.py
+  - notebooks/media/bubble-regression-diagnostics-*
+  - downloads/bubble-reference-data.zip
+  - downloads/bubble-single-phase.zip
+  - test_cases/single_phase_approach/README.md
+  - notebooks/media/bubble-schmidt-layers-*
+  - notebooks/media/sharp-interface-*
+  - notebooks/media/vof-interface-*
+  - notebooks/media/fitted-interface-*
+  - notebooks/media/bubble-hybrid-workflow-*
+  - notebooks/media/bubble-interface-coordinates-*
   - notebooks/ml_cfd_intro.py
   - notebooks/system_setup.py
   - notebooks/ml_intro.py
   - notebooks/ml_intro_exercise.py
   - notebooks/bubble_path_classification.py
   - notebooks/bubble_path_classification_exercise.py
+  - notebooks/bubble_path_classification_code.py
+  - notebooks/mass_transfer_regression.py
+  - notebooks/mass_transfer_regression_code.py
+  - notebooks/mass_transfer_regression_exercise.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
   - notebooks/classification_exercise_tools.py
@@ -112,12 +141,25 @@ website:
         - href: notebooks/bubble_path_classification_exercise.py
           text: Practice
 
-    - section: Optional material
+      - section: Surrogate models for continuous predictions
+        contents:
+        - href: notebooks/mass_transfer_regression.py
+          text: Lecture
+        - href: notebooks/mass_transfer_regression_exercise.py
+          text: Practice
+        - href: notebooks/mass_transfer_regression_code.py
+          text: Complementary code
+
+    - section: Optional material and worked examples
       contents:
       - href: notebooks/python_intro.py
         text: Getting started with Python
       - href: notebooks/neural_network_training.py
         text: Training neural networks
+      - href: notebooks/bubble_path_classification_code.py
+        text: Bubble regime classification
+      - href: notebooks/mass_transfer_regression_code.py
+        text: Bubble surrogate modeling
 
 format:
   html:

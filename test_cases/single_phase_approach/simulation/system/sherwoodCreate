@@ -1,0 +1,7 @@
+FoamFile { version 2.0; format ascii; class dictionary; object sherwoodCreate; }
+expressions
+(
+    Sh100 { field Sh100; create true; expression "0"; dimensions [0 0 0 0 0 0 0]; }
+    Sh1000 { field Sh1000; create true; expression "0"; dimensions [0 0 0 0 0 0 0]; }
+    Sh10000 { field Sh10000; create true; expression "0"; dimensions [0 0 0 0 0 0 0]; }
+);

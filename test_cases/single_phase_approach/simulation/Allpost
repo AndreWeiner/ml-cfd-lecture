@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+cd -- "$(dirname -- "$0")"
+setExprFields -dict system/sherwoodCreate "$@"
+setExprBoundaryFields -dict system/sherwoodBoundary "$@"
+postProcess -dict system/sherwoodFunctions -fields '(Sh100 Sh1000 Sh10000)' "$@"

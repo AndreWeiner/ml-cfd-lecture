@@ -30,7 +30,26 @@
 #
 # Investigate the lecture data from @tripathi2015 alongside experimental observations from @sharaf2017. Inspect the two sources, decide how to represent their labels consistently, and examine how validation performance changes as the training dataset grows.
 #
-# ## Files and preparation
+# ## Part 1 — Theory
+#
+# ### Features and physical conventions
+#
+# 1. What physical effects do the Galilei and Eötvös numbers compare? If one study defines them using the bubble radius and another uses the diameter, how do the numerical values change for the same bubble?
+# 2. Explain what the logarithm and the min–max scaling each do to the features. Why do we fit the scaling bounds on the training data? What happens to a validation feature outside those bounds?
+#
+# ### Class probabilities and cross entropy
+#
+# 1. Suppose three logits are $(0,\log(2),\log(4))$. Compute their softmax probabilities and identify the predicted class.
+# 2. If the true class is the second one, compute the categorical cross entropy. Multiply all three logits by two and repeat. How can the predicted class stay the same while the loss changes?
+#
+# ### Labels and validation
+#
+# 1. Two studies use different names for partly overlapping bubble paths. What evidence would justify merging their labels? When would we leave observations out of the comparison?
+# 2. Why do we keep related observations together when splitting the data? Explain why the validation cases should stay fixed while we vary the training-set size or network architecture.
+#
+# ## Part 2 — Practical exercise
+#
+# ### Files and preparation
 #
 # [Download exercise source](bubble_path_classification_exercise.py){.btn .btn-outline-primary .btn-sm data-noresolveinput="true" download="bubble_path_classification_exercise.py"}
 # [Download supplied helpers](classification_exercise_tools.py){.btn .btn-outline-primary .btn-sm download="classification_exercise_tools.py"}
@@ -39,7 +58,7 @@
 #
 # The helpers also use [figure_style.py](figure_style.py) and [figure_utils.py](figure_utils.py). Outside a repository clone, place these three helper files beside the exercise source and save the two CSVs as `tripathi2015-points.csv` and `sharaf2017-points.csv`. The code runs locally in Python, not on this HTML page. Run the code blocks in sequence in a Python editor, or open the source as a notebook using Jupytext. NumPy and Matplotlib are needed; figure exports use LaTeX by default. An explicit `use_tex=False` option is available when TeX is unavailable.
 #
-# ### Getting started with the supplied code
+# #### Getting started with the supplied code
 #
 # **The supplied code is our starting point for experimenting: we do not need to implement a classifier or training loop from scratch.** The main aim is to run comparisons, try different configurations, and interpret what changes when we vary the data, training-set size, or network architecture.
 #
@@ -48,7 +67,7 @@
 # 3. Run the loading block below first and inspect its printed summary. Before training, complete `label_maps` and `class_names` in “A common classification problem” after comparing the source labels. These are the intended data-definition choices; the remaining training and plotting code can be used as supplied.
 # 4. Run the remaining blocks in order to obtain a baseline. Then change one setting at a time, such as the training fractions, network widths and depths, or learning rate, and compare the results using the same validation cases. Keep a record of the settings and explain the observed differences.
 #
-# ## Load and investigate the two datasets
+# ### Load and investigate the two datasets
 #
 # The lecture dataset contains 104 digitized markers from Figure 1 of @tripathi2015. The additional CSV contains 183 discernible markers from the experimental Figure 4 of @sharaf2017. Their positions were extracted from the embedded high-resolution image and calibrated using the logarithmic axis ticks. Touching and partly obscured markers were reviewed visually. These are approximate digitized coordinates, not the authors' original raw observations; repeated experiments and fully hidden markers cannot be recovered from the map.
 #
@@ -101,7 +120,7 @@ for name, rows in [("Tripathi", tripathi), ("Sharaf", sharaf)]:
 
 # %% [markdown]
 #
-# ## A common classification problem
+# ### A common classification problem
 #
 # Before pooling the observations, define a common prediction target. Record and justify the chosen definition in the [data-source documentation template](../datasets/path_shape_regimes/classification_exercise/source_card_template.md).
 #
@@ -137,7 +156,7 @@ print("Excluded:", len(excluded))
 
 # %% [markdown]
 #
-# ## Merge, then split into training and validation data
+# ### Merge, then split into training and validation data
 #
 # Split the harmonized, merged dataset once into approximately 80% training and 20% validation observations. The split preserves representation by source and common class, and related observations remain in the same partition. There is no test set. Each CSV row represents a recoverable marker; the original repeated experiments cannot be reconstructed from the published images.
 #
@@ -156,7 +175,7 @@ for name, indices in [("Training", training), ("Validation", validation)]:
 
 # %% [markdown]
 #
-# ## Validation performance as the training dataset grows
+# ### Validation performance as the training dataset grows
 #
 # Train the same MLP on increasingly large, nested subsets of the training pool: approximately 20%, 40%, 60%, 80%, and 100%. Subsets retain representation by source and common class; their actual sizes depend on rounding and case grouping. For each random seed, all observations in a smaller subset also occur in the larger subsets. Use a smaller network than the lecture's two-hidden-layer demonstration to keep the repeated fits inexpensive: one hidden layer with 16 tanh units and one softmax output per chosen common class. The classification model, loss, and preprocessing follow the same principles. In the code, common class names are represented by zero-based indices `0,...,K-1`; these are identifiers, corresponding to the lecture's mathematical indices `1,...,K`.
 #
@@ -184,7 +203,7 @@ print("Figures:", paths)
 #
 # The generated `learning-curve-light.svg` and `learning-curve-dark.svg` show validation cross entropy and accuracy against training size. A falling loss would support improved probability predictions on this fixed validation subset; improvement is not guaranteed. The validation set selects early-stopping checkpoints and is reused across runs, so its score is not an independent final test score. It also does not establish robustness to an unseen fluid system or investigation.
 #
-# ## Network width, depth, and overfitting
+# ### Network width, depth, and overfitting
 #
 # Keep the entire training pool, the validation cases, and the training-fitted scaler fixed. Vary the number of hidden units and hidden layers: `(8,)`, `(16,)`, and `(32,)` describe one hidden layer; `(16,16)` and `(16,16,16)` add one or two more hidden layers. Also test two hidden layers with 32 neurons each. All hidden layers use tanh, and the softmax output still has one unit per common class.
 #
@@ -213,7 +232,7 @@ print("Architecture figures:", architecture_paths)
 #
 # The accuracy figure compares the same validation observations across architectures. The loss-history figure shows seed 11 for readability; all three seeds are retained in the JSON output. Dots identify the validation minima. The range of outcomes across seeds is not a confidence interval. Selecting architectures against the same validation set is model selection, not an independent assessment of a final model's predictive accuracy.
 #
-# ## Document and interpret the comparison
+# ### Document and interpret the comparison
 #
 # Retain the source labels, common label mapping, exclusions, split, training settings, learning-curve results, and architecture comparisons so that the comparison can be reproduced.
 #
@@ -231,7 +250,7 @@ record = dict(label_maps=label_maps, class_names=class_names, configuration=conf
 
 # %% [markdown]
 #
-# ### Optional numerical data source
+# #### Optional numerical data source
 #
 # The numerical observations of @canolozano2016 may also be considered. Their definitions and labels would require the same compatibility check before inclusion; this source is not needed for the comparison above.
 #

@@ -1,2 +1,0 @@
-ptSurfaceVelocityFvPatchVectorField.C
-LIB = libPtSurfaceVelocity

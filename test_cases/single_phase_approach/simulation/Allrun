@@ -1,21 +1,20 @@
-#!/bin/sh
-cd ${0%/*} || exit 1                        # Run from this directory
-. $WM_PROJECT_DIR/bin/tools/RunFunctions    # run functions
-
-# run simulation
-
-ln -s ${ML_CFD_BASE}/notebooks/output/rad_model.pt .
-ln -s ${ML_CFD_BASE}/notebooks/output/rv_model.pt .
-ln -s ${ML_CFD_BASE}/notebooks/output/tv_model.pt .
-runApplication blockMesh
+#!/usr/bin/env bash
+set -e
+cd -- "$(dirname -- "$0")"
+: "${WM_PROJECT_DIR:?Activate OpenFOAM first}"
+: "${MODEL_DIR:?Set MODEL_DIR to the exported AOTInductor model folder}"
+export PATH="$PWD/../build/bin:$PATH"
+export LD_LIBRARY_PATH="$PWD/../build/lib:${TORCH_LIBRARIES}/lib:$LD_LIBRARY_PATH"
+. "$WM_PROJECT_DIR/bin/tools/RunFunctions"
+for model in ub r ut; do
+    ln -sfn "${MODEL_DIR}/${model}.pt2" "${model}.pt2"
+done
+if [ -d 0 ]; then
+    echo 'A run already exists. Copy a fresh case for each comparison.' >&2
+    exit 1
+fi
 cp -r 0.org 0
-runApplication $(getApplication)
-
-# post processing
-postProcess -func singleGraph
-calcSh -patch bubble -field s1 &> /dev/null
-calcSh -patch bubble -field s2 &> /dev/null
-calcSh -patch bubble -field s3 &> /dev/null
+runApplication blockMesh
+runApplication "$(getApplication)"
+./Allpost -noZero > log.sherwood 2>&1
 touch post.foam
-
-#------------------------------------------------------------------------------

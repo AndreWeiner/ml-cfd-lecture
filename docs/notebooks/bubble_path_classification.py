@@ -40,6 +40,8 @@
 #
 # ## From gas–liquid mass transfer to bubble dynamics
 #
+# The [complementary code notebook](bubble_path_classification_code.py) provides a worked implementation of the five-class bubble-regime classifier, from the digitized data to training, validation, and prediction.
+#
 # Gas–liquid mass transfer is essential in chemical and process engineering. Bubble column reactors bring a gas into contact with a liquid; bioreactors must supply dissolved gases such as oxygen to microorganisms or cells. In gas-evolving electrolyzers, bubble formation and removal affect the exposed electrode area and transport near the electrode. These applications connect reactions and local transport to the behavior of an entire apparatus.
 #
 # <figure class="quarto-float quarto-figure quarto-figure-center">

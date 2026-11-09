@@ -541,7 +541,7 @@
 # Physical knowledge can provide a baseline relationship, leaving the model to learn a correction. For a turbulent boundary layer, the logarithmic law of the wall provides a familiar starting point within an appropriate logarithmic region:
 #
 # $$
-# u^+=\frac{1}{\kappa_0}\ln y^+ + B_0,
+# u^+=\frac{1}{\kappa_0}\ln(y^+) + B_0,
 # \qquad u^+=\frac{\overline{u}}{u_\tau},
 # \qquad y^+=\frac{y u_\tau}{\nu}.
 # $$
@@ -549,17 +549,17 @@
 # Here $u_\tau$ is the friction velocity, $\nu$ is the kinematic viscosity, and $\kappa_0$ and $B_0$ are reference constants. A candidate model for pressure-gradient effects could make the effective coefficients functions of a dimensionless pressure-gradient descriptor $\beta$:
 #
 # $$
-# u^+_\theta(y^+,\beta)=\frac{1}{\kappa_\theta(\beta)}\ln y^+ + B_\theta(\beta).
+# u^+_\theta(y^+,\beta)=\frac{1}{\kappa_\theta(\beta)}\ln(y^+) + B_\theta(\beta).
 # $$
 #
 # For example, in an attached boundary layer, a commonly used descriptor is $\beta=(\delta^*/\tau_w)\,\mathrm{d}p_e/\mathrm{d}x$, with displacement thickness $\delta^*$, wall shear stress $\tau_w$, and edge pressure $p_e$. A baseline-plus-correction form makes the learning task explicit:
 #
 # $$
-# u^+_\theta=\frac{1}{\kappa_0}\ln y^+ + B_0
-# +\Delta A_\theta(\beta)\ln y^+ +\Delta B_\theta(\beta).
+# u^+_\theta=\frac{1}{\kappa_0}\ln(y^+) + B_0
+# +\Delta A_\theta(\beta)\ln(y^+) +\Delta B_\theta(\beta).
 # $$
 #
-# The model learns deviations from the reference profile rather than a velocity profile from scratch. The quantities $\ln y^+$ and $\beta$ are physically motivated features. This is a modeling Ansatz, not a general law stating that pressure-gradient effects can always be absorbed into two coefficients. Its validity depends on the flow regime and region considered; near separation, wall-based scales and this pressure-gradient descriptor can become unsuitable. Other effects, including flow history, may require additional information.
+# The model learns deviations from the reference profile rather than a velocity profile from scratch. The quantities $\ln(y^+)$ and $\beta$ are physically motivated features. This is a modeling Ansatz, not a general law stating that pressure-gradient effects can always be absorbed into two coefficients. Its validity depends on the flow regime and region considered; near separation, wall-based scales and this pressure-gradient descriptor can become unsuitable. Other effects, including flow history, may require additional information.
 #
 # #### Improving the distribution of samples in feature space
 #
@@ -579,7 +579,7 @@
 #
 # - **Polynomial features:** replacing a scalar input $x$ by features such as $(x,x^2,x^3)$ allows a relationship nonlinear in $x$ to be represented by a model linear in its coefficients. Feature scaling remains important, as the preceding example shows.
 # - **Ratios and dimensionless groups:** quantities such as $u/U$ or $\mathrm{Re}=UL/\nu$ can combine naturally given variables into features relevant to physical similarity. Denominators need to remain meaningful over the application range.
-# - **Trigonometric features:** $(\sin\alpha,\cos\alpha)$ can represent a periodic angle without an artificial discontinuity between zero and $2\pi$.
+# - **Trigonometric features:** $(\sin(\alpha),\cos(\alpha))$ can represent a periodic angle without an artificial discontinuity between zero and $2\pi$.
 # - **Other nonlinear transformations:** logarithms or physically motivated baseline corrections can simplify a response's variation. A reduction in variance or nonlinearity is a possible benefit, rather than a property guaranteed by every transformation.
 #
 # ### Guidelines for designing features
