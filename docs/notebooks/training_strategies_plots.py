@@ -7,7 +7,7 @@ import torch
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from figure_style import figure_style
+from figure_style import add_renderer_argument, figure_style, resolve_renderer
 from figure_utils import save_theme_variants
 from training_tools import ProfileMLP, make_profile_problem
 
@@ -16,7 +16,7 @@ DARK_CYCLE = plt.style.library['dark_background']['axes.prop_cycle']
 STYLES = ['-', '--', '-.', ':', '--', '-.']
 
 
-def render(record_path, output):
+def render(record_path, output, *, use_tex=True):
     record = json.loads(record_path.read_text())
     output.mkdir(parents=True, exist_ok=True)
     def save(draw, name):
@@ -24,7 +24,7 @@ def render(record_path, output):
             save_theme_variants(draw, output / f'training-strategies-{name}{suffix}', dpi=300)
     problem = make_profile_problem()
     def prototype():
-        with plt.rc_context({**figure_style(), 'axes.prop_cycle': DARK_CYCLE}):
+        with plt.rc_context({**figure_style(use_tex=use_tex), 'axes.prop_cycle': DARK_CYCLE}):
             fig, ax = plt.subplots(figsize=(180/25.4, 85/25.4), layout='constrained')
             colors = [PALETTE[i % 10] for i in range(12)]
             for ub, u, color in zip(problem['ub'], problem['profiles'], colors):
@@ -44,7 +44,7 @@ def render(record_path, output):
             control = record['groups']['architecture'][0]
             entries = [{'label': 'MSE, no outliers', 'id': control['id']}] + entries
         def curves(entries=entries, group=group):
-            with plt.rc_context({**figure_style(), 'axes.prop_cycle': DARK_CYCLE}):
+            with plt.rc_context({**figure_style(use_tex=use_tex), 'axes.prop_cycle': DARK_CYCLE}):
                 fig, axs = plt.subplots(1, 2, figsize=(180/25.4, (120 if group == 'combined' else 100)/25.4), layout='constrained')
                 for i, entry in enumerate(entries):
                     runs = [record['runs'][f"{entry['id']}_{seed}"] for seed in record['seeds']]
@@ -63,7 +63,7 @@ def render(record_path, output):
                 return fig
         save(curves, group)
     def rates():
-        with plt.rc_context({**figure_style(), 'axes.prop_cycle': DARK_CYCLE}):
+        with plt.rc_context({**figure_style(use_tex=use_tex), 'axes.prop_cycle': DARK_CYCLE}):
             fig, ax = plt.subplots(figsize=(180/25.4, 75/25.4), layout='constrained')
             for i, entry in enumerate(record['groups']['schedule']):
                 histories = [record['runs'][f"{entry['id']}_{seed}"]['history'] for seed in record['seeds']]
@@ -91,7 +91,7 @@ def render(record_path, output):
             prediction.append(problem['y_scaler'].inverse(pred).reshape(2, 128).numpy())
     prediction = np.array(prediction)
     def profiles():
-        with plt.rc_context({**figure_style(), 'axes.prop_cycle': DARK_CYCLE}):
+        with plt.rc_context({**figure_style(use_tex=use_tex), 'axes.prop_cycle': DARK_CYCLE}):
             fig, axs = plt.subplots(1, 2, figsize=(180/25.4, 95/25.4), layout='constrained')
             for i, ax in enumerate(axs):
                 index = problem['split']['test'][i]
@@ -111,6 +111,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('record', type=Path)
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parent/'media')
+    add_renderer_argument(parser, default="auto")
     args = parser.parse_args()
     torch.set_num_threads(1)
-    render(args.record, args.output)
+    render(args.record, args.output, use_tex=resolve_renderer(args.renderer))

@@ -20,9 +20,11 @@ from figure_style import figure_style
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parents[1] / 'notebooks/media')
-parser.add_argument('--no-tex', action='store_true', help='Explicitly disable LaTeX; document the reason when using this option.')
+from figure_style import add_renderer_argument, resolve_renderer
+add_renderer_argument(parser, legacy_no_tex=True)
 args = parser.parse_args()
-mpl.rcParams.update(figure_style(use_tex=not args.no_tex))
+use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
+mpl.rcParams.update(figure_style(use_tex=use_tex))
 # Fixed default palette, unaffected by the dark-background Matplotlib style.
 mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=mpl.colormaps['tab10'].colors)
 
@@ -35,10 +37,10 @@ def text(x,y,value,cls='',anchor='middle'):
     # mathematical typography without requiring client-side fonts or TeX.
     value = value.replace('→', r'$\rightarrow$').replace('ρl − ρg', r'$\rho_l-\rho_g$')
     size = {'small': 20, 'title': 24}.get(cls, 22)
-    if cls == 'title' and not args.no_tex:
+    if cls == 'title' and use_tex:
         value = r'\textbf{' + value + '}'
     prop = FontProperties(family='serif', weight='bold' if cls == 'title' else 'normal')
-    path = TextPath((0, 0), value, size=size, prop=prop, usetex=not args.no_tex)
+    path = TextPath((0, 0), value, size=size, prop=prop, usetex=use_tex)
     bounds = path.get_extents()
     shift = -(bounds.x0+bounds.x1)/2 if anchor == 'middle' else -bounds.x0
     commands = []

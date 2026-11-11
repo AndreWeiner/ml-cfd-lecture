@@ -25,10 +25,10 @@ def draw_requirements():
 
 
 
-def draw_regression():
+def draw_regression(*, use_tex=True):
     import numpy as np
     from figure_style import figure_style, WIDTH_MM
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, ax = plt.subplots(figsize=(WIDTH_MM["double"] / 25.4, 3.6), layout="constrained")
         reynolds = np.array([100, 180, 300, 450, 650, 850, 1000])
         drag = 0.65 + 11 / np.sqrt(reynolds) + np.array([0.03, -0.04, 0.02, 0.035, -0.025, 0.01, -0.015])
@@ -44,10 +44,10 @@ def draw_regression():
         return fig
 
 
-def draw_classification():
+def draw_classification(*, use_tex=True):
     import numpy as np
     from figure_style import figure_style, WIDTH_MM
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, ax = plt.subplots(figsize=(WIDTH_MM["double"] / 25.4, 3.6), layout="constrained")
         rng = np.random.default_rng(42)
         reynolds = rng.uniform(150, 1000, 44)
@@ -79,7 +79,7 @@ def draw_classification():
 
 
 
-def draw_dimensionality_reduction():
+def draw_dimensionality_reduction(*, use_tex=True):
     import numpy as np
     from figure_style import figure_style, WIDTH_MM
     rng = np.random.default_rng(12)
@@ -95,7 +95,7 @@ def draw_dimensionality_reduction():
     if np.linalg.det(axes) < 0:
         axes[1] *= -1
     transformed = centered @ axes.T
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, panels = plt.subplots(1, 2, figsize=(WIDTH_MM["double"] / 25.4, 3.3), layout="constrained")
         ax = panels[0]
         ax.scatter(*probes.T, s=16, color="C0", zorder=3)
@@ -118,12 +118,12 @@ def draw_dimensionality_reduction():
         return fig
 
 
-def draw_clustering():
+def draw_clustering(*, use_tex=True):
     import numpy as np
     from figure_style import figure_style, WIDTH_MM
     rng = np.random.default_rng(19)
     centers = np.array([[3.4, 3.3], [5.8, 5.3]])
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, ax = plt.subplots(figsize=(WIDTH_MM["double"] / 25.4, 3.6), layout="constrained")
         for i, (center, count) in enumerate(zip(centers, [14, 30])):
             points = rng.normal(center, [0.30, 0.25], size=(count, 2))
@@ -139,10 +139,10 @@ def draw_clustering():
 
 
 
-def draw_reinforcement():
+def draw_reinforcement(*, use_tex=True):
     from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
     from figure_style import figure_style, WIDTH_MM
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, ax = plt.subplots(figsize=(WIDTH_MM["double"] / 25.4, 3.8))
         foreground = plt.rcParams["text.color"]
         for x, color in [(0.1, "C0"), (8.9, "C1")]:
@@ -180,10 +180,10 @@ def draw_reinforcement():
 
 
 
-def draw_workflow(kind):
+def draw_workflow(kind, *, use_tex=True):
     from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
     from figure_style import figure_style, WIDTH_MM
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         height = 3.4 if kind == "stacked" else (2.6 if kind == "circular" else 1.65)
         fig, ax = plt.subplots(figsize=(WIDTH_MM["double"] / 25.4, height))
         foreground = plt.rcParams["text.color"]
@@ -226,25 +226,32 @@ def draw_workflow(kind):
         return fig
 
 
-def draw_workflow_extract():
-    return draw_workflow("extract")
+def draw_workflow_extract(*, use_tex=True):
+    return draw_workflow("extract", use_tex=use_tex)
 
 
-def draw_workflow_use():
-    return draw_workflow("use")
+def draw_workflow_use(*, use_tex=True):
+    return draw_workflow("use", use_tex=use_tex)
 
 
-def draw_workflow_stacked():
-    return draw_workflow("stacked")
+def draw_workflow_stacked(*, use_tex=True):
+    return draw_workflow("stacked", use_tex=use_tex)
 
 
-def draw_workflow_circular():
-    return draw_workflow("circular")
+def draw_workflow_circular(*, use_tex=True):
+    return draw_workflow("circular", use_tex=use_tex)
 
 
 if __name__ == "__main__":
-    from figure_style import DPI
+    import argparse
+    from figure_style import DPI, add_renderer_argument, resolve_renderer
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_renderer_argument(parser)
+    args = parser.parse_args()
+    use_tex = resolve_renderer(args.renderer)
     directory = Path(__file__).resolve().parent / "media"
     for stem, draw in [("ml-fluid-mechanics-venn", draw_requirements), ("supervised-regression", draw_regression), ("supervised-classification", draw_classification), ("unsupervised-reduction", draw_dimensionality_reduction), ("unsupervised-clustering", draw_clustering), ("reinforcement-learning", draw_reinforcement), ("workflow-extract", draw_workflow_extract), ("workflow-use", draw_workflow_use), ("workflow-stacked", draw_workflow_stacked), ("workflow-circular", draw_workflow_circular)]:
+        render = draw if draw is draw_requirements else lambda: draw(use_tex=use_tex)
         for extension in ("png", "svg"):
-            save_theme_variants(draw, directory / (stem + "." + extension), dpi=DPI)
+            save_theme_variants(render, directory / (stem + "." + extension), dpi=DPI)

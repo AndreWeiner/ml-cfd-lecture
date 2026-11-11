@@ -320,8 +320,13 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=ROOT/"notebooks/media")
     parser.add_argument("--results-dir", type=Path, default=ROOT/"figures/bubble-classification")
     parser.add_argument("--no-figures", action="store_true")
-    parser.add_argument("--no-tex", action="store_true", help="Explicit MathText renderer opt-out.")
+    sys.path.insert(0, str(ROOT / "notebooks"))
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     args = parser.parse_args()
+    use_tex = None if args.no_figures else resolve_renderer(
+        "mathtext" if args.no_tex else args.renderer, preamble=r"\usepackage{amsmath}",
+    )
     checks = numerical_checks()
     data = load_bubble_data()
     labels = np.array([tuple(r[0] for r in REGIMES).index(r) for r in data.regimes])
@@ -348,7 +353,8 @@ def main():
                    "numerical_checks": checks, "training_seconds": elapsed,
                    "checkpoint_epochs": sorted(checkpoints), "figure_snapshot_epochs": [10, result["early_stopping"]["restored_epoch"], EPOCHS],
                    "snapshot_selection": f"Epoch 10 is an early predefined checkpoint, epoch {result['early_stopping']['restored_epoch']} is selected by validation loss, and epoch {EPOCHS} is the predefined final budget; all belong to one trajectory.",
-                   "renderer": "MathText explicitly selected (--no-tex)" if args.no_tex else "LaTeX; SVG glyph outlines",
+                   "renderer": ("No figure export" if use_tex is None else
+                                "LaTeX; SVG glyph outlines" if use_tex else "MathText"),
                    "grid": {"limits": [-1.09,1.09],"shape": [181,181],"encoding": "argmax of five softmax probabilities"},
                    "limitations": ["Validation data are used for checkpoint selection; no independent test set.",
                                    "This is one illustrative trajectory, not a comparison across datasets or random seeds."]})
@@ -369,7 +375,7 @@ def main():
                       "final_val_loss": result["validation_mean_cross_entropy"][-1],
                       "final_errors": [result["training_errors"][-1],result["validation_errors"][-1]]}, indent=2))
     if not args.no_figures:
-        render_figures(args.output_dir, features, labels, training, validation, result, checkpoints, use_tex=not args.no_tex)
+        render_figures(args.output_dir, features, labels, training, validation, result, checkpoints, use_tex=use_tex)
 
 
 if __name__ == "__main__":

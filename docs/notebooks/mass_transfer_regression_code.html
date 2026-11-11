@@ -616,29 +616,32 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="what-the-files-mean">What the files mean</h3>
 <p>The log has nine numeric columns: time, volume, center position <code>(x,y,z)</code>, center velocity <code>(ux,uy,uz)</code>, and area. Solver/MPI messages are skipped. In the axisymmetric Basilisk output, <strong>x is vertical and y is radial</strong>. Each <code>plic/points_XXXXXX_nYYY.txt</code> stores position, interface normal, and liquid velocity as six columns; all MPI files for a snapshot are concatenated. Empty processor files are skipped.</p>
 <p>The archived log can end one solver step before its final interface snapshot. We interpolate center position and velocity; at that last endpoint, the last log value is used only within one typical log step. A larger discrepancy raises an error. When Basilisk cannot interpolate a velocity at an interface point, it writes a missing-value marker (approximately <span class="math inline">\(10^{30}\)</span>). This marker indicates an unavailable sample, not a physical velocity. The data loader skips marked rows before training.</p>
-<div id="628ad381" class="cell" data-execution_count="1">
+<div id="e4f6f75d" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bubble_surrogate_tools <span class="im">import</span> load_data, fit_model, check_constraints, export_models</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>DATA <span class="op">=</span> Path(<span class="st">"../datasets/bubble_reference"</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>OUTPUT <span class="op">=</span> Path(<span class="st">"output/bubble-reference"</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>SNAPSHOT_DT <span class="op">=</span> <span class="fl">.15</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>EPOCHS <span class="op">=</span> <span class="dv">2500</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>WIDTH <span class="op">=</span> <span class="dv">64</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>DEPTH <span class="op">=</span> <span class="dv">3</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>LBFGS_STEPS <span class="op">=</span> <span class="dv">40</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">7</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>torch.set_num_threads(<span class="dv">1</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>OUTPUT.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>log, times, interface <span class="op">=</span> load_data(DATA, SNAPSHOT_DT, points_per_snapshot<span class="op">=</span><span class="dv">64</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(times)<span class="sc">}</span><span class="ss"> snapshots; </span><span class="sc">{</span><span class="bu">len</span>(interface)<span class="sc">}</span><span class="ss"> retained training/validation/test points"</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Missing-velocity rows skipped while loading: </span><span class="sc">{</span>interface<span class="sc">.</span>attrs[<span class="st">'nodata_rows_removed'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(times.head().to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> figure_style <span class="im">import</span> resolve_renderer</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bubble_surrogate_tools <span class="im">import</span> load_data, fit_model, check_constraints, export_models</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>DATA <span class="op">=</span> Path(<span class="st">"../datasets/bubble_reference"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>OUTPUT <span class="op">=</span> Path(<span class="st">"output/bubble-reference"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>PLOT_RENDERER <span class="op">=</span> <span class="st">"auto"</span>  <span class="co"># Also accepts "latex" or "mathtext".</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>use_tex <span class="op">=</span> resolve_renderer(PLOT_RENDERER)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>SNAPSHOT_DT <span class="op">=</span> <span class="fl">.15</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>EPOCHS <span class="op">=</span> <span class="dv">2500</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>WIDTH <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>DEPTH <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>LBFGS_STEPS <span class="op">=</span> <span class="dv">40</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>torch.set_num_threads(<span class="dv">1</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>OUTPUT.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>log, times, interface <span class="op">=</span> load_data(DATA, SNAPSHOT_DT, points_per_snapshot<span class="op">=</span><span class="dv">64</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(times)<span class="sc">}</span><span class="ss"> snapshots; </span><span class="sc">{</span><span class="bu">len</span>(interface)<span class="sc">}</span><span class="ss"> retained training/validation/test points"</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Missing-velocity rows skipped while loading: </span><span class="sc">{</span>interface<span class="sc">.</span>attrs[<span class="st">'nodata_rows_removed'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(times.head().to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -654,9 +657,9 @@ window.Quarto = {
 <p>We compute <span class="math inline">\(r=\sqrt{(x-x_c)^2+y^2}\)</span> and <span class="math inline">\(\theta=\operatorname{atan2}(y,x-x_c)\)</span>, where <span class="math inline">\(\theta=0\)</span> is the top and <span class="math inline">\(\pi\)</span> the bottom. The plots and data columns use <span class="math inline">\(\theta\)</span> for the same polar angle denoted <span class="math inline">\(\vartheta\)</span> in the lecture. The translated liquid velocity is projected onto the measured interface normal and tangent: <span class="math inline">\(u_n^{\mathrm{rel}}=\mathbf u^{\mathrm{rel}}\cdot\mathbf n_\Sigma\)</span> and <span class="math inline">\(u_t^{\mathrm{rel}}=\mathbf u^{\mathrm{rel}}\cdot\mathbf t_\Sigma\)</span>. For a deformed bubble these directions differ from the radial/angular basis of a circle.</p>
 <p><img src="media/bubble-data-polar-light.svg" class="light-content img-fluid" style="width:100.0%" alt="Measured radius and normal and tangential liquid velocities versus angle at three times."> <img src="media/bubble-data-polar-dark.svg" class="dark-content img-fluid" style="width:100.0%" alt="Measured radius and normal and tangential liquid velocities versus angle at three times."></p>
 <p>These are sampled CFD data: no regression or smoothing is applied. The small normal component is visibly noisy, illustrating why boundary motion is obtained consistently from the radius rather than a second fitted normal-velocity model. Normal velocity is measured relative to translation, not relative to the deforming interface; it need not vanish during deformation. The same at-most-64 angle-ordered samples used by training are shown. The compact archive is already a teaching subset of the full PLIC output.</p>
-<div id="a107b2c3" class="cell" data-execution_count="2">
+<div id="057e60ae" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bubble_data_figures <span class="im">import</span> save_data_transforms</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> save_data_transforms(DATA, OUTPUT <span class="op">/</span> <span class="st">"data-transforms"</span>, snapshot_dt<span class="op">=</span>SNAPSHOT_DT)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> save_data_transforms(DATA, OUTPUT <span class="op">/</span> <span class="st">"data-transforms"</span>, snapshot_dt<span class="op">=</span>SNAPSHOT_DT, use_tex<span class="op">=</span>use_tex)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -669,7 +672,7 @@ window.Quarto = {
 \widehat u_t=S_t s(t)\sin(\vartheta)f_t(q(t),\cos(\vartheta)).\]</span></p>
 <p>These are the same three prediction functions used in the lecture. The bounded startup factor helps conditioning over a long trajectory; its squared form also makes the initial deformation velocity zero. The logarithm resolves early-time changes more evenly. This transformation uses nondimensional, nonnegative time. Output scales <span class="math inline">\(S\)</span> come from training targets only. Neither positive radius nor constant volume is guaranteed by these factors; we check them before deployment.</p>
 <p>We minimize scaled MSE with 2500 Adam updates, then refine with 40 L-BFGS blocks of up to 20 iterations each. We retain the weights with the lowest validation loss across both stages. Smooth tanh networks are useful because the boundary-motion model is differentiated. A small test RMSE alone does not establish accurate mass transfer: shape derivatives, near-wall velocity, mesh resolution, and conservation also matter.</p>
-<div id="12fb2ccf" class="cell" data-execution_count="3">
+<div id="65ed2b3c" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>models, histories, metrics <span class="op">=</span> {}, {}, []</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> target, frame <span class="kw">in</span> ((<span class="st">"ub"</span>, times), (<span class="st">"r"</span>, interface), (<span class="st">"ut"</span>, interface)):</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    models[target], histories[target], result <span class="op">=</span> fit_model(</span>
@@ -683,14 +686,14 @@ window.Quarto = {
 <section id="inspect-predictions-before-using-them-as-boundary-data" class="level3">
 <h3 class="anchored" data-anchor-id="inspect-predictions-before-using-them-as-boundary-data">Inspect predictions before using them as boundary data</h3>
 <p>The diagnostic panels compare data and predictions; the surface profiles use a held-out snapshot. All errors are in the original dimensionless units. Training/validation history is scaled MSE. Its horizontal axis counts recorded validation checkpoints (every ten Adam steps, then once per L-BFGS block), rather than epochs. The saved figure pair below is a worked example from the supplied reference dataset; running the cell creates the corresponding figures for your own settings in <code>OUTPUT</code>.</p>
-<div id="d5d46d1a" class="cell" data-execution_count="4">
+<div id="41990c16" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bubble_surrogate_figures <span class="im">import</span> save_diagnostics</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>save_diagnostics(models, histories, times, interface, OUTPUT <span class="op">/</span> <span class="st">"diagnostics"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>save_diagnostics(models, histories, times, interface, OUTPUT <span class="op">/</span> <span class="st">"diagnostics"</span>, use_tex<span class="op">=</span>use_tex)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><img src="media/bubble-regression-diagnostics-light.svg?v=fit20261106" class="light-content img-fluid" style="width:100.0%" alt="Reference reproduction: rise-speed prediction, validation histories, and held-out angular radius and tangential-velocity profiles."> <img src="media/bubble-regression-diagnostics-dark.svg?v=fit20261106" class="dark-content img-fluid" style="width:100.0%" alt="Reference reproduction: rise-speed prediction, validation histories, and held-out angular radius and tangential-velocity profiles."></p>
 <p><em>Worked reference reproduction, not new CFD validation. The angular panels use the same held-out snapshot in both themes. A different run will generate its own diagnostics.</em></p>
 <p>For the reference fit, the maximum volume discrepancy against the recorded trajectory is about 0.031%. The initial-shape, initial-derivative, pole, symmetry, and export checks also pass.</p>
-<div id="fc22da1f" class="cell" data-execution_count="5">
+<div id="7363b730" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Axisymmetric volume: V = (2*pi/3) integral_0^pi r(theta)^3 sin(theta) dtheta.</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>angle <span class="op">=</span> np.linspace(<span class="dv">0</span>, np.pi, <span class="dv">401</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>checks <span class="op">=</span> []</span>
@@ -745,7 +748,7 @@ window.Quarto = {
 </tbody>
 </table>
 <p>The positional tensor input/output, scaling, and constraints are embedded in the exported model. <code>contract.json</code> records the domain and versions. A single model is valid for its trained bubble properties; changing Eötvös/Galilei numbers requires new data and a new fit, not changing a dictionary while reusing the old weights.</p>
-<div id="ec83fbc4" class="cell" data-execution_count="6">
+<div id="2b84bb52" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>export_checks <span class="op">=</span> export_models(models, OUTPUT, times.t.<span class="bu">max</span>())</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(export_checks.to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>

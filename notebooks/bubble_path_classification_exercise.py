@@ -56,7 +56,7 @@
 # [Download Tripathi data](../datasets/path_shape_regimes/tripathi2015_digitization/points.csv){.btn .btn-outline-primary .btn-sm download="tripathi2015-points.csv"}
 # [Download Sharaf data](../datasets/path_shape_regimes/sharaf2017_digitization/points.csv){.btn .btn-outline-primary .btn-sm download="sharaf2017-points.csv"}
 #
-# The helpers also use [figure_style.py](figure_style.py) and [figure_utils.py](figure_utils.py). Outside a repository clone, place these three helper files beside the exercise source and save the two CSVs as `tripathi2015-points.csv` and `sharaf2017-points.csv`. The code runs locally in Python, not on this HTML page. Run the code blocks in sequence in a Python editor, or open the source as a notebook using Jupytext. NumPy and Matplotlib are needed; figure exports use LaTeX by default. An explicit `use_tex=False` option is available when TeX is unavailable.
+# The helpers also use [figure_style.py](figure_style.py) and [figure_utils.py](figure_utils.py). Outside a repository clone, place these three helper files beside the exercise source and save the two CSVs as `tripathi2015-points.csv` and `sharaf2017-points.csv`. The code runs locally in Python, not on this HTML page. Run the code blocks in sequence in a Python editor, or open the source as a notebook using Jupytext. NumPy and Matplotlib are needed.
 #
 # #### Getting started with the supplied code
 #
@@ -85,6 +85,10 @@ from collections import Counter
 import csv
 import json
 import numpy as np
+from figure_style import resolve_renderer
+
+PLOT_RENDERER = "auto"
+use_tex = resolve_renderer(PLOT_RENDERER)
 from classification_exercise_tools import (
     split_by_source_and_class, learning_curve, save_learning_curve,
     compare_architectures, save_architecture_comparison,
@@ -193,7 +197,7 @@ results = learning_curve(merged, training, validation, class_names,
                          fractions=(.2, .4, .6, .8, 1.), seeds=(11, 22, 33),
                          **configuration)
 output = Path("output/bubble-classification")
-paths = save_learning_curve(output, results, use_tex=True)
+paths = save_learning_curve(output, results, use_tex=use_tex)
 for result in results:
     print(result["seed"], result["training_samples"],
           result["validation_cross_entropy"], result["validation_accuracy"])
@@ -221,7 +225,7 @@ architecture_results = compare_architectures(
     architectures=((8,), (16,), (32,), (16,16), (16,16,16), (32,32)),
     seeds=(11, 22, 33), epochs=2000, learning_rate=0.01,
 )
-architecture_paths = save_architecture_comparison(output, architecture_results, use_tex=True)
+architecture_paths = save_architecture_comparison(output, architecture_results, use_tex=use_tex)
 for run in architecture_results:
     print(run["hidden_sizes"], run["seed"], run["parameters"],
           run["best_validation_accuracy"], run["final_validation_accuracy"],

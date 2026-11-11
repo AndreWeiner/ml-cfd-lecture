@@ -81,10 +81,13 @@ import json
 import numpy as np
 import pandas as pd
 import torch
+from figure_style import resolve_renderer
 from bubble_surrogate_tools import load_data, fit_model, check_constraints, export_models
 
 DATA = Path("../datasets/bubble_reference")
 OUTPUT = Path("output/bubble-reference")
+PLOT_RENDERER = "auto"  # Also accepts "latex" or "mathtext".
+use_tex = resolve_renderer(PLOT_RENDERER)
 SNAPSHOT_DT = .15
 EPOCHS = 2500
 WIDTH = 64
@@ -124,7 +127,7 @@ print(times.head().to_string(index=False))
 
 # %%
 from bubble_data_figures import save_data_transforms
-_ = save_data_transforms(DATA, OUTPUT / "data-transforms", snapshot_dt=SNAPSHOT_DT)
+_ = save_data_transforms(DATA, OUTPUT / "data-transforms", snapshot_dt=SNAPSHOT_DT, use_tex=use_tex)
 
 # %% [markdown]
 # ## 3. Three small constrained networks
@@ -159,7 +162,7 @@ print(pd.DataFrame(metrics).to_string(index=False))
 
 # %%
 from bubble_surrogate_figures import save_diagnostics
-save_diagnostics(models, histories, times, interface, OUTPUT / "diagnostics")
+save_diagnostics(models, histories, times, interface, OUTPUT / "diagnostics", use_tex=use_tex)
 
 # %% [markdown]
 # ![Reference reproduction: rise-speed prediction, validation histories, and held-out angular radius and tangential-velocity profiles.](media/bubble-regression-diagnostics-light.svg?v=fit20261106){.light-content width=100%}

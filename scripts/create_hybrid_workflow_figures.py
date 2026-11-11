@@ -288,21 +288,23 @@ def smoke_test(output, use_tex):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("notebooks/media"))
-    parser.add_argument("--no-tex", action="store_true", help="Explicit MathText renderer opt-out")
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     args = parser.parse_args()
+    use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="hybrid-renderer-") as directory:
-        smoke_test(Path(directory), not args.no_tex)
+        smoke_test(Path(directory), use_tex)
     geometry = vof_geometry()
     radius, er, tangent, outward = polar_geometry(.80)
     assert abs(np.dot(tangent, outward)) < 1e-14
     assert np.dot(er, outward) > 0
     assert np.dot(tangent, np.array([np.cos(.80), -np.sin(.80)])) > 0
-    for stem, draw in (("bubble-hybrid-workflow", lambda: draw_workflow(geometry, not args.no_tex)),
-                       ("bubble-interface-coordinates", lambda: draw_coordinates(not args.no_tex))):
+    for stem, draw in (("bubble-hybrid-workflow", lambda: draw_workflow(geometry, use_tex)),
+                       ("bubble-interface-coordinates", lambda: draw_coordinates(use_tex))):
         for ext in ("svg", "pdf", "png"):
             save_theme_variants(draw, args.output_dir/f"{stem}.{ext}", dpi=DPI)
-    print(json.dumps({"renderer": "MathText (explicit opt-out)" if args.no_tex else "LaTeX",
+    print(json.dumps({"renderer": "MathText" if not use_tex else "LaTeX",
                       "width_mm": WIDTH_MM["double"], "height_mm": HEIGHT_MM,
                       "tangent_dot_outward_normal": float(np.dot(tangent, outward)),
                       "radial_dot_outward_normal": float(np.dot(er, outward)),

@@ -18,7 +18,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "notebooks"))
-from figure_style import DPI, WIDTH_MM, figure_style
+from figure_style import DPI, WIDTH_MM, figure_style, add_renderer_argument, resolve_renderer
 from figure_utils import save_theme_variants
 
 
@@ -45,9 +45,9 @@ def load_source():
     return image,data,extent
 
 
-def draw(image,data,extent):
+def draw(image,data,extent, *, use_tex=True):
     # The paired-export helper isolates this callback and its export in a context.
-    plt.rcParams.update({**figure_style(),
+    plt.rcParams.update({**figure_style(use_tex=use_tex),
                          "axes.prop_cycle":cycler(color=plt.colormaps["tab10"].colors),
                          "svg.hashsalt":"bubble-regime-verification"})
     fig,ax = plt.subplots(figsize=(WIDTH_MM["double"]/25.4,160/25.4))
@@ -79,10 +79,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir",type=Path,default=ROOT/"notebooks/media")
     parser.add_argument("--png",action="store_true")
+    add_renderer_argument(parser)
     args = parser.parse_args()
+    use_tex = resolve_renderer(args.renderer)
     source = load_source()
     for extension in (["svg","png"] if args.png else ["svg"]):
-        paths = save_theme_variants(lambda:draw(*source),
+        paths = save_theme_variants(lambda:draw(*source, use_tex=use_tex),
                                     args.output_dir/f"bubble-regime-verification.{extension}",dpi=DPI)
         for path in paths.values():
             print(path)

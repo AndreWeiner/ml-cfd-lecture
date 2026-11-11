@@ -141,11 +141,13 @@ def draw(use_tex=True):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("notebooks/media"))
-    parser.add_argument("--no-tex", action="store_true", help="Explicitly disable LaTeX rendering")
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     args = parser.parse_args()
+    use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for ext in ("svg", "pdf", "png"):
-        save_theme_variants(lambda: draw(not args.no_tex),
+        save_theme_variants(lambda: draw(use_tex),
                             args.output_dir / f"bubble-schmidt-layers.{ext}", dpi=DPI)
 
 

@@ -51,7 +51,7 @@
 #
 # ### Task 4 — Reproduce the reference workflow
 #
-# 1. Download the compact reference dataset linked in the code notebook, open the [code notebook](mass_transfer_regression_code.py), and run its cells in order. The supplied code can be used directly: start by adjusting only `DATA` and `OUTPUT`. There is no need to implement a new parser or training loop.
+# 1. Download the compact reference dataset linked in the code notebook, open the [code notebook](mass_transfer_regression_code.py), and run its cells in order. The supplied code can be used directly: start by adjusting only `DATA` and `OUTPUT`.
 # 2. Record the number of snapshots, discarded nodata records, and training/validation/test samples. Check the sampling interval against the Basilisk run duration and inspect the coordinate/velocity transformations.
 # 3. Save the three physical test errors, prediction plots, initial/pole/symmetry checks, and radius/volume diagnostics. Identify the worst time/angle region. Avoid selecting a new architecture by repeatedly looking at the final test errors; reserve another final holdout if the test set becomes part of development.
 # 4. Export AOTInductor, inspect `contract.json`, and run the export agreement checks. Explain why these errors should be much smaller than the errors against CFD targets.

@@ -580,7 +580,7 @@ window.Quarto = {
 <section id="task-4-reproduce-the-reference-workflow" class="level3">
 <h3 class="anchored" data-anchor-id="task-4-reproduce-the-reference-workflow">Task 4 — Reproduce the reference workflow</h3>
 <ol type="1">
-<li>Download the compact reference dataset linked in the code notebook, open the <a href="../notebooks/mass_transfer_regression_code.html">code notebook</a>, and run its cells in order. The supplied code can be used directly: start by adjusting only <code>DATA</code> and <code>OUTPUT</code>. There is no need to implement a new parser or training loop.</li>
+<li>Download the compact reference dataset linked in the code notebook, open the <a href="../notebooks/mass_transfer_regression_code.html">code notebook</a>, and run its cells in order. The supplied code can be used directly: start by adjusting only <code>DATA</code> and <code>OUTPUT</code>.</li>
 <li>Record the number of snapshots, discarded nodata records, and training/validation/test samples. Check the sampling interval against the Basilisk run duration and inspect the coordinate/velocity transformations.</li>
 <li>Save the three physical test errors, prediction plots, initial/pole/symmetry checks, and radius/volume diagnostics. Identify the worst time/angle region. Avoid selecting a new architecture by repeatedly looking at the final test errors; reserve another final holdout if the test set becomes part of development.</li>
 <li>Export AOTInductor, inspect <code>contract.json</code>, and run the export agreement checks. Explain why these errors should be much smaller than the errors against CFD targets.</li>

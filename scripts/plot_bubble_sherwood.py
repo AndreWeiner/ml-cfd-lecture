@@ -9,9 +9,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from cycler import cycler
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'notebooks'))
-from figure_style import figure_style,WIDTH_MM,DPI
+from figure_style import figure_style,WIDTH_MM,DPI, add_renderer_argument, resolve_renderer
 from figure_utils import save_theme_variants
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--data',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=False)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--data',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+add_renderer_argument(p)
+a = p.parse_args()
+use_tex = resolve_renderer(a.renderer)
+a.output.mkdir(parents=True, exist_ok=False)
 local=pd.read_csv(a.data/'local-sherwood.csv');mean=pd.read_csv(a.data/'mean-sherwood.csv')
 times = [mean.time.min(), .5, mean.time.max()]
 profile_fields = ['Sh100', 'Sh1000', 'Sh10000']
@@ -20,10 +24,10 @@ values = np.concatenate([profile[profile_fields].to_numpy().ravel() for profile 
 local_limits = (min(0, 1.05 * values.min()), 1.05 * values.max())
 colors=['#1f77b4','#ff7f0e','#2ca02c'];styles=['-','--','-.'];markers=['o','s','^']
 # Test a real TeX export before the full paired set; no renderer fallback.
-with plt.rc_context(figure_style()):
+with plt.rc_context(figure_style(use_tex=use_tex)):
  f,ax=plt.subplots();ax.set_xlabel(r'$\theta\;(\mathrm{degrees})$');ax.set_ylabel(r'$Sh_{\mathrm{local}}$');f.savefig(a.output/'tex-check.svg');plt.close(f)
 def draw():
- plt.rcParams.update(figure_style());plt.rcParams['axes.prop_cycle']=cycler(color=colors)
+ plt.rcParams.update(figure_style(use_tex=use_tex));plt.rcParams['axes.prop_cycle']=cycler(color=colors)
  f,axes=plt.subplots(2,2,figsize=(WIDTH_MM['double']/25.4,140/25.4),layout='constrained')
  for ax, t, d in zip(axes.flat[:3], times, profiles):
   for i,sc in enumerate((100,1000,10000)):

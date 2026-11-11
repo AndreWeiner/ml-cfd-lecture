@@ -17,14 +17,17 @@ from matplotlib.colors import Normalize
 from matplotlib.animation import FFMpegWriter
 from cycler import cycler
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'notebooks'))
-from figure_style import figure_style,WIDTH_MM
+from figure_style import figure_style,WIDTH_MM, add_renderer_argument, resolve_renderer
 
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--frames',type=Path,required=True)
 parser.add_argument('--models',type=Path,required=True)
 parser.add_argument('--output',type=Path,required=True)
 parser.add_argument('--preview-only',action='store_true')
-a=parser.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+add_renderer_argument(parser)
+a = parser.parse_args()
+use_tex = resolve_renderer(a.renderer)
+a.output.mkdir(parents=True, exist_ok=True)
 paths=sorted(a.frames.glob('frame-*.npz'))
 checks=json.loads((a.frames/'frames.json').read_text())
 torch.set_num_threads(1)
@@ -48,7 +51,7 @@ def local_frame(interface):
 
 
 def setup(mode,kind):
-    plt.rcParams.update(figure_style(use_tex=True))
+    plt.rcParams.update(figure_style(use_tex=use_tex))
     plt.rcParams['axes.prop_cycle']=cycler(color=plt.colormaps['tab10'].colors)
     fig=plt.figure(figsize=(width,width*900/1280))
     neutral=plt.rcParams['text.color'];background=fig.get_facecolor()

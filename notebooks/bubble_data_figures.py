@@ -3,11 +3,11 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
-from figure_style import figure_style,WIDTH_MM,DPI
+from figure_style import figure_style,WIDTH_MM,DPI, add_renderer_argument, resolve_renderer
 from figure_utils import save_theme_variants
 from bubble_surrogate_tools import load_log
 COLORS=['#1f77b4','#ff7f0e','#2ca02c']
-def save_data_transforms(data, output, *, snapshot_dt=.15):
+def save_data_transforms(data, output, *, snapshot_dt=.15, use_tex=True):
     data,output=Path(data),Path(output);output.mkdir(parents=True,exist_ok=True)
     log=load_log(data/'log.solver');samples=[]
     for index in (1,10,90):
@@ -25,7 +25,7 @@ def save_data_transforms(data, output, *, snapshot_dt=.15):
         sel=order[np.linspace(0,len(order)-1,min(64,len(order))).astype(int)]
         samples.append(dict(t=t,center=center,speed=speed,raw=raw[sel],pos=pos[sel],vel=vel[sel],theta=theta[sel],radius=np.linalg.norm(pos[sel],axis=1),un=(vel*normal).sum(1)[sel],ut=(vel*tangent).sum(1)[sel]))
     def style():
-        plt.rcParams.update(figure_style());plt.rcParams['axes.prop_cycle']=cycler(color=COLORS)
+        plt.rcParams.update(figure_style(use_tex=use_tex));plt.rcParams['axes.prop_cycle']=cycler(color=COLORS)
     def cartesian():
         style();f,axes=plt.subplots(2,3,figsize=(WIDTH_MM['double']/25.4,140/25.4),layout='constrained')
         for j,s in enumerate(samples):
@@ -52,6 +52,8 @@ def save_data_transforms(data, output, *, snapshot_dt=.15):
     return samples
 if __name__=='__main__':
     import argparse
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--data',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--snapshot-dt',type=float,default=.15);a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--data',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--snapshot-dt',type=float,default=.15)
+    add_renderer_argument(p, default="auto")
+    a = p.parse_args()
     if a.output.exists():raise FileExistsError('Use an initially empty output directory')
-    save_data_transforms(a.data,a.output,snapshot_dt=a.snapshot_dt)
+    save_data_transforms(a.data,a.output,snapshot_dt=a.snapshot_dt, use_tex=resolve_renderer(a.renderer))

@@ -127,12 +127,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path,
                         default=Path(__file__).resolve().parents[1]/'notebooks/media')
-    parser.add_argument('--no-tex', action='store_true')
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     parser.add_argument('--no-tex-reason')
     args = parser.parse_args()
+    use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
     if args.no_tex and not args.no_tex_reason:
         parser.error('--no-tex requires --no-tex-reason')
-    svg.USE_TEX = not args.no_tex
+    svg.USE_TEX = use_tex
     svg.glyphs.cache_clear()
     mpl.rcParams.update(svg.figure_style(use_tex=svg.USE_TEX))
     mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=svg.PALETTE)

@@ -10,7 +10,7 @@ from figure_style import WIDTH_MM, DPI, figure_style
 from figure_utils import save_theme_variants
 
 
-def save_diagnostics(models, histories, times, interface, stem):
+def save_diagnostics(models, histories, times, interface, stem, *, use_tex=True):
     sample = interface[interface.snapshot == 5]
     angle = np.linspace(0, np.pi, 201)
     time = np.linspace(0, times.t.max(), 301)
@@ -21,7 +21,7 @@ def save_diagnostics(models, histories, times, interface, stem):
         ut = models["ut"](features).numpy().ravel()
 
     def draw():
-        plt.rcParams.update(figure_style(use_tex=True))
+        plt.rcParams.update(figure_style(use_tex=use_tex))
         plt.rcParams["axes.prop_cycle"] = cycler(color=plt.colormaps["tab10"].colors)
         fig, axes = plt.subplots(2, 2, figsize=(WIDTH_MM["double"]/25.4, 135/25.4))
         ax = axes[0, 0]

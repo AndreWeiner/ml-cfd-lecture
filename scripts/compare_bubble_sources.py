@@ -9,17 +9,20 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'notebooks'))
-from figure_style import figure_style,WIDTH_MM,DPI
+from figure_style import figure_style,WIDTH_MM,DPI, add_renderer_argument, resolve_renderer
 from figure_utils import save_theme_variants
 
 def read(relative):
     with (ROOT/relative).open() as f:return list(csv.DictReader(f))
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True)
+    add_renderer_argument(p)
+    args = p.parse_args()
+    use_tex = resolve_renderer(args.renderer)
     args.output.mkdir(parents=True,exist_ok=True)
     sets=[read('datasets/path_shape_regimes/tripathi2015_digitization/points.csv'),read('datasets/path_shape_regimes/sharaf2017_digitization/points.csv')]
     palette=plt.colormaps['tab10'].colors
-    style={**figure_style(),'axes.prop_cycle':cycler(color=palette)}
+    style={**figure_style(use_tex=use_tex),'axes.prop_cycle':cycler(color=palette)}
     # Real SVG export verifies the TeX renderer before the paired exports.
     with plt.rc_context(style):
         f,a=plt.subplots();a.set_xlabel(r'$Ga$');a.set_ylabel(r'$Eo$');f.savefig(args.output/'tex-smoke.svg');plt.close(f)

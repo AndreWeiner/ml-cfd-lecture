@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import qmc
-from figure_style import figure_style, WIDTH_MM, DPI
+from figure_style import figure_style, WIDTH_MM, DPI, add_renderer_argument, resolve_renderer
 
 
 def sampling_designs():
@@ -34,11 +34,11 @@ def draw_design(points, method, *, use_tex=True):
         return fig
 
 
-def draw_lhs_process():
+def draw_lhs_process(*, use_tex=True):
     # Four samples keep the pairing legible at the course's double-column width.
     values = np.array([[0.10, 0.34, 0.69, 0.88], [0.18, 0.42, 0.57, 0.94]])
     permutation = np.array([2, 0, 3, 1])
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, axes = plt.subplots(1, 3, figsize=(WIDTH_MM['double']/25.4, 3.0), layout='constrained')
         for stage, ax in enumerate(axes[:2]):
             for j, y in enumerate([0.7, 0.25]):
@@ -68,10 +68,10 @@ def draw_lhs_process():
         return fig
 
 
-def draw_sobol_process():
+def draw_sobol_process(*, use_tex=True):
     points=qmc.Sobol(d=2,scramble=False).random_base2(4)
     assert np.allclose(points[2],[0.75,0.25])
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig=plt.figure(figsize=(WIDTH_MM['double']/25.4,3.0),layout='constrained')
         layout=fig.add_gridspec(1,3)
         for i,n in enumerate([4,8,16]):
@@ -89,12 +89,12 @@ def draw_sobol_process():
         return fig
 
 
-def draw_aliasing():
+def draw_aliasing(*, use_tex=True):
     n = 11
     regular = np.linspace(0, 20.2*np.pi, n)
     lhs = qmc.LatinHypercube(d=1, rng=np.random.default_rng(51)).random(n).ravel()*20.2*np.pi
     x = np.linspace(0, 20.2*np.pi, 2400)
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, axes = plt.subplots(2, 1, figsize=(WIDTH_MM['double']/25.4, 4.7), layout='constrained', sharex=True, sharey=True)
         for ax, sample, title in zip(axes, [regular, lhs], ['Regular grid: samples suggest a slowly increasing trend', 'Randomized LHS: samples reveal variation']):
             ax.plot(x/np.pi, np.sin(x), color='C0', alpha=0.65, linewidth=1.2, label=r'True function $y=\sin(x)$')
@@ -107,9 +107,9 @@ def draw_aliasing():
         return fig
 
 
-def draw_sigmoid():
+def draw_sigmoid(*, use_tex=True):
     z=np.linspace(-8,8,500)
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig,ax=plt.subplots(figsize=(WIDTH_MM['double']/25.4,3.1),layout='constrained')
         ax.plot(z,1/(1+np.exp(-z)),color='C0',label=r'$\sigma(z)=1/(1+\exp(-z))$')
         for bound in [0,1]:
@@ -120,9 +120,9 @@ def draw_sigmoid():
         return fig
 
 
-def draw_mlp():
+def draw_mlp(*, use_tex=True):
     from matplotlib.patches import Circle
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig,ax=plt.subplots(figsize=(WIDTH_MM['double']/25.4,3.6),layout='constrained')
         columns=[np.array([[x,y] for y in np.linspace(-0.8,0.8,n)]) for x,n in [(0,3),(1.5,4),(3,4),(4.5,2)]]
         for left,right in zip(columns[:-1],columns[1:]):
@@ -157,10 +157,10 @@ def error_visualization_data():
     return features,target,error,outcomes
 
 
-def draw_error_visualization(kind):
+def draw_error_visualization(kind, *, use_tex=True):
     from scipy.stats import binned_statistic_2d
     features,target,error,outcomes=error_visualization_data()
-    with plt.rc_context(figure_style()):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         # Compress the fixed-aspect heat-map axes and colorbar as a centered group.
         fig,ax=plt.subplots(figsize=(WIDTH_MM['double']/25.4,3.8),
                             layout='compressed' if kind == 'map' else 'constrained')
@@ -197,6 +197,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--design', choices=['grid', 'random', 'lhs', 'sobol', 'aliasing', 'sigmoid', 'mlp', 'errors-box', 'errors-residual', 'errors-hist', 'errors-map'])
     parser.add_argument('--theme', choices=['light', 'dark'])
+    add_renderer_argument(parser)
     args = parser.parse_args()
     designs = sampling_designs()
     lhs_bins = np.floor(16 * designs['lhs']).astype(int)
@@ -206,8 +207,9 @@ if __name__ == '__main__':
         for method in [*designs, 'aliasing', 'sigmoid', 'mlp', 'errors-box', 'errors-residual', 'errors-hist', 'errors-map']:
             for mode in ('light', 'dark'):
                 subprocess.run([sys.executable, __file__, '--design', method,
-                                '--theme', mode], check=True)
+                                '--theme', mode, '--renderer', args.renderer], check=True)
     else:
+        use_tex = resolve_renderer(args.renderer)
         points = designs.get(args.design)
         if points is not None:
             assert points.shape == (16, 2) and np.all((points >= 0) & (points <= 1))
@@ -216,13 +218,13 @@ if __name__ == '__main__':
             styles += ['dark_background', {'figure.facecolor': '#111111',
                                            'axes.facecolor': '#111111'}]
         with plt.style.context(styles):
-            fig = (draw_error_visualization(args.design.removeprefix('errors-')) if args.design.startswith('errors-') else
-                   draw_mlp() if args.design == 'mlp' else
-                   draw_sigmoid() if args.design == 'sigmoid' else
-                   draw_aliasing() if args.design == 'aliasing' else
-                   draw_lhs_process() if args.design == 'lhs' else
-                   draw_sobol_process() if args.design == 'sobol' else
-                   draw_design(points, args.design))
+            fig = (draw_error_visualization(args.design.removeprefix('errors-'), use_tex=use_tex) if args.design.startswith('errors-') else
+                   draw_mlp(use_tex=use_tex) if args.design == 'mlp' else
+                   draw_sigmoid(use_tex=use_tex) if args.design == 'sigmoid' else
+                   draw_aliasing(use_tex=use_tex) if args.design == 'aliasing' else
+                   draw_lhs_process(use_tex=use_tex) if args.design == 'lhs' else
+                   draw_sobol_process(use_tex=use_tex) if args.design == 'sobol' else
+                   draw_design(points, args.design, use_tex=use_tex))
             output = Path(__file__).parent / 'media'
             output.mkdir(parents=True, exist_ok=True)
             fig.savefig(output / f'doe-{args.design}-{args.theme}.png', dpi=DPI,

@@ -318,12 +318,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path,
                         default=Path(__file__).resolve().parents[1]/'notebooks/media')
-    parser.add_argument('--no-tex', action='store_true')
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     parser.add_argument('--no-tex-reason', help='Required record for explicit non-LaTeX export.')
     args = parser.parse_args()
+    use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
     if args.no_tex and not args.no_tex_reason:
         parser.error('--no-tex requires --no-tex-reason; no silent rendering fallback is permitted.')
-    USE_TEX = not args.no_tex
+    USE_TEX = use_tex
     mpl.rcParams.update(figure_style(use_tex=USE_TEX))
     mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=PALETTE)
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -339,7 +341,7 @@ def main():
     save(args.output_dir, 'bubble-experimental-methods', body, height,
          'Conceptual high-speed imaging, PIV, LIF and X-ray tomography apparatus and observables; no measured data.')
     print(f'Wrote four paired SVGs to {args.output_dir}; renderer: ' +
-          ('LaTeX glyph outlines' if USE_TEX else f'explicit Matplotlib text paths ({args.no_tex_reason})'))
+          ('LaTeX glyph outlines' if USE_TEX else f'MathText ({args.no_tex_reason or args.renderer})'))
 
 
 if __name__ == '__main__':

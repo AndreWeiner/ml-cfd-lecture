@@ -47,6 +47,7 @@
 from os import makedirs
 from os.path import join
 import matplotlib.pyplot as plt
+from figure_style import resolve_renderer
 import torch as pt
 import numpy as np
 import gpytorch
@@ -57,8 +58,10 @@ pt.manual_seed(0)
 
 # plot resolution and rendering
 plt.rcParams["figure.dpi"] = 160
-plt.rcParams["text.usetex"] = True
+PLOT_RENDERER = "auto"
 plt.rcParams["text.latex.preamble"] = r"\usepackage{{amsmath}}"
+use_tex = resolve_renderer(PLOT_RENDERER)
+plt.rcParams["text.usetex"] = use_tex
 plt.style.use("dark_background")
 
 # create output directory
@@ -197,13 +200,13 @@ xx1, xx2 = pt.meshgrid(x_plot, x_plot, indexing="ij")
 # %%
 fig, axarr = plt.subplots(1, 4, figsize=(7, 2.5), sharex=True, sharey=True)
 
-axarr[0].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1 &\hspace{-0.2cm} 0 \\ 0 &\hspace{-0.2cm} 1  \end{bmatrix}$", fontsize=6, pad=10)
+axarr[0].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1 &\hspace{-0.2cm} 0 \\ 0 &\hspace{-0.2cm} 1  \end{bmatrix}$" if use_tex else "μ = [0, 0], Σ = [1, 0; 0, 1]", fontsize=6, pad=10)
 plot_mvg_pdf(axarr[0], [0.0, 0.0], [[1, 0.0], [0.0, 1]], xx1, xx2, 0.15)
-axarr[1].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 2 &\hspace{-0.2cm} 0 \\ 0 &\hspace{-0.2cm} 0.5  \end{bmatrix}$", fontsize=6, pad=10)
+axarr[1].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 2 &\hspace{-0.2cm} 0 \\ 0 &\hspace{-0.2cm} 0.5  \end{bmatrix}$" if use_tex else "μ = [0, 0], Σ = [2, 0; 0, 0.5]", fontsize=6, pad=10)
 plot_mvg_pdf(axarr[1], [0.0, 0.0], [[2, 0.0], [0.0, 0.5]], xx1, xx2, 0.15)
-axarr[2].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 1 \\ 1.5  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1 &\hspace{-0.3cm} -0.4 \\ -0.4 &\hspace{-0.3cm} 1  \end{bmatrix}$", fontsize=6, pad=10)
+axarr[2].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 1 \\ 1.5  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1 &\hspace{-0.3cm} -0.4 \\ -0.4 &\hspace{-0.3cm} 1  \end{bmatrix}$" if use_tex else "μ = [1, 1.5], Σ = [1, -0.4; -0.4, 1]", fontsize=6, pad=10)
 plot_mvg_pdf(axarr[2], [1, 1.5], [[1, -0.4], [-0.4, 1]], xx1, xx2, 0.15)
-axarr[3].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ -1  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 0.8 &\hspace{-0.2cm} 0.2 \\ 0.2 &\hspace{-0.2cm} 1  \end{bmatrix}$", fontsize=6, pad=10)
+axarr[3].set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ -1  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 0.8 &\hspace{-0.2cm} 0.2 \\ 0.2 &\hspace{-0.2cm} 1  \end{bmatrix}$" if use_tex else "μ = [0, -1], Σ = [0.8, 0.2; 0.2, 1]", fontsize=6, pad=10)
 plot_mvg_pdf(axarr[3], [0.0, -1], [[0.8, 0.2], [0.2, 1]], xx1, xx2, 0.15)
 
 for ax in axarr.flatten():
@@ -257,7 +260,7 @@ def posterior_distribution_2D(x_b, mu_a, mu_b, sigma_aa, sigma_ab, sigma_bb):
 # %%
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3), sharex=True)
 
-ax1.set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1.5 &\hspace{-0.2cm} 0.5 \\ 0.5 &\hspace{-0.2cm} 1  \end{bmatrix}$", fontsize=6, pad=10)
+ax1.set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1.5 &\hspace{-0.2cm} 0.5 \\ 0.5 &\hspace{-0.2cm} 1  \end{bmatrix}$" if use_tex else "μ = [0, 0], Σ = [1.5, 0.5; 0.5, 1]", fontsize=6, pad=10)
 mu = pt.tensor([0.0, 0.0])
 sigma = pt.tensor([[1.5, 0.5], [0.5, 1]])
 plot_mvg_pdf(ax1, mu.tolist(), sigma.tolist(), xx1, xx2, 0.15)
@@ -285,7 +288,7 @@ plt.savefig(join(output, "bivariate_gaussian.png"), dpi=320, bbox_inches="tight"
 # %%
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(6, 3), gridspec_kw={"width_ratios": [3, 1, 1]})
 
-ax1.set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1.5 &\hspace{-0.2cm} 0.5 \\ 0.5 &\hspace{-0.2cm} 1  \end{bmatrix}$", fontsize=6, pad=10)
+ax1.set_title(r"$\boldsymbol{\mu}=\begin{bmatrix} 0 \\ 0  \end{bmatrix}$, $\mathbf{\Sigma} = \begin{bmatrix} 1.5 &\hspace{-0.2cm} 0.5 \\ 0.5 &\hspace{-0.2cm} 1  \end{bmatrix}$" if use_tex else "μ = [0, 0], Σ = [1.5, 0.5; 0.5, 1]", fontsize=6, pad=10)
 mu = pt.tensor([0.0, 0.0])
 sigma = pt.tensor([[1.5, 0.5], [0.5, 1]])
 plot_mvg_pdf(ax1, mu.tolist(), sigma.tolist(), xx1, xx2, 0.15)

@@ -400,7 +400,7 @@ def save_learning_curve(output, results, *, use_tex=True):
     paths=save_theme_variants(draw,output/'learning-curve.svg',dpi=DPI)
     (output/'learning-curve.json').write_text(json.dumps(results,indent=2)+'\n')
     (output/'rendering.json').write_text(json.dumps({'use_tex':use_tex,
-        'renderer':'LaTeX' if use_tex else 'explicit MathText opt-out'},indent=2)+'\n')
+        'renderer':'LaTeX' if use_tex else 'MathText'},indent=2)+'\n')
     return paths
 
 

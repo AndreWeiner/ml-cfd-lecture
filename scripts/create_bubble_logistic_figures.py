@@ -266,14 +266,17 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=ROOT / "notebooks/media")
     parser.add_argument("--results", type=Path,
                         default=ROOT / "figures/bubble-classification/logistic-results.json")
-    parser.add_argument("--no-tex", action="store_true",
-                        help="Explicit MathText opt-out; record the reason when used.")
+    sys.path.insert(0, str(ROOT / "notebooks"))
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     parser.add_argument("--png", action="store_true", help="Also export 300-DPI PNG previews.")
     args = parser.parse_args()
+    use_tex = resolve_renderer(
+        "mathtext" if args.no_tex else args.renderer, preamble=r"\usepackage{amsmath}",
+    )
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    sys.path.insert(0, str(ROOT / "notebooks"))
     from figure_style import DPI, figure_style
     from figure_utils import save_theme_variants
     data = load_bubble_data()
@@ -287,7 +290,7 @@ def main():
     checks = numerical_checks(features, labels, fit)
     slices = coefficient_slice(features, labels)
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    with plt.rc_context(figure_style(use_tex=not args.no_tex)):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, ax = plt.subplots(figsize=(3, 1))
         ax.text(.01, .5, r"$\log(L)=\sum_i\log(q_i)$, $p=\sigma(\mathbf{w}^T\mathbf{x})$")
         ax.set_axis_off()
@@ -299,8 +302,8 @@ def main():
         smoke_path.unlink()
     for extension in (["svg", "png"] if args.png else ["svg"]):
         for stem, draw in [
-                ("bubble-logistic-landscapes", lambda: draw_landscapes(slices, use_tex=not args.no_tex)),
-                ("bubble-logistic-probabilities", lambda: draw_probabilities(features, labels, fit, use_tex=not args.no_tex))]:
+                ("bubble-logistic-landscapes", lambda: draw_landscapes(slices, use_tex=use_tex)),
+                ("bubble-logistic-probabilities", lambda: draw_probabilities(features, labels, fit, use_tex=use_tex))]:
             for path in save_theme_variants(draw, args.output_dir / f"{stem}.{extension}", dpi=DPI).values():
                 print(path)
     result = {
@@ -308,7 +311,7 @@ def main():
         "input_sha256": hashlib.sha256(DATA_FILE.read_bytes()).hexdigest(),
         "generator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "python": platform.python_version(), "numpy": np.__version__, "matplotlib": matplotlib.__version__,
-        "renderer": "MathText explicitly selected (--no-tex)" if args.no_tex else "LaTeX; SVG glyph outlines",
+        "renderer": "MathText" if not use_tex else "LaTeX; SVG glyph outlines",
         "training_rows": len(labels), "class_counts": {"I": 20, "III": 27},
         "point_ids": [identifier for identifier, keep in zip(data.point_ids, selected) if keep],
         "features": ["Ga", "Eo"], "feature_transform": "log10 then train-fitted min-max to [-1,1]",

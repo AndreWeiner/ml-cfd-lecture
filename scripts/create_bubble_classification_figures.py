@@ -439,19 +439,23 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir",type=Path,default=ROOT/"notebooks/media")
     parser.add_argument("--results",type=Path,default=ROOT/"figures/bubble-classification/results.json")
-    parser.add_argument("--no-tex",action="store_true",help="Explicit MathText opt-out; document why if used.")
+    sys.path.insert(0,str(ROOT/"notebooks"))
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     parser.add_argument("--png",action="store_true",help="Also export 300-DPI PNG previews.")
     args = parser.parse_args()
+    use_tex = resolve_renderer(
+        "mathtext" if args.no_tex else args.renderer, preamble=r"\usepackage{amsmath}",
+    )
     data,features,labels,result = run_example()
     # Plotting imports/configuration are deliberately deferred until CLI execution.
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    sys.path.insert(0,str(ROOT/"notebooks"))
     from figure_style import DPI, figure_style
     from figure_utils import save_theme_variants
     args.output_dir.mkdir(parents=True,exist_ok=True)
-    with plt.rc_context({**figure_style(use_tex=not args.no_tex),
+    with plt.rc_context({**figure_style(use_tex=use_tex),
                          "text.latex.preamble":r"\usepackage{amsmath}"}):
         fig,ax = plt.subplots(figsize=(3,1))
         ax.text(0.05,0.5,r"$\overset{\sim}{Ga},\ \log_{10}(Eo),\ L=\frac{1}{2}\sum_i(y_i-\hat y_i)^2$")
@@ -460,16 +464,16 @@ def main():
         plt.close(fig)
     (args.output_dir/".bubble-classification-renderer-check.svg").unlink()
     draws = {
-        "bubble-regime-linear":lambda:draw_linear(data,use_tex=not args.no_tex),
-        "bubble-feature-histograms":lambda:draw_histograms(result,use_tex=not args.no_tex),
-        "bubble-perceptron-results":lambda:draw_perceptron(features,labels,result,use_tex=not args.no_tex),
+        "bubble-regime-linear":lambda:draw_linear(data,use_tex=use_tex),
+        "bubble-feature-histograms":lambda:draw_histograms(result,use_tex=use_tex),
+        "bubble-perceptron-results":lambda:draw_perceptron(features,labels,result,use_tex=use_tex),
     }
     for stem,draw in draws.items():
         for extension in (["svg","png"] if args.png else ["svg"]):
             for path in save_theme_variants(draw,args.output_dir/f"{stem}.{extension}",dpi=DPI).values():
                 print(path)
     result["environment"]["matplotlib"] = matplotlib.__version__
-    result["rendering"] = {"use_tex":not args.no_tex, "width_mm":180,
+    result["rendering"] = {"use_tex":use_tex, "width_mm":180,
                            "height_mm":{"linear":130,"histograms":145,"perceptron":100}}
     args.results.parent.mkdir(parents=True,exist_ok=True)
     args.results.write_text(json.dumps(result,indent=2,allow_nan=False)+"\n")

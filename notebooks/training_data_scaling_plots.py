@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-from figure_style import figure_style
+from figure_style import add_renderer_argument, figure_style, resolve_renderer
 from figure_utils import save_theme_variants
 
 
@@ -12,14 +12,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('record', type=Path)
     parser.add_argument('--output', type=Path, default=Path(__file__).parent/'media')
+    add_renderer_argument(parser, default="auto")
     args = parser.parse_args()
+    use_tex = resolve_renderer(args.renderer)
     record = json.loads(args.record.read_text())
     counts = [len(ids) for ids in record['subsets']]
     values = np.array([[next(r['validation_rmse_m_s'] for r in record['runs']
                             if len(r['training_profiles']) == count and r['seed'] == seed)
                         for seed in record['seeds']] for count in counts])
     def draw():
-        with plt.rc_context({**figure_style(), 'axes.prop_cycle': plt.style.library['dark_background']['axes.prop_cycle']}):
+        with plt.rc_context({**figure_style(use_tex=use_tex), 'axes.prop_cycle': plt.style.library['dark_background']['axes.prop_cycle']}):
             fig, ax = plt.subplots(figsize=(180/25.4, 95/25.4), layout='constrained')
             mean = values.mean(1)
             ax.errorbar(counts, mean, yerr=np.stack([mean-values.min(1), values.max(1)-mean]),

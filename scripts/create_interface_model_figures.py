@@ -304,19 +304,20 @@ def smoke_test(output_dir, use_tex):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=Path("notebooks/media"))
-    parser.add_argument("--no-tex", action="store_true",
-                        help="Explicit opt-out; use MathText instead of LaTeX")
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     args = parser.parse_args()
+    use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="interface-renderer-") as smoke_dir:
-        smoke_test(Path(smoke_dir), not args.no_tex)
+        smoke_test(Path(smoke_dir), use_tex)
     geometry = vof_geometry()
-    for stem, draw in (("sharp-interface", lambda: draw_sharp(not args.no_tex)),
-                       ("vof-interface", lambda: draw_vof(geometry, not args.no_tex)),
-                       ("fitted-interface", lambda: draw_fitted(not args.no_tex))):
+    for stem, draw in (("sharp-interface", lambda: draw_sharp(use_tex)),
+                       ("vof-interface", lambda: draw_vof(geometry, use_tex)),
+                       ("fitted-interface", lambda: draw_fitted(use_tex))):
         for extension in ("svg", "pdf", "png"):
             save_theme_variants(draw, args.output_dir / f"{stem}.{extension}", dpi=DPI)
-    print(json.dumps({"renderer": "MathText (explicit --no-tex)" if args.no_tex
+    print(json.dumps({"renderer": "MathText" if not use_tex
                       else "LaTeX (text.usetex=True)",
                       "width_mm": WIDTH_MM["double"], "height_mm": HEIGHT_MM,
                       **geometry[-1]}, indent=2))

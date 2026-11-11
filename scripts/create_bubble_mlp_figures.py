@@ -326,24 +326,28 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=ROOT/"notebooks/media")
     parser.add_argument("--results", type=Path, default=ROOT/"figures/bubble-classification/mlp-results.json")
-    parser.add_argument("--no-tex", action="store_true", help="Explicit MathText opt-out; document reason if used.")
+    sys.path.insert(0, str(ROOT/"notebooks"))
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     args = parser.parse_args()
+    use_tex = resolve_renderer(
+        "mathtext" if args.no_tex else args.renderer, preamble=r"\usepackage{amsmath}",
+    )
     import matplotlib
     matplotlib.use("Agg")
-    sys.path.insert(0, str(ROOT/"notebooks"))
     from figure_utils import save_theme_variants
     args.output_dir.mkdir(parents=True, exist_ok=True)
     features, regimes, branches, alpha, results = run_example()
     # Representative equations exported first: no silent fallback on TeX failure.
     import matplotlib.pyplot as plt
-    configure(not args.no_tex)
+    configure(use_tex)
     smoke = plt.figure(figsize=(3, 1))
     smoke.text(.05, .5, r"$y_\theta(\mathbf{x})=\sigma(w_1^{(2)}h_1+w_2^{(2)}h_2+b),\quad \partial J/\partial b$")
     smoke.savefig(args.output_dir/"mlp-tex-smoke.svg"); plt.close(smoke)
-    for stem, draw in [("bubble-mlp-architecture", lambda: draw_architecture(use_tex=not args.no_tex)),
-                       ("bubble-mlp-probabilities", lambda: draw_probabilities(features, regimes, branches, alpha, use_tex=not args.no_tex))]:
+    for stem, draw in [("bubble-mlp-architecture", lambda: draw_architecture(use_tex=use_tex)),
+                       ("bubble-mlp-probabilities", lambda: draw_probabilities(features, regimes, branches, alpha, use_tex=use_tex))]:
         save_theme_variants(draw, args.output_dir/f"{stem}.svg", dpi=300)
-    results["rendering"] = {"text_usetex": not args.no_tex, "width_mm": 180,
+    results["rendering"] = {"text_usetex": use_tex, "width_mm": 180,
                              "height_mm": {"architecture": 155, "probabilities": 112},
                              "dense_field_dpi": 300, "placement_width_px": 620}
     args.results.parent.mkdir(parents=True, exist_ok=True)

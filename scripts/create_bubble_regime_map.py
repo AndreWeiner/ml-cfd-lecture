@@ -86,14 +86,15 @@ def draw(data, *, use_tex=True):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "notebooks" / "media")
-    parser.add_argument("--no-tex", action="store_true",
-                        help="Explicitly use MathText; document the reason when selecting this option.")
+    from figure_style import add_renderer_argument, resolve_renderer
+    add_renderer_argument(parser, legacy_no_tex=True)
     parser.add_argument("--png", action="store_true", help="Also export 300-DPI preview PNGs.")
     args = parser.parse_args()
+    use_tex = resolve_renderer("mathtext" if args.no_tex else args.renderer)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     data = load_data()
     # A real SVG export containing representative equations tests the full TeX path.
-    with plt.rc_context(figure_style(use_tex=not args.no_tex)):
+    with plt.rc_context(figure_style(use_tex=use_tex)):
         fig, ax = plt.subplots(figsize=(3, 1))
         ax.text(0.05, 0.5, r"$Ga=\rho_l\sqrt{gR^3}/\mu_l$, $Eo=\rho_l gR^2/\sigma$")
         ax.set_axis_off()
@@ -103,12 +104,12 @@ def main():
             plt.close(fig)
     (args.output_dir / ".regime-map-renderer-check.svg").unlink()
     for extension in (["svg", "png"] if args.png else ["svg"]):
-        paths = save_theme_variants(lambda: draw(data, use_tex=not args.no_tex),
+        paths = save_theme_variants(lambda: draw(data, use_tex=use_tex),
                                     args.output_dir / f"bubble-regime-map.{extension}", dpi=DPI)
         for path in paths.values():
             print(path)
     print(f"Plotted {sum(len(values) for values in data)} digitized points; "
-          f"renderer={'MathText (explicit --no-tex)' if args.no_tex else 'LaTeX'}.")
+          f"renderer={'MathText' if not use_tex else 'LaTeX'}.")
 
 
 if __name__ == "__main__":

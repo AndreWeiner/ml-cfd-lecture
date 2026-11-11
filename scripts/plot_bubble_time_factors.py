@@ -1,4 +1,5 @@
 """Generate lecture time-factor plots: python scripts/plot_bubble_time_factors.py OUTPUT."""
+import argparse
 import sys
 from pathlib import Path
 
@@ -8,9 +9,14 @@ from cycler import cycler
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "notebooks"))
-from figure_style import WIDTH_MM, figure_style
+from figure_style import WIDTH_MM, figure_style, add_renderer_argument, resolve_renderer
 
-output = Path(sys.argv[1])
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("output", type=Path)
+add_renderer_argument(parser)
+args = parser.parse_args()
+use_tex = resolve_renderer(args.renderer)
+output = args.output
 output.mkdir(parents=True, exist_ok=True)
 # The reference archive has snapshot indices 0 through 99, spaced by 0.15.
 T = 99 * 0.15
@@ -20,7 +26,7 @@ for theme, background, foreground in [
     ("dark", "#111111", "#eeeeee"),
 ]:
     with plt.rc_context({
-        **figure_style(),
+        **figure_style(use_tex=use_tex),
         "axes.prop_cycle": cycler(color=plt.get_cmap("tab10").colors),
         "figure.facecolor": background,
         "axes.facecolor": background,

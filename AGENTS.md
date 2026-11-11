@@ -79,8 +79,10 @@ the skill's guidance on scientific fidelity, exports, and visual inspection.
   equations and labels before producing the full set. An installed `latex`
   executable alone is insufficient verification.
 - Never silently fall back to MathText or plain text. If TeX is unavailable,
-  report the concrete failure and use only an explicit, documented option such
-  as `--no-tex` / `use_tex=False`, recording the reason. Do not install system
+  report the concrete failure. Official figure exports default to strict
+  `latex` mode. Local student runs can default to `auto`, which checks a real
+  render and warns with the reason before selecting MathText. `mathtext`
+  selects the built-in renderer explicitly. Do not install system
   packages or alter global fonts automatically. For native SVG text, document
   the renderer; render mathematical notation through LaTeX where supported.
 - Design at intended page placement size. Use shared named width presets;
