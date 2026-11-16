@@ -416,17 +416,46 @@ ul.task-list li input[type="checkbox"] {
 </li>
       </ul>
   </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">Analysis of coherent structures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./notebooks/coherent_structures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./notebooks/coherent_structures_exercise.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Practice</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./notebooks/coherent_structures_code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Complementary code</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
  <span class="menu-text">Optional material and worked examples</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./notebooks/python_intro.html" class="sidebar-item-text sidebar-link">
@@ -464,7 +493,6 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#lectures-and-exercises" id="toc-lectures-and-exercises" class="nav-link active" data-scroll-target="#lectures-and-exercises">Lectures and exercises</a></li>
-  <li><a href="#optional-material" id="toc-optional-material" class="nav-link" data-scroll-target="#optional-material">Optional material and worked examples</a></li>
   </ul>
 </nav>
     </div>
@@ -502,6 +530,7 @@ ul.task-list li input[type="checkbox"] {
 <th style="text-align: right;">Index</th>
 <th style="text-align: left;">Topic</th>
 <th style="text-align: left;">Lecture</th>
+<th style="text-align: left;">Code</th>
 <th style="text-align: left;">Exercise</th>
 <th style="text-align: left;">Slides</th>
 </tr>
@@ -513,11 +542,13 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;"><a href="./notebooks/lecture_00.html">Read</a></td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">Course overview and motivation</td>
 <td style="text-align: left;"><a href="./notebooks/ml_cfd_intro.html">Read</a></td>
+<td style="text-align: left;"><a href="./notebooks/python_intro.html">Code</a></td>
 <td style="text-align: left;"><a href="./notebooks/system_setup.html">Exercises</a></td>
 <td style="text-align: left;"><a href="https://andreweiner.github.io/ml-cfd-slides/ml_cfd_intro.html">Slides</a></td>
 </tr>
@@ -525,6 +556,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">Introduction to machine learning</td>
 <td style="text-align: left;"><a href="./notebooks/ml_intro.html">Read</a></td>
+<td style="text-align: left;"><a href="./notebooks/neural_network_training.html">Code</a></td>
 <td style="text-align: left;"><a href="./notebooks/ml_intro_exercise.html">Exercises</a></td>
 <td style="text-align: left;"><a href="https://andreweiner.github.io/ml-cfd-slides/ml_intro.html">Slides</a></td>
 </tr>
@@ -532,6 +564,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">Surrogate models for discrete predictions</td>
 <td style="text-align: left;"><a href="./notebooks/bubble_path_classification.html">Read</a></td>
+<td style="text-align: left;"><a href="./notebooks/bubble_path_classification_code.html">Code</a></td>
 <td style="text-align: left;"><a href="./notebooks/bubble_path_classification_exercise.html">Exercises</a></td>
 <td style="text-align: left;"><a href="https://andreweiner.github.io/ml-cfd-slides/bubble_path_classification.html">Slides</a></td>
 </tr>
@@ -539,19 +572,22 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">Surrogate models for continuous predictions</td>
 <td style="text-align: left;"><a href="./notebooks/mass_transfer_regression.html">Read</a></td>
+<td style="text-align: left;"><a href="./notebooks/mass_transfer_regression_code.html">Code</a></td>
 <td style="text-align: left;"><a href="./notebooks/mass_transfer_regression_exercise.html">Exercises</a></td>
 <td style="text-align: left;"><a href="https://andreweiner.github.io/ml-cfd-slides/mass_transfer_regression.html">Slides</a></td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">5</td>
 <td style="text-align: left;">Analysis of coherent structures</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;"><a href="./notebooks/coherent_structures.html">Read</a></td>
+<td style="text-align: left;"><a href="./notebooks/coherent_structures_code.html">Code</a></td>
+<td style="text-align: left;"><a href="./notebooks/coherent_structures_exercise.html">Exercises</a></td>
+<td style="text-align: left;"><a href="https://andreweiner.github.io/ml-cfd-slides/coherent_structures.html">Slides</a></td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">6</td>
 <td style="text-align: left;">Reduced-order modeling</td>
+<td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -562,43 +598,23 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">Data assimilation</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
 <td style="text-align: right;">9</td>
 <td style="text-align: left;">Active flow control</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="optional-material" class="level2">
-<h2 class="anchored" data-anchor-id="optional-material">Optional material and worked examples</h2>
-<p>Use the background material to refresh your Python skills. The worked examples complement the lectures by showing how to implement and run the methods.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Material</th>
-<th>Notebook</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Getting started with Python</td>
-<td><a href="./notebooks/python_intro.html">Read</a></td>
-</tr>
-<tr class="even">
-<td>Training neural networks</td>
-<td><a href="./notebooks/neural_network_training.html">Read</a></td>
-</tr>
-<tr class="odd">
-<td>Bubble regime classification from digitized observations</td>
-<td><a href="./notebooks/bubble_path_classification_code.html">Worked example</a></td>
-</tr>
-<tr class="even">
-<td>Bubble surrogate modeling with Basilisk, PyTorch, and OpenFOAM</td>
-<td><a href="./notebooks/mass_transfer_regression_code.html">Worked example</a></td>
+<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>

@@ -16,7 +16,18 @@ project:
   - notebooks/mass_transfer_regression_exercise.py
   - notebooks/python_intro.py
   - notebooks/neural_network_training.py
+  - notebooks/coherent_structures.qmd
+  - notebooks/coherent_structures_code.py
+  - notebooks/coherent_structures_exercise.py
   resources:
+  - notebooks/media/coherent-*.svg
+  - notebooks/media/coherent-piv-*.mp4
+  - notebooks/media/coherent-piv-*.png
+  - notebooks/coherent_structures_figures.py
+  - notebooks/coherent_structures_code.py
+  - notebooks/coherent_structures_exercise.py
+  - notebooks/cylinder_piv_data.py
+  - notebooks/jaxa_upsp_data.py
   - notebooks/media/bubble-time-factors-*.svg
   - notebooks/media/pytorch-to-cpp-*.svg
   - notebooks/bubble_data_figures.py
@@ -150,6 +161,15 @@ website:
         - href: notebooks/mass_transfer_regression_exercise.py
           text: Practice
         - href: notebooks/mass_transfer_regression_code.py
+          text: Complementary code
+
+      - section: Analysis of coherent structures
+        contents:
+        - href: notebooks/coherent_structures.qmd
+          text: Lecture
+        - href: notebooks/coherent_structures_exercise.py
+          text: Practice
+        - href: notebooks/coherent_structures_code.py
           text: Complementary code
 
     - section: Optional material and worked examples

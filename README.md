@@ -18,9 +18,10 @@ This course previously received funding from the [Foundation for Innovation in H
 | 2 | Introduction to machine learning | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_intro.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/neural_network_training.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/ml_intro_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/ml_intro.html) |
 | 3 | Surrogate models for discrete predictions | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification_code.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/bubble_path_classification_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/bubble_path_classification.html) |
 | 4 | Surrogate models for continuous predictions | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression_code.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/mass_transfer_regression_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/mass_transfer_regression.html) |
-| 5 | Analysis of coherent structures | — | — | — | — |
+| 5 | Analysis of coherent structures | [Read](https://andreweiner.github.io/ml-cfd-lecture/notebooks/coherent_structures.html) | [Code](https://andreweiner.github.io/ml-cfd-lecture/notebooks/coherent_structures_code.html) | [Exercises](https://andreweiner.github.io/ml-cfd-lecture/notebooks/coherent_structures_exercise.html) | [Slides](https://andreweiner.github.io/ml-cfd-slides/coherent_structures.html) |
 | 6 | Reduced-order modeling | — | — | — | — |
 | 7 | Bayesian optimization and exploration | — | — | — | — |
+| 8 | Data assimilation | — | — | — | — |
 | 9 | Active flow control | — | — | — | — |
 
 Later lecture and exercise materials will be revised before they are linked.
